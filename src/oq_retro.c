@@ -132,6 +132,14 @@ static bool RETRO_CALLCONV env_cb(unsigned cmd, void *data)
             fprintf(logfp, "message: %s\n", msg->msg);
         return true;
     }
+    case RETRO_ENVIRONMENT_GET_MEMORY_STATUS: {
+        /* Aftershock: LibreQuake's larger maps want more than the core's
+         * 64 MB default hunk.  The core takes a quarter of what is reported
+         * as free, so this asks for 128 MB. */
+        struct retro_memory_status *ms = data;
+        ms->total = ms->free = (uint64_t)512 * 1024 * 1024;
+        return true;
+    }
     case RETRO_ENVIRONMENT_SET_GEOMETRY:
     case RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS:
     case RETRO_ENVIRONMENT_SET_CONTROLLER_INFO:

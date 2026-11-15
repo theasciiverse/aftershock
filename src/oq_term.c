@@ -101,6 +101,11 @@ void oq_term_present_at(const char *s, size_t len, int row, int col)
     write_all_n(out, o);
 }
 
+void oq_term_write_raw(const char *s, size_t len)
+{
+    write_all_n(s, len);
+}
+
 void oq_term_present(const char *s, size_t len)
 {
     static char *out;

@@ -23,7 +23,7 @@ static void usage(const char *argv0)
     fprintf(stderr,
         "usage: %s [options] [path to pak0.pak, or a directory holding id1/]\n"
         "\n"
-        "  --video=NAME     presentation backend: %s (default: chafa)\n"
+        "  --video=NAME     presentation backend: %s (default: half)\n"
         "  --symbols=SET    ascii | block | fine        (default: fine)\n"
         "  --color=DEPTH    mono | 16 | 256 | true      (default: true)\n"
         "  --demo           render a test pattern instead of the game\n"
@@ -436,6 +436,23 @@ static void fit_canvas(struct sink_ctx *ctx, int term_cols, int term_rows)
 
 static int64_t now_ns(void);
 
+/* Aftershock: saves and settings live in $XDG_STATE_HOME (or
+ * ~/.local/state); the core adds the game folder's name, so they land in
+ * .../aftershock.  An empty variable counts as unset. */
+static const char *av_state_dir(void)
+{
+    static char buf[1024];
+    const char *x = getenv("XDG_STATE_HOME"), *home = getenv("HOME");
+
+    if (x && *x)
+        snprintf(buf, sizeof(buf), "%s", x);
+    else if (home && *home)
+        snprintf(buf, sizeof(buf), "%s/.local/state", home);
+    else
+        snprintf(buf, sizeof(buf), ".");
+    return buf;
+}
+
 /* Presenting is far more expensive than simulating. Throttling presentation
  * rather than the whole loop keeps retro_run at the engine's own rate, which
  * is what the audio stream is generated from -- pace the loop instead and the
@@ -544,7 +561,14 @@ static int run_game(const oq_present_backend *be, oq_present_config *cfg,
      * making chafa upscale detail that was never rendered. Raising the engine
      * resolution turns out to be nearly free -- 1920x1200 still holds the
      * 60fps target -- because presentation happens on another thread. */
-    if (!strcmp(res, "auto")) {
+    if (!strcmp(res, "auto") && be == &av_backend_half) {
+        int tc, tr, w, h;
+
+        oq_term_size(&tc, &tr);
+        av_half_resolution(tc, tr, &w, &h);
+        snprintf(resbuf, sizeof(resbuf), "%dx%d", w, h);
+        res = resbuf;
+    } else if (!strcmp(res, "auto")) {
         int tc, tr, w, h;
 
         oq_term_size(&tc, &tr);
@@ -562,7 +586,7 @@ static int run_game(const oq_present_backend *be, oq_present_config *cfg,
     rc.resolution = res;
     rc.framerate = "auto";
     rc.samplerate = "auto";
-    rc.save_dir = ".";
+    rc.save_dir = av_state_dir();
     rc.log_path = logpath;
     rc.sound = sound;
     rc.sound = sound;
@@ -635,23 +659,20 @@ static int resolve_pak(const char *game, char *pak, size_t pakcap)
         return 0;
 
     if (game)
-        fprintf(stderr, "omaquake: no pak0.pak at '%s'\n", game);
+        fprintf(stderr, "aftershock: no game data at '%s'\n", game);
     else
-        fprintf(stderr, "omaquake: could not find pak0.pak\n");
+        fprintf(stderr, "aftershock: could not find the game data\n");
     if (tried[0])
         fprintf(stderr, "looked in:\n%s", tried);
     fprintf(stderr,
-        "\nThe pak must sit in a directory named id1 -- the engine\n"
-        "locates the rest of the game relative to it.\n"
-        "Put it at ./id1/pak0.pak, or ~/.local/share/omaquake/id1/,\n"
-        "or pass a path, or set OMAQUAKE_PAK.\n"
-        "The shareware data is freely redistributable: see README.md\n");
+        "\nA data folder holds aftershock/pak0.pak and LibreQuake in id1/.\n"
+        "In a checkout: sh tools/fetch-librequake.sh && sh tools/build-data.sh\n");
     return -1;
 }
 
 int main(int argc, char **argv)
 {
-    const char *video = "chafa";
+    const char *video = "half";
     const char *game = NULL;
     const char *res = "auto";
     const char *logpath = NULL;

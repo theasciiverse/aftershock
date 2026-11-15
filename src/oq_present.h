@@ -52,8 +52,12 @@ typedef struct oq_present_backend {
     void (*frame)(const uint8_t *src, int w, int h, int stride);
 } oq_present_backend;
 
+extern const oq_present_backend av_backend_half;
 extern const oq_present_backend oq_backend_chafa;
 extern const oq_present_backend oq_backend_caca;
+
+/* Engine resolution matching a half-block grid of cols x rows cells. */
+void av_half_resolution(int cols, int rows, int *w, int *h);
 
 /* NULL if no backend by that name was compiled in. */
 const oq_present_backend *oq_present_lookup(const char *name);

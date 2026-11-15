@@ -2,6 +2,7 @@
 #include <string.h>
 
 static const oq_present_backend *const backends[] = {
+    &av_backend_half,
 #ifdef OQ_HAVE_CHAFA
     &oq_backend_chafa,
 #endif

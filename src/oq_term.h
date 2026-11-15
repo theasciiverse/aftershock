@@ -22,6 +22,10 @@ void oq_term_present(const char *s, size_t len);
  * terminal. */
 void oq_term_present_at(const char *s, size_t len, int row, int col);
 
+/* Write bytes exactly as given: for a backend that positions every cell
+ * itself (src/av_half.c).  Render thread only, like the two above. */
+void oq_term_write_raw(const char *s, size_t len);
+
 /* Clear the screen; call when the canvas geometry changes so no stale cells
  * survive around a newly shrunk canvas. */
 void oq_term_clear(void);
