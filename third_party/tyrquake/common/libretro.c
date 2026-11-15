@@ -1442,37 +1442,17 @@ bool retro_load_game(const struct retro_game_info *info)
       return false;
    }
 
-   /* Override some default binds with more modern ones if we are booting the 
-    * game for the first time. */
-   fill_pathname_join(cfg_file, g_save_dir, "config.cfg", sizeof(cfg_file));
-
-   if (!path_is_valid(cfg_file))
+   /* Aftershock: no first-boot bind overrides here; the game's own
+    * default.cfg sets a keyboard-first scheme.  Tests and tools can hand
+    * the console a command line through AFTERSHOCK_CMD (e.g. "map start"). */
+   (void)cfg_file;
    {
-       Cvar_Set("gamma", "0.95");
-       Cmd_ExecuteString("bind ' \"toggleconsole\"", src_command);
-       Cmd_ExecuteString("bind ~ \"toggleconsole\"", src_command);
-       Cmd_ExecuteString("bind ` \"toggleconsole\"", src_command);
-
-       Cmd_ExecuteString("bind f \"+moveup\"", src_command);
-       Cmd_ExecuteString("bind c \"+movedown\"", src_command);
-
-       Cmd_ExecuteString("bind a \"+moveleft\"", src_command);
-       Cmd_ExecuteString("bind d \"+moveright\"", src_command);
-       Cmd_ExecuteString("bind w \"+forward\"", src_command);
-       Cmd_ExecuteString("bind s \"+back\"", src_command);
-
-       Cmd_ExecuteString("bind e \"impulse 10\"", src_command);
-       Cmd_ExecuteString("bind q \"impulse 12\"", src_command);
+      const char *cmd = getenv("AFTERSHOCK_CMD");
+      if (cmd && *cmd)
+      {
+         Cbuf_AddText("%s\n", cmd);
+      }
    }
-
-   Cmd_ExecuteString("bind AUX1 \"+moveright\"", src_command);
-   Cmd_ExecuteString("bind AUX2 \"+moveleft\"", src_command);
-   Cmd_ExecuteString("bind AUX3 \"+back\"", src_command);
-   Cmd_ExecuteString("bind AUX4 \"+forward\"", src_command);
-   Cmd_ExecuteString("bind AUX5 \"+right\"", src_command);
-   Cmd_ExecuteString("bind AUX6 \"+left\"", src_command);
-   Cmd_ExecuteString("bind AUX7 \"+lookup\"", src_command);
-   Cmd_ExecuteString("bind AUX8 \"+lookdown\"", src_command);
 
    /* Stand up the renderer backend selected by the
     * 'tyrquake_renderer' core option.  Must run after
