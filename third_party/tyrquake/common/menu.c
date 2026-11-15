@@ -2547,21 +2547,22 @@ static const level_t levels[] = {
 
     {"lq_e2m2", "Dirge of the Depths"},	/* 16 */
     {"lq_e2m3", "The Restless Army"},
+    {"lq_e2m4", "Earth's Reclaiming"},
     {"lq_e2m5", "Meeting of The Parasites"},
 
-    {"lq_e3m1", "Rampant Reactor Rage"},	/* 19 */
+    {"lq_e3m1", "Rampant Reactor Rage"},	/* 20 */
     {"lq_e3m2", "Ghastly Greek Gorge"},
     {"lq_e3m3", "Deep Myst"},
     {"lq_e3m4", "Hounds of The Depths"},
     {"lq_e3m6", "Holy Bloated Hulk"},
 
-    {"lq_e4m1", "Desolation Station"},	/* 24 */
+    {"lq_e4m1", "Desolation Station"},	/* 25 */
     {"lq_e4m3", "Will of the Machine"},
     {"lq_e4m4", "Steel Forest"},
     {"lq_e4m5", "Copper Citadel"},
     {"lq_end", "The Last Gate"},
 
-    {"lqdm1", "Solstice"},	/* 29 */
+    {"lqdm1", "Solstice"},	/* 30 */
     {"lqdm2", "The Pit"},
     {"lqdm3", "Hyperborea"},
     {"lqdm4", "Psychofuge"},
@@ -2586,10 +2587,10 @@ static const episode_t episodes[] = {
     {"Episode Select", 0, 1},
     {"The Prequel", 1, 8},
     {"Episode One", 9, 7},
-    {"Episode Two", 16, 3},
-    {"Episode Three", 19, 5},
-    {"Episode Four", 24, 5},
-    {"Arenas", 29, 13}
+    {"Episode Two", 16, 4},
+    {"Episode Three", 20, 5},
+    {"Episode Four", 25, 5},
+    {"Arenas", 30, 13}
 };
 
 /* The mission-pack lists are not part of Aftershock. */

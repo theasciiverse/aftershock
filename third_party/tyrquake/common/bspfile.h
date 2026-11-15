@@ -165,6 +165,18 @@ typedef struct {
     uint32_t numfaces;	/* counting both sides */
 } bsp2_dnode_t;
 
+/* Aftershock: "BSP2" as written by today's compilers: float bounds. */
+#define BSP2FVERSION (('B') | ('S' << 8) | ('P' << 16) | ('2' << 24))
+
+typedef struct {
+    int32_t planenum;
+    int32_t children[2];
+    float mins[3];
+    float maxs[3];
+    uint32_t firstface;
+    uint32_t numfaces;
+} bsp2f_dnode_t;
+
 /*
  * Note that children are interpreted as unsigned values now, so that we can
  * handle > 32k clipnodes. Values > 0xFFF0 can be assumed to be CONTENTS
@@ -268,5 +280,15 @@ typedef struct {
 
     uint8_t ambient_level[NUM_AMBIENTS];
 } bsp2_dleaf_t;
+
+typedef struct {
+    int32_t contents;
+    int32_t visofs;
+    float mins[3];
+    float maxs[3];
+    uint32_t firstmarksurface;
+    uint32_t nummarksurfaces;
+    uint8_t ambient_level[NUM_AMBIENTS];
+} bsp2f_dleaf_t;
 
 #endif /* BSPFILE_H */

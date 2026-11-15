@@ -388,7 +388,8 @@ Mod_LoadAliasModel(const model_loader_t *loader, model_t *mod, void *buffer,
     * integer overflow on a hostile or corrupt .mdl file.
     * MAX_LBM_HEIGHT is also a sane width cap (textures don't
     * need to be wider than they're tall in this engine). */
-   if (pheader->skinwidth <= 0 || pheader->skinwidth > MAX_LBM_HEIGHT)
+   /* Aftershock: LibreQuake has 1024 and 4096 wide skins (boss, oldone). */
+   if (pheader->skinwidth <= 0 || pheader->skinwidth > 4096)
       Sys_Error("model %s has invalid skinwidth %d", mod->name,
             pheader->skinwidth);
 

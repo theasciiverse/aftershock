@@ -1965,6 +1965,138 @@ Mod_LoadLeafs_BSP2(lump_t *l)
    }
 }
 
+/* Aftershock: the BSP2 format as compilers write it today ("BSP2"), with
+ * float bounds in nodes and leafs.  The core only knew the older "2PSB"
+ * layout, under the BSP2 name.  LibreQuake's lq_e2m4 needs this. */
+static void Mod_LoadNodes_BSP2F(lump_t *l)
+{
+   int i, count;
+   mnode_t *out;
+   bsp2f_dnode_t *in = (bsp2f_dnode_t *)(mod_base + l->fileofs);
+
+   if (l->filelen % sizeof(*in))
+      SV_Error("%s: funny lump size in %s", __func__, loadmodel->name);
+
+   count = l->filelen / sizeof(*in);
+   Mod_BoundLoaderCount(count, 0, sizeof(*out), __func__, loadmodel->name);
+   out   = (mnode_t*)Hunk_Alloc(count * sizeof(*out));
+
+   loadmodel->nodes    = out;
+   loadmodel->numnodes = count;
+
+   for (i = 0; i < count; i++, in++, out++)
+   {
+      int j, p;
+
+      for (j = 0; j < 3; j++)
+      {
+         out->mins[j] = LittleFloat(in->mins[j]);
+         out->maxs[j] = LittleFloat(in->maxs[j]);
+      }
+
+      p = LittleLong(in->planenum);
+      /* Defensive: see Mod_LoadNodes_BSP29 above. */
+      if (p < 0 || p >= loadmodel->numplanes)
+         SV_Error("%s: bad node planenum %i (numplanes=%i) in %s",
+               __func__, p, loadmodel->numplanes, loadmodel->name);
+      out->plane = loadmodel->planes + p;
+
+      out->firstsurface = (uint32_t)LittleLong(in->firstface);
+      out->numsurfaces = (uint32_t)LittleLong(in->numfaces);
+      /* See Mod_LoadNodes_BSP29 above.  BSP2 widens these to
+       * uint32, so individually they can be up to 4G; the
+       * sum-overflow / past-end check still applies. */
+      if ((int)out->firstsurface > loadmodel->numsurfaces ||
+          (int)out->numsurfaces > loadmodel->numsurfaces - (int)out->firstsurface)
+         SV_Error("%s: bad node surface range (first=%u, num=%u; "
+                  "numsurfaces=%i) in %s",
+                  __func__, (unsigned)out->firstsurface,
+                  (unsigned)out->numsurfaces,
+                  loadmodel->numsurfaces, loadmodel->name);
+
+      for (j = 0; j < 2; j++)
+      {
+         p = LittleLong(in->children[j]);
+         if (p >= 0) {
+            if (p >= loadmodel->numnodes)
+               SV_Error("%s: bad node child index %i (numnodes=%i) in %s",
+                     __func__, p, loadmodel->numnodes, loadmodel->name);
+            out->children[j] = loadmodel->nodes + p;
+         } else {
+            int leafidx = -1 - p;
+            if (leafidx < 0 || leafidx >= loadmodel->numleafs)
+               SV_Error("%s: bad node leaf index %i (numleafs=%i) in %s",
+                     __func__, leafidx, loadmodel->numleafs,
+                     loadmodel->name);
+            out->children[j] = (mnode_t *)(loadmodel->leafs + leafidx);
+         }
+      }
+   }
+
+   Mod_SetParent(loadmodel->nodes, NULL);	/* sets nodes and leafs */
+}
+
+static void
+Mod_LoadLeafs_BSP2F(lump_t *l)
+{
+   bsp2f_dleaf_t *in;
+   mleaf_t *out;
+   int i, j, count, p;
+
+   in = (bsp2f_dleaf_t *)(mod_base + l->fileofs);
+   if (l->filelen % sizeof(*in))
+      SV_Error("%s: funny lump size in %s", __func__, loadmodel->name);
+   count = l->filelen / sizeof(*in);
+   /* See Mod_LoadLeafs_BSP29 above. */
+   if (count < 0 || count > MAX_MAP_LEAFS)
+      SV_Error("%s: bad leaf count %i (max %i) in %s", __func__,
+               count, MAX_MAP_LEAFS, loadmodel->name);
+   out = (mleaf_t*)Hunk_Alloc(count * sizeof(*out));
+
+   loadmodel->leafs = out;
+   loadmodel->numleafs = count;
+
+   for (i = 0; i < count; i++, in++, out++) {
+      for (j = 0; j < 3; j++) {
+         out->mins[j] = LittleFloat(in->mins[j]);
+         out->maxs[j] = LittleFloat(in->maxs[j]);
+      }
+
+      p = LittleLong(in->contents);
+      out->contents = p;
+
+      {
+         uint32_t fms = (uint32_t)LittleLong(in->firstmarksurface);
+         uint32_t nms = (uint32_t)LittleLong(in->nummarksurfaces);
+         /* See Mod_LoadLeafs_BSP29 above. */
+         if (fms > (uint32_t)loadmodel->nummarksurfaces ||
+             nms > (uint32_t)loadmodel->nummarksurfaces - fms)
+            SV_Error("%s: bad marksurface range (first=%u, num=%u; "
+                     "nummarksurfaces=%i) in %s",
+                     __func__, fms, nms, loadmodel->nummarksurfaces,
+                     loadmodel->name);
+         out->firstmarksurface = loadmodel->marksurfaces + fms;
+         out->nummarksurfaces = nms;
+      }
+
+      p = LittleLong(in->visofs);
+
+      if (p == -1)
+         out->compressed_vis = NULL;
+      else
+      {
+         if (p < 0 || p >= loadmodel->visdatasize)
+            SV_Error("%s: bad visofs %i (visdatasize=%i) in %s",
+                     __func__, p, loadmodel->visdatasize, loadmodel->name);
+         out->compressed_vis = loadmodel->visdata + p;
+      }
+      out->efrags = NULL;
+
+      for (j = 0; j < 4; j++)
+         out->ambient_sound_level[j] = in->ambient_level[j];
+   }
+}
+
 /*
 =================
 Mod_LoadClipnodes
@@ -2333,7 +2465,8 @@ static void Mod_LoadBrushModel(model_t *mod, void *buffer, unsigned long size)
       header->lumps[i].filelen = LittleLong(header->lumps[i].filelen);
    }
 
-   if (header->version != BSPVERSION && header->version != BSP2VERSION)
+   if (header->version != BSPVERSION && header->version != BSP2VERSION &&
+       header->version != BSP2FVERSION)
       SV_Error("%s: %s has wrong version number (%i should be %i or %i)",
             __func__, mod->name, header->version, BSPVERSION, BSP2VERSION);
 
@@ -2394,8 +2527,13 @@ static void Mod_LoadBrushModel(model_t *mod, void *buffer, unsigned long size)
       Mod_LoadNodes_BSP29(&header->lumps[LUMP_NODES]);
       Mod_LoadClipnodes_BSP29(&header->lumps[LUMP_CLIPNODES]);
    } else {
-      Mod_LoadLeafs_BSP2(&header->lumps[LUMP_LEAFS]);
-      Mod_LoadNodes_BSP2(&header->lumps[LUMP_NODES]);
+      if (header->version == BSP2FVERSION) {
+         Mod_LoadLeafs_BSP2F(&header->lumps[LUMP_LEAFS]);
+         Mod_LoadNodes_BSP2F(&header->lumps[LUMP_NODES]);
+      } else {
+         Mod_LoadLeafs_BSP2(&header->lumps[LUMP_LEAFS]);
+         Mod_LoadNodes_BSP2(&header->lumps[LUMP_NODES]);
+      }
       Mod_LoadClipnodes_BSP2(&header->lumps[LUMP_CLIPNODES]);
    }
    Mod_LoadEntities(&header->lumps[LUMP_ENTITIES]);
