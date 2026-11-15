@@ -19,6 +19,9 @@ gore	Satan's Smelly Spawn	The Smelly Spawn
 gore	Corpse army	The Restless Army
 gore	Holy Bloated Corpse	Holy Bloated Hulk
 gore	Damnation Station	Desolation Station
+gore	Lucifer's Gambit	The Gambit
+gore	Torture Pit	The Pit
+gore	Death Provides No Return	No Return
 # the pentagram item gets a name of our own
 Lucifier's Protection is fading...	The Aegis is fading...
 Lucifier's Protection	the Aegis

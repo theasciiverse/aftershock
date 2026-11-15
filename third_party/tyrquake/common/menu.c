@@ -2209,46 +2209,47 @@ static int msgNumber;
 static int m_quit_prevstate;
 static qboolean wasInMenus;
 
+/* Aftershock: our own quit prompts, for all ages. */
 static const char *const quitMessage[] = {
-    "  Are you gonna quit    ",
-    "  this game just like   ",
-    "   everything else?     ",
+    "  The ground is still   ",
+    "  shaking. Leave now?   ",
     "                        ",
+    "  Y to quit, N to stay  ",
 
-    " Milord, methinks that  ",
-    "   thou art a lowly     ",
-    " quitter. Is this true? ",
+    "   The cultists will    ",
+    "     wait for you.      ",
+    "     Quit for now?      ",
+    "  Y to quit, N to stay  ",
+
+    " Your torch is lit and  ",
+    " the gate stands open.  ",
+    "     Leave anyway?      ",
+    "  Y to quit, N to stay  ",
+
+    "  The hounds have gone  ",
+    "   quiet. A good time   ",
+    "        to rest?        ",
+    "  Y to quit, N to stay  ",
+
+    "  The runes will keep.  ",
+    "    Come back soon.     ",
     "                        ",
+    "  Y to quit, N to stay  ",
 
-    " Do I need to bust your ",
-    "  face open for trying  ",
-    "        to quit?        ",
+    "    Somewhere a door    ",
+    "      creaks open.      ",
+    "     Quit the game?     ",
+    "  Y to quit, N to stay  ",
+
+    "    The deep places     ",
+    "      are patient.      ",
+    "     Leave for now?     ",
+    "  Y to quit, N to stay  ",
+
+    "    Done for today?     ",
     "                        ",
-
-    " Man, I oughta smack you",
-    "   for trying to quit!  ",
-    "     Press Y to get     ",
-    "      smacked out.      ",
-
-    " Press Y to quit like a ",
-    "   big loser in life.   ",
-    "  Press N to stay proud ",
-    "    and successful!     ",
-
-    "   If you press Y to    ",
-    "  quit, I will summon   ",
-    "  Satan all over your   ",
-    "      hard drive!       ",
-
-    "  Um, Asmodeus dislikes ",
-    " his children trying to ",
-    " quit. Press Y to return",
-    "   to your Tinkertoys.  ",
-
-    "  If you quit now, I'll ",
-    "  throw a blanket-party ",
-    "   for you next time!   ",
-    "                        "
+    "                        ",
+    "  Y to quit, N to stay  "
 };
 
 
@@ -2523,101 +2524,56 @@ typedef struct {
     const char *const description;
 } level_t;
 
-/* FIXME - make this dynamic? get strings from bsps, scanning map dirs? */
+/* Aftershock: LibreQuake's maps that load and play, with their own names. */
 static const level_t levels[] = {
-    {"start", "Entrance"},	/* 0 */
+    {"start", "Episode Select"},	/* 0 */
 
-    {"e1m1", "Slipgate Complex"},	/* 1 */
-    {"e1m2", "Castle of the Damned"},
-    {"e1m3", "The Necropolis"},
-    {"e1m4", "The Grisly Grotto"},
-    {"e1m5", "Gloom Keep"},
-    {"e1m6", "The Door To Chthon"},
-    {"e1m7", "The House of Chthon"},
-    {"e1m8", "Ziggurat Vertigo"},
+    {"lq_e0m1", "Baseless Base Banter"},	/* 1 */
+    {"lq_e0m2", "Cruel Cave Conundrum"},
+    {"lq_e0m3", "Mountainous Mining Menace"},
+    {"lq_e0m4", "Feint-free Funtime"},
+    {"lq_e0m5", "Adequate Aquatic Adventure"},
+    {"lq_e0m6", "Great Greek Grinder"},
+    {"lq_e0m7", "Beyond Baneful Boundaries"},
+    {"lq_e0m8", "The Smelly Spawn"},
 
-    {"e2m1", "The Installation"},	/* 9 */
-    {"e2m2", "Ogre Citadel"},
-    {"e2m3", "Crypt of Decay"},
-    {"e2m4", "The Ebon Fortress"},
-    {"e2m5", "The Wizard's Manse"},
-    {"e2m6", "The Dismal Oubliette"},
-    {"e2m7", "Underearth"},
+    {"lq_e1m1", "Rats Behind Bars"},	/* 9 */
+    {"lq_e1m2", "The Feudal Anomaly"},
+    {"lq_e1m3", "Rogue's Passage"},
+    {"lq_e1m4", "Dismal Shores"},
+    {"lq_e1m5", "Gloomliths"},
+    {"lq_e1m7", "Raging Core"},
+    {"lq_e1m8", "That's my Ex, Calibur!"},
 
-    {"e3m1", "Termination Central"},	/* 16 */
-    {"e3m2", "The Vaults of Zin"},
-    {"e3m3", "The Tomb of Terror"},
-    {"e3m4", "Satan's Dark Delight"},
-    {"e3m5", "Wind Tunnels"},
-    {"e3m6", "Chambers of Torment"},
-    {"e3m7", "The Haunted Halls"},
+    {"lq_e2m2", "Dirge of the Depths"},	/* 16 */
+    {"lq_e2m3", "The Restless Army"},
+    {"lq_e2m5", "Meeting of The Parasites"},
 
-    {"e4m1", "The Sewage System"},	/* 23 */
-    {"e4m2", "The Tower of Despair"},
-    {"e4m3", "The Elder God Shrine"},
-    {"e4m4", "The Palace of Hate"},
-    {"e4m5", "Hell's Atrium"},
-    {"e4m6", "The Pain Maze"},
-    {"e4m7", "Azure Agony"},
-    {"e4m8", "The Nameless City"},
+    {"lq_e3m1", "Rampant Reactor Rage"},	/* 19 */
+    {"lq_e3m2", "Ghastly Greek Gorge"},
+    {"lq_e3m3", "Deep Myst"},
+    {"lq_e3m4", "Hounds of The Depths"},
+    {"lq_e3m6", "Holy Bloated Hulk"},
 
-    {"end", "Shub-Niggurath's Pit"},	/* 31 */
+    {"lq_e4m1", "Desolation Station"},	/* 24 */
+    {"lq_e4m3", "Will of the Machine"},
+    {"lq_e4m4", "Steel Forest"},
+    {"lq_e4m5", "Copper Citadel"},
+    {"lq_end", "The Last Gate"},
 
-    {"dm1", "Place of Two Deaths"},	/* 32 */
-    {"dm2", "Claustrophobopolis"},
-    {"dm3", "The Abandoned Base"},
-    {"dm4", "The Bad Place"},
-    {"dm5", "The Cistern"},
-    {"dm6", "The Dark Zone"}
-};
-
-/* MED 01/06/97 added hipnotic levels */
-static const level_t hipnoticlevels[] = {
-    {"start", "Command HQ"},	/* 0 */
-
-    {"hip1m1", "The Pumping Station"},	/* 1 */
-    {"hip1m2", "Storage Facility"},
-    {"hip1m3", "The Lost Mine"},
-    {"hip1m4", "Research Facility"},
-    {"hip1m5", "Military Complex"},
-
-    {"hip2m1", "Ancient Realms"},	/* 6 */
-    {"hip2m2", "The Black Cathedral"},
-    {"hip2m3", "The Catacombs"},
-    {"hip2m4", "The Crypt"},
-    {"hip2m5", "Mortum's Keep"},
-    {"hip2m6", "The Gremlin's Domain"},
-
-    {"hip3m1", "Tur Torment"},	/* 12 */
-    {"hip3m2", "Pandemonium"},
-    {"hip3m3", "Limbo"},
-    {"hip3m4", "The Gauntlet"},
-
-    {"hipend", "Armagon's Lair"},	/* 16 */
-
-    {"hipdm1", "The Edge of Oblivion"}	/* 17 */
-};
-
-/* PGM 01/07/97 added rogue levels */
-/* PGM 03/02/97 added dmatch level */
-static const level_t roguelevels[] = {
-    {"start", "Split Decision"},
-    {"r1m1", "Deviant's Domain"},
-    {"r1m2", "Dread Portal"},
-    {"r1m3", "Judgement Call"},
-    {"r1m4", "Cave of Death"},
-    {"r1m5", "Towers of Wrath"},
-    {"r1m6", "Temple of Pain"},
-    {"r1m7", "Tomb of the Overlord"},
-    {"r2m1", "Tempus Fugit"},
-    {"r2m2", "Elemental Fury I"},
-    {"r2m3", "Elemental Fury II"},
-    {"r2m4", "Curse of Osiris"},
-    {"r2m5", "Wizard's Keep"},
-    {"r2m6", "Blood Sacrifice"},
-    {"r2m7", "Last Bastion"},
-    {"r2m8", "Source of Evil"},
-    {"ctf1", "Division of Change"}
+    {"lqdm1", "Solstice"},	/* 29 */
+    {"lqdm2", "The Pit"},
+    {"lqdm3", "Hyperborea"},
+    {"lqdm4", "Psychofuge"},
+    {"lqdm5", "Transport Tubes"},
+    {"lqdm6", "Ghost Quarter"},
+    {"lqdm7", "Boomstick Basement"},
+    {"lqdm8", "Alichar Sector"},
+    {"lqdm9", "The Outlands"},
+    {"lqdm10", "The Gambit"},
+    {"lqdm11", "The Wicked Night"},
+    {"lqdm12", "Javelin"},
+    {"lqdm13", "No Return"}
 };
 
 typedef struct {
@@ -2627,33 +2583,20 @@ typedef struct {
 } episode_t;
 
 static const episode_t episodes[] = {
-    {"Welcome to Quake", 0, 1},
-    {"Doomed Dimension", 1, 8},
-    {"Realm of Black Magic", 9, 7},
-    {"Netherworld", 16, 7},
-    {"The Elder World", 23, 8},
-    {"Final Level", 31, 1},
-    {"Deathmatch Arena", 32, 6}
+    {"Episode Select", 0, 1},
+    {"The Prequel", 1, 8},
+    {"Episode One", 9, 7},
+    {"Episode Two", 16, 3},
+    {"Episode Three", 19, 5},
+    {"Episode Four", 24, 5},
+    {"Arenas", 29, 13}
 };
 
-/* MED 01/06/97  added hipnotic episodes */
-static const episode_t hipnoticepisodes[] = {
-    {"Scourge of Armagon", 0, 1},
-    {"Fortress of the Dead", 1, 5},
-    {"Dominion of Darkness", 6, 6},
-    {"The Rift", 12, 4},
-    {"Final Level", 16, 1},
-    {"Deathmatch Arena", 17, 1}
-};
-
-/* PGM 01/07/97 added rogue episodes */
-/* PGM 03/02/97 added dmatch episode */
-static const episode_t rogueepisodes[] = {
-    {"Introduction", 0, 1},
-    {"Hell's Fortress", 1, 7},
-    {"Corridors of Time", 8, 8},
-    {"Deathmatch Arena", 16, 1}
-};
+/* The mission-pack lists are not part of Aftershock. */
+#define hipnoticlevels levels
+#define roguelevels levels
+#define hipnoticepisodes episodes
+#define rogueepisodes episodes
 
 static int startepisode;
 static int startlevel;
@@ -3050,7 +2993,7 @@ M_Search_Draw(void)
 	return;
     }
 
-    M_PrintWhite((320 / 2) - ((22 * 8) / 2), 64, "No Quake servers found");
+    M_PrintWhite((320 / 2) - ((22 * 8) / 2), 64, "No servers found");
     if ((realtime - searchCompleteTime) < 3.0)
 	return;
 

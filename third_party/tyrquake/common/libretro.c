@@ -1329,10 +1329,9 @@ bool retro_load_game(const struct retro_game_info *info)
 
    MEMSIZE_MB = DEFAULT_MEMSIZE_MB;
 
-   if ( strstr(path_lower, "id1") ||
-        strstr(path_lower, "quoth") ||
-        strstr(path_lower, "hipnotic") ||
-        strstr(path_lower, "rogue") )
+   /* Aftershock: only id1/ is recognised; the mission-pack folder names are
+    * not looked for, so a path that merely contains one is not mistaken. */
+   if ( strstr(path_lower, "/id1/") )
    {
       char tmp_dir[PATH_MAX_LENGTH];
       tmp_dir[0] = '\0';
@@ -1379,22 +1378,7 @@ bool retro_load_game(const struct retro_game_info *info)
    parms.memsize = MEMSIZE_MB * 1024 * 1024;
    argv[0] = empty_string;
 
-   if (strstr(path_lower, "rogue"))
-   {
-      parms.argc++;
-      argv[1] = "-rogue";
-   }
-   else if (strstr(path_lower, "hipnotic"))
-   {
-      parms.argc++;
-      argv[1] = "-hipnotic";
-   }
-   else if (strstr(path_lower, "quoth"))
-   {
-      parms.argc++;
-      argv[1] = "-quoth";
-   }
-   else if (!strstr(path_lower, "id1"))
+   if (!strstr(path_lower, "/id1/"))
    {
       const char *basename = path_basename(g_rom_dir);
       char tmp_dir[PATH_MAX_LENGTH];
