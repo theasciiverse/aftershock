@@ -1169,6 +1169,20 @@ void retro_run(void)
 
    did_flip = false;
 
+   /* Aftershock: AFTERSHOCK_CMD_INGAME runs once the player is first in a
+    * level (tests, the preview recording). */
+   {
+      static int ingame_done;
+      if (!ingame_done && cls.state == ca_active && !cls.demoplayback &&
+          cls.signon == SIGNONS)
+      {
+         const char *cmd = getenv("AFTERSHOCK_CMD_INGAME");
+         ingame_done = 1;
+         if (cmd && *cmd)
+            Cbuf_AddText("%s\n", cmd);
+      }
+   }
+
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
       update_variables(false);
    if (!has_set_username)

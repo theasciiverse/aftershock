@@ -41,10 +41,12 @@ utf8 = true
 color = "truecolor"
 mouse = false
 
-# 100x30: the attract demo with the status line, then the menu
+# 100x30, asciiverse/record-preview.sh: LibreQuake's attract demo with the
+# status line, the menu, more of the demo; re-encoded at 12 fps
+# (asciiverse/recast.py, from our doom-ascii)
 [media]
 cast = "asciiverse/aftershock.cast"
-thumbnail_at = 12.0
+thumbnail_at = 10.0
 
 [release]
 source = "github"
