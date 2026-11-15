@@ -72,11 +72,11 @@ default, src/av_half.c) uses no library, so a build without chafa
 
 This program's stdout **is** the rendered game frame, written as raw escape
 sequences. Never `printf`/`puts`/write anything to stdout from any code path
-that can run while the terminal is in presentation mode — one stray log line
+that can run while the terminal is in presentation mode: one stray log line
 corrupts the frame mid-escape-sequence. Diagnostics go to `--log=PATH`
 (`oq_retro.c`'s `log_printf`) or to `stderr` only *after* `oq_term_shutdown()`
 has restored the terminal. Same rule applies to anything ALSA might try to
-print — see the silent error handler in `src/oq_audio.c`; do not remove it.
+print: see the silent error handler in `src/oq_audio.c`; do not remove it.
 
 ## Never run the game without silencing audio
 
@@ -95,7 +95,7 @@ Test it via a pty, not by piping:
 **`COLUMNS`/`LINES` environment variables do not resize a pty.** Only `stty`
 (or an ioctl) does. Forgetting this silently benchmarks/tests an 80x24
 terminal regardless of what `COLUMNS`/`LINES` say, which has produced
-misleading numbers before — always set size with `stty` inside the `script`
+misleading numbers before: always set size with `stty` inside the `script`
 command, and confirm by checking what the program itself reports.
 
 ## Threading: writes to the terminal happen on the render thread only
@@ -103,7 +103,7 @@ command, and confirm by checking what the program itself reports.
 `src/oq_render.c` is the only place that should be writing frame data to
 stdout, from `render_loop()`. The engine thread (`retro_run()`,
 `oq_retro.c`, `oq_main.c`'s game loop) must never write to the terminal
-directly — two threads writing to the same fd can interleave mid escape
+directly: two threads writing to the same fd can interleave mid escape
 sequence and corrupt the frame. Even the clear-on-resize goes through
 `oq_render_reconfigure()` so it executes on the render thread, not inline
 in `video_sink()`.
@@ -116,7 +116,7 @@ in `video_sink()`.
     make backends                   # reports which of chafa/caca/alsa were found
 
 chafa, libcaca and ALSA are all optional and detected via `pkg-config`.
-`make backends` is the source of truth for what's actually linked in — a
+`make backends` is the source of truth for what's actually linked in: a
 missing pkg-config file silently drops a backend, it does not fail the
 build. Verify what's compiled in before assuming a feature (or its absence)
 is real.
@@ -133,15 +133,15 @@ UPSTREAM.md). Every change there is listed in PATCHES.md and marked
 
 - 4-space indentation, K&R brace style.
 - Must compile clean under `-Wall -Wextra -std=gnu99` (see `Makefile`
-  `CFLAGS`) — no new warnings.
-- Comments explain *why*, not *what* — see any of `src/oq_*.c` for the
+  `CFLAGS`): no new warnings.
+- Comments explain *why*, not *what*: see any of `src/oq_*.c` for the
   house style. Non-obvious constraints (threading, protocol quirks, ALSA
   timing) get a comment at the point a future change would plausibly get
   it wrong.
 
 ## This IS a git repository
 
-The session's environment banner may claim otherwise — it is captured before
+The session's environment banner may claim otherwise: it is captured before
 `git init` ran and is stale. `git log` works and the history is worth reading:
 the commit messages carry the reasoning and the measured numbers behind most
 of the non-obvious code here, and several of them document bugs that are easy
@@ -154,6 +154,6 @@ history entirely.)
 Several bugs in this project's history survived review because the output
 *looked* plausible (a frame that renders but is silently the wrong colours,
 a keybind that's silently dropped, a canvas that's silently capped to
-80x24). Prefer running the actual binary — via the `script`/`stty` pattern
-above — over reasoning from source alone when a change touches terminal
+80x24). Prefer running the actual binary: via the `script`/`stty` pattern
+above: over reasoning from source alone when a change touches terminal
 I/O, input decoding, or timing.
