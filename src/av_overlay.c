@@ -265,6 +265,14 @@ static void level_summary(grid *g, const av_textui_t *u, int done)
 
 /* ---- the engine's text -------------------------------------------------- */
 
+/* Text inside a blanked box keeps the box's paper. */
+static int is_boxed(grid *g, int c, int r)
+{
+    return c >= 0 && r >= 0 && c < g->cols && r < g->rows &&
+           AT(g, ch, c, r) == ' ' && AT(g, bot, c, r) == BAR_PAPER &&
+           AT(g, top, c, r) == BAR_PAPER;
+}
+
 static void engine_text(grid *g, const av_textui_t *u)
 {
     int i, menu_c0, menu_r0, con_rows, center_y0 = -1;
@@ -299,7 +307,11 @@ static void engine_text(grid *g, const av_textui_t *u)
             r = menu_r0 + t->y / 8;
             if (r >= pic_rows)
                 continue;
-            put(g, c, r, t->ch, ink, 0xffffffff);
+            if (t->ch == AV_CH_BLANK)
+                put(g, c, r, ' ', BAR_PAPER, BAR_PAPER);
+            else
+                put(g, c, r, t->ch, ink,
+                    is_boxed(g, c, r) ? BAR_PAPER : 0xffffffff);
             break;
         case AV_CTX_CONSOLE:
             c = t->x / 8 - 1;

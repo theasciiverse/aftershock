@@ -172,7 +172,6 @@ AV_TextUI_MenuPic(int x, int y, int w, int h, const char *name)
     size_t i;
     int j;
 
-    (void)h;
     if (!av_textui.value || !name)
         return 0;
 
@@ -180,12 +179,29 @@ AV_TextUI_MenuPic(int x, int y, int w, int h, const char *name)
         add(x + 4, y + 4, '>', AV_CTX_MENU, AV_INK_CURSOR);
         return 1;
     }
-    if (!strcmp(name, "gfx/qplaque.lmp") || !strncmp(name, "gfx/box_", 8))
+    if (!strcmp(name, "gfx/qplaque.lmp"))
         return 1;               /* decoration: nothing in text */
+    if (!strncmp(name, "gfx/box_", 8)) {
+        /* A text box (the quit prompt, typing a name): blank its cells so
+         * the menu underneath does not show through. */
+        int bx, by;
+
+        for (by = 0; by < h; by += 8)
+            for (bx = 0; bx < w; bx += 8)
+                add(x + bx, y + by, AV_CH_BLANK, AV_CTX_MENU, AV_INK_NORMAL);
+        return 1;
+    }
     if (!strncmp(name, "gfx/help", 8)) {
+        int widest = 0;
+
         for (j = 0; help_text[j]; j++)
-            add_string(160 - 4 * (int)strlen(help_text[j]) , 8 + j * 8,
-                       help_text[j], AV_CTX_MENU,
+            if ((int)strlen(help_text[j]) > widest)
+                widest = (int)strlen(help_text[j]);
+        /* The title centred, the rest as one left-aligned block. */
+        for (j = 0; help_text[j]; j++)
+            add_string(j == 0 ? 160 - 4 * (int)strlen(help_text[j])
+                              : 160 - 4 * widest,
+                       8 + j * 8, help_text[j], AV_CTX_MENU,
                        j == 0 ? AV_INK_TITLE : AV_INK_NORMAL);
         return 1;
     }

@@ -24,6 +24,9 @@ enum {
     AV_CTX_CENTER,      /* screen pixels, centred */
 };
 
+/* A record with this character blanks its cell (a text box's backing). */
+#define AV_CH_BLANK 1
+
 /* Colour hints for a record. */
 enum {
     AV_INK_NORMAL = 0,  /* light text */
