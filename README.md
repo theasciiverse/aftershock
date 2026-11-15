@@ -49,6 +49,11 @@ Made for the keyboard; a mouse is optional.
 | F6, F9 | quick save, quick load |
 | F10, Ctrl-Q | quit at once |
 
+A gamepad on Linux (read from /dev/input, untested so far): left stick
+walks, right stick looks, right trigger fires, left trigger or A jumps,
+X and Y (or the bumpers) change weapons, Start is the menu; in menus the
+d-pad moves, A chooses and B goes back. `--no-pad` leaves it alone.
+
 Shots are lifted onto what you face, so you rarely need to look up or down.
 
 ## Pictures

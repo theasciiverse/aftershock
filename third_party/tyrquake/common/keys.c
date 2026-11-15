@@ -554,6 +554,13 @@ Key_StringToKeynum(const char *str)
     return -1;
 }
 
+/* Aftershock: a key's number from its name, for the frontend's gamepad. */
+int
+aftershock_keynum(const char *name)
+{
+    return Key_StringToKeynum(name);
+}
+
 /*
 ===================
 Key_KeynumToString

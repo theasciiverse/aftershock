@@ -8,6 +8,7 @@
 #include "oq_retro.h"
 #include "oq_term.h"
 #include "av_overlay.h"
+#include "av_pad.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -40,6 +41,7 @@ static void usage(const char *argv0)
         "  --log=PATH       write the engine log here (never to stdout)\n"
         "  --sound          play sound and music (off by default)\n"
         "  --no-sound       do not open the audio device\n"
+        "  --no-pad         do not read a gamepad\n"
         "  --mouse=SRC      evdev | term | none | auto  (default: auto --\n"
         "                   evdev when a pointer can be opened and grabbed,\n"
         "                   otherwise the terminal's own reporting)\n"
@@ -517,6 +519,9 @@ static int64_t now_ns(void)
     return (int64_t)ts.tv_sec * 1000000000 + ts.tv_nsec;
 }
 
+/* Aftershock: --no-pad leaves a gamepad alone. */
+static int use_pad = 1;
+
 static int run_game(const oq_present_backend *be, oq_present_config *cfg,
                     const char *pak, const char *res, const char *logpath,
                     int nframes, int sound, int fps, int cap_cols, int cap_rows,
@@ -611,6 +616,8 @@ static int run_game(const oq_present_backend *be, oq_present_config *cfg,
     }
 
     oq_input_init(oq_term_has_key_release());
+    if (use_pad)
+        av_pad_open();
     /* The log is the only place this can go now: stdout is the picture and
      * stderr shares the terminal with it.  It opens with the core, which is
      * why the choice is reported here rather than where it was made. */
@@ -632,6 +639,7 @@ static int run_game(const oq_present_backend *be, oq_present_config *cfg,
             if (dx || dy)
                 oq_retro_mouse_move(dx, dy);
         }
+        av_pad_poll(oq_input_focused());
         oq_retro_run();
 
         if (nframes && ++frame >= nframes)
@@ -649,6 +657,7 @@ static int run_game(const oq_present_backend *be, oq_present_config *cfg,
     }
 
     oq_render_stop();
+    av_pad_close();
     /* Give the pointer back before the slow parts of shutdown: the grab is
      * the user's whole desktop mouse, and unloading the core is no reason
      * to keep holding it. */
@@ -783,6 +792,8 @@ int main(int argc, char **argv)
             sound = 0;
         } else if (!strcmp(a, "--sound")) {
             sound = 1;          /* Aftershock: sound is off unless asked */
+        } else if (!strcmp(a, "--no-pad")) {
+            use_pad = 0;
         } else if (!strcmp(a, "--keytest")) {
             keytest = 1;
         } else if (!strcmp(a, "--demo")) {
