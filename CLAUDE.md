@@ -60,6 +60,13 @@ default, src/av_half.c) uses no library, so a build without chafa
   family-friendly changes are done in the engine (a string table applied to
   everything the player reads) and by overriding models and sounds. When
   David installs a QuakeC compiler, the same changes can move into QuakeC.
+- LibreQuake's compiled game code (progs.dat) ships unchanged, so its
+  uncompiled `#else` branches with id's texts (localized_text.qc) are not
+  in anything we ship. When we fork the QuakeC, drop those branches and
+  move the av_text.txt rules into it.
+- The text UI replaces menu pictures by name (av_textui.c, `piclabels`); a
+  picture it does not know is drawn as before.
+- Gamepad support (src/av_pad.c) was written without a pad to try it on.
 - Saves and settings: `$XDG_STATE_HOME/aftershock` (else
   `~/.local/state/aftershock`). Tests and smoke runs always set a scratch
   `XDG_STATE_HOME` and `HOME` in the same command, and pass `--no-sound`.
