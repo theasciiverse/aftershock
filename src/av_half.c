@@ -270,6 +270,17 @@ static void half_frame(const uint8_t *src, int w, int h, int stride)
     }
     out_str("\033[?2026l", 8);
 
+    {
+        static FILE *dbg;
+        static unsigned n;
+        if (!dbg && getenv("AV_DEBUG_FILE"))
+            dbg = fopen(getenv("AV_DEBUG_FILE"), "w");
+        if (dbg && ++n % 30 == 0) {
+            fprintf(dbg, "frame %u src %dx%d grid %dx%d changed %d bytes %zu\n",
+                    n, w, h, grid_w, grid_h, changed, out_len);
+            fflush(dbg);
+        }
+    }
     if (out && (changed || force_full))
         oq_term_write_raw(out, out_len);
     force_full = 0;

@@ -398,7 +398,26 @@ retro_environment_t environ_cb;
 static retro_input_poll_t poll_cb;
 static retro_input_state_t input_cb;
 
-void Sys_Printf(const char *fmt, ...) { }
+/* Aftershock: lets the terminal frontend tell typing from playing. */
+int aftershock_text_input(void)
+{
+   return key_dest != key_game;
+}
+
+/* Aftershock: the console goes to the frontend's log (--log), which is
+ * where a session's history is read back from. */
+void Sys_Printf(const char *fmt, ...)
+{
+   char buffer[1024];
+   va_list ap;
+
+   if (!log_cb)
+      return;
+   va_start(ap, fmt);
+   vsnprintf(buffer, sizeof(buffer), fmt, ap);
+   va_end(ap);
+   log_cb(RETRO_LOG_DEBUG, "%s", buffer);
+}
 void Sys_Quit(void) { Host_Shutdown(); }
 
 void Sys_Init(void)

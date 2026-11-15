@@ -21,12 +21,19 @@
 #include <time.h>
 #include <unistd.h>
 
-/* Must comfortably exceed the terminal's auto-repeat interval (~30ms) so a
- * held key is not released between repeats. */
-#define HOLD_MS 260
+/* Aftershock: doom-ascii's timings.  A fresh press is held long enough to
+ * bridge the terminal's initial auto-repeat delay (often 500 ms or more),
+ * so walking does not stutter; once repeats arrive, each one only needs to
+ * bridge the repeat interval (~30 ms), so letting go stops you quickly. */
+#define HOLD_MS 550
+#define REPEAT_HOLD_MS 100
 #define MAX_HOLDS 16
 
 static int kitty_mode;
+
+/* In the engine (libretro.c): nonzero while a menu, the console or a
+ * message line has the keyboard. */
+int aftershock_text_input(void);
 static FILE *trace;
 static int64_t esc_since;
 static int quit_requested;
@@ -203,7 +210,8 @@ static void hold_press(unsigned keycode, uint16_t mods, oq_key_fn fn, void *ud)
 
     for (i = 0; i < MAX_HOLDS; i++) {
         if (holds[i].keycode == keycode) {
-            holds[i].deadline_ms = deadline;   /* auto-repeat: extend */
+            /* auto-repeat: extend */
+            holds[i].deadline_ms = now_ms() + REPEAT_HOLD_MS;
             return;
         }
         if (!holds[i].keycode && free_slot < 0)
@@ -259,10 +267,17 @@ static void emit(unsigned keycode, int down, uint16_t mods,
         quit_requested = 1;
         return;
     }
-    if (kitty_mode)
+    if (kitty_mode) {
         fn(keycode, down, mods, ud);
-    else if (down)
+    } else if (down && aftershock_text_input()) {
+        /* Menus, the console and messages take keystrokes, not holds: each
+         * press is a whole keystroke, so typing a letter twice in quick
+         * succession gives two letters instead of one long hold. */
+        fn(keycode, 1, mods, ud);
+        fn(keycode, 0, mods, ud);
+    } else if (down) {
         hold_press(keycode, mods, fn, ud);
+    }
 }
 
 /* ---- escape sequence parsing ---------------------------------------- */

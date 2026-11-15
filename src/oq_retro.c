@@ -168,6 +168,15 @@ static void RETRO_CALLCONV video_refresh(const void *data, unsigned width,
     const uint8_t *row = data;
     unsigned x, y;
 
+    {
+        static unsigned dbg_n, dbg_null;
+        dbg_n++;
+        if (!data) dbg_null++;
+        if (getenv("AV_DEBUG") && dbg_n % 120 == 0 && logfp) {
+            fprintf(logfp, "dbg: refresh %u null %u\n", dbg_n, dbg_null);
+            fflush(logfp);
+        }
+    }
     /* A NULL frame means "same as last time" (we advertised CAN_DUPE). */
     if (!data || !conf.sink)
         return;
