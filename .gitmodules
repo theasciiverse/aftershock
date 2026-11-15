@@ -1,3 +1,0 @@
-[submodule "third_party/tyrquake"]
-	path = third_party/tyrquake
-	url = https://github.com/libretro/tyrquake.git
