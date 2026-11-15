@@ -34,7 +34,7 @@ Shub-Niggurath	the Shoggoth
 Chthon	Cthulhi
 Shambler	Hollow
 # endings and titles
-VERSION TyrQuake-	VERSION Aftershock, on TyrQuake 
+VERSION TyrQuake-	VERSION Aftershock engine 
 Thanks for playing the beta version of LibreQuake!	Thanks for playing Aftershock!
 of LibreQuake!	of Aftershock!
 LibreQuake	Aftershock
