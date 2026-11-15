@@ -23,13 +23,13 @@
 static void usage(const char *argv0)
 {
     fprintf(stderr,
-        "usage: %s [options] [path to pak0.pak, or a directory holding id1/]\n"
+        "usage: %s [options] [data folder holding aftershock/ and id1/]\n"
         "\n"
         "  --video=NAME     presentation backend: %s (default: half)\n"
-        "  --symbols=SET    ascii | block | fine        (default: fine)\n"
+        "  --symbols=SET    for chafa: ascii | block | fine (default: fine)\n"
         "  --color=DEPTH    mono | 16 | 256 | true      (default: true)\n"
         "  --demo           render a test pattern instead of the game\n"
-        "  --find-pak       print the pak0.pak a normal run would load, then\n"
+        "  --find-pak       print the game data a normal run would load, then\n"
         "                   exit; exit status 1 and nothing on stdout when none exists\n"
         "  --keytest        show decoded key events; diagnoses input problems\n"
         "  --frames=N       stop after N frames (demo/benchmark)\n"
