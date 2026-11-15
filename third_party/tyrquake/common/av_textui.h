@@ -48,6 +48,7 @@ typedef struct {
 
     /* the player */
     int in_game;            /* a level is running and the HUD applies */
+    int demo;               /* it is a recorded demo (the attract mode) */
     int health, armor, armor_kind;   /* kind 0 none, 1 green, 2 yellow, 3 red */
     int ammo, ammo_kind;    /* kind 0 none, 1 shells, 2 nails, 3 rockets, 4 cells */
     int weapon;             /* 1..8 selected, 0 none */

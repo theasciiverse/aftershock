@@ -219,8 +219,8 @@ AV_TextUI_EndFrame(void)
     };
     int i;
 
-    av_ui.in_game = (cls.state == ca_active) && cl.worldmodel != NULL &&
-                    !cls.demoplayback;
+    av_ui.in_game = (cls.state == ca_active) && cl.worldmodel != NULL;
+    av_ui.demo = cls.demoplayback;
     av_ui.health = cl.stats[STAT_HEALTH];
     av_ui.armor = cl.stats[STAT_ARMOR];
     av_ui.armor_kind = (items & IT_ARMOR3) ? 3 : (items & IT_ARMOR2) ? 2 :

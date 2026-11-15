@@ -191,12 +191,16 @@ static void status_line(grid *g, const av_textui_t *u)
     if (u->powerups & 8)
         c = put_str(g, c, r, "Suit ", C_GREEN, BAR_PAPER);
 
-    /* Kills and secrets on the right, when there is room. */
-    snprintf(buf, sizeof(buf), "Kills %d/%d  Secrets %d/%d", u->kills,
-             u->total_kills, u->secrets, u->total_secrets);
+    /* Kills and secrets on the right, when there is room; in the attract
+     * demos, how to begin. */
+    if (u->demo)
+        snprintf(buf, sizeof(buf), "AFTERSHOCK  Esc menu");
+    else
+        snprintf(buf, sizeof(buf), "Kills %d/%d  Secrets %d/%d", u->kills,
+                 u->total_kills, u->secrets, u->total_secrets);
     if (c + (int)strlen(buf) + 2 < g->cols)
-        put_str(g, g->cols - 1 - (int)strlen(buf), r, buf, C_LABEL,
-                BAR_PAPER);
+        put_str(g, g->cols - 1 - (int)strlen(buf), r, buf,
+                u->demo ? C_TITLE : C_LABEL, BAR_PAPER);
 }
 
 /* A box of lines in the middle of the picture. */

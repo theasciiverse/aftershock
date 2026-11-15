@@ -1189,6 +1189,10 @@ R_DrawViewModel(void)
 
     r_viewlighting.plightvec = lightvec;
 
+    /* Aftershock: LibreQuake's second demo names a brush model as the
+     * weapon; drawing that as an alias model crashed. */
+    if (!e->model || e->model->type != mod_alias)
+	return;
     R_AliasDrawModel(e, &r_viewlighting);
 }
 
