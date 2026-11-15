@@ -1,0 +1,6 @@
+// Aftershock start-up
+exec default.cfg
+exec config.cfg
+exec autoexec.cfg
+stuffcmds
+startdemos demo1 demo2 demo3
