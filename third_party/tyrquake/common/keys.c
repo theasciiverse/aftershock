@@ -752,6 +752,10 @@ Key_Init(void)
     consolekeys[K_RSHIFT] = true;
     consolekeys[K_MWHEELUP] = true;
     consolekeys[K_MWHEELDOWN] = true;
+    /* Aftershock: as in the original, ` and ~ are not typed into the
+     * console but run their binding, so the key that opens it closes it. */
+    consolekeys['`'] = false;
+    consolekeys['~'] = false;
 
     for (i = 0; i < K_LAST; i++)
         keyshift[i] = i;
