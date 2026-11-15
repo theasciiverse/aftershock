@@ -193,7 +193,7 @@ static int pointer_select(int mode, const char *dev)
      * the evdev source, and an option that looks accepted and does nothing
      * is the failure mode this codebase keeps running into. */
     if (dev && (mode == MOUSE_TERM || mode == MOUSE_NONE))
-        fprintf(stderr, "omaquake: --mouse-dev names an evdev device and is"
+        fprintf(stderr, "aftershock: --mouse-dev names an evdev device and is"
                         " ignored by --mouse=%s\n",
                 mode == MOUSE_TERM ? "term" : "none");
 
@@ -206,7 +206,7 @@ static int pointer_select(int mode, const char *dev)
         return 0;
     }
     if (mode != MOUSE_TERM && pointer_required) {
-        fprintf(stderr, "omaquake: mouse: %s\n", oq_evdev_error());
+        fprintf(stderr, "aftershock: mouse: %s\n", oq_evdev_error());
         return -1;
     }
     pointer_src = PSRC_TERM;
@@ -558,7 +558,7 @@ static int run_game(const oq_present_backend *be, oq_present_config *cfg,
 
     if (oq_render_start(be, cfg)) {
         oq_term_shutdown();
-        fprintf(stderr, "omaquake: could not start the render thread\n");
+        fprintf(stderr, "aftershock: could not start the render thread\n");
         return 1;
     }
 
@@ -603,7 +603,7 @@ static int run_game(const oq_present_backend *be, oq_present_config *cfg,
 
     if (oq_retro_init(&rc, pak)) {
         oq_term_shutdown();
-        fprintf(stderr, "omaquake: failed to load '%s'\n", pak);
+        fprintf(stderr, "aftershock: failed to load '%s'\n", pak);
         return 1;
     }
 
@@ -817,7 +817,7 @@ int main(int argc, char **argv)
 
     be = oq_present_lookup(video);
     if (!be) {
-        fprintf(stderr, "omaquake: no such video backend '%s' (have: %s)\n",
+        fprintf(stderr, "aftershock: no such video backend '%s' (have: %s)\n",
                 video, oq_present_available());
         return 2;
     }
@@ -850,7 +850,7 @@ int main(int argc, char **argv)
                          edge_given, turn_given);
         oq_term_shutdown();
         if (pointer_note[0])
-            fprintf(stderr, "omaquake: mouse: %s\n", pointer_note);
+            fprintf(stderr, "aftershock: mouse: %s\n", pointer_note);
         return rc;
     }
 
@@ -858,7 +858,7 @@ int main(int argc, char **argv)
 
     if (be->init(&cfg)) {
         oq_term_shutdown();
-        fprintf(stderr, "omaquake: backend '%s' failed to initialise\n", video);
+        fprintf(stderr, "aftershock: backend '%s' failed to initialise\n", video);
         return 1;
     }
 
@@ -874,12 +874,12 @@ int main(int argc, char **argv)
     be->shutdown();
     oq_term_shutdown();
 
-    fprintf(stderr, "omaquake: backend=%s key-release=%s\n",
+    fprintf(stderr, "aftershock: backend=%s key-release=%s\n",
             video, oq_term_has_key_release() ? "yes (kitty kbd)" : "no");
     /* Repeated on stderr because the log file is optional, and "which
      * pointer source did I actually get" is the first question when aiming
      * misbehaves. */
     if (pointer_note[0])
-        fprintf(stderr, "omaquake: mouse: %s\n", pointer_note);
+        fprintf(stderr, "aftershock: mouse: %s\n", pointer_note);
     return rc;
 }

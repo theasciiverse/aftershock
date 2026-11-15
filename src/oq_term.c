@@ -270,7 +270,7 @@ int oq_term_init(void)
     struct termios raw;
 
     if (!isatty(STDIN_FILENO) || !isatty(STDOUT_FILENO)) {
-        fprintf(stderr, "omaquake: stdin/stdout must be a terminal\n");
+        fprintf(stderr, "aftershock: stdin/stdout must be a terminal\n");
         return -1;
     }
     if (tcgetattr(STDIN_FILENO, &saved_termios) < 0)
