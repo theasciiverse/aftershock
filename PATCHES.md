@@ -95,6 +95,13 @@ Every change is marked `Aftershock:` in a comment.
 - `progs/av_rubble1..3.mdl`, `progs/av_pile.mdl`: the debris.
 - `av_text.txt`: the text table.
 
+## Removed
+
+- OmaQuake's Omarchy bar plugin (`omarchy-plugin/`, `manifest.json`,
+  `preview.png`, which carry id's logo), its Arch packaging for the id
+  shareware data (`packaging/`), and its shareware key settings
+  (`share/autoexec.cfg`, `config.cfg`). They are in OmaQuake's history.
+
 ## Not changed
 
 - OmaQuake's chafa and libcaca backends, mouse handling (evdev or the
