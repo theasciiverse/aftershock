@@ -44,6 +44,7 @@ void Draw_FadeScreen(void);
 void Draw_String(int x, int y, char *str);
 void *Draw_PicFromWad(const char *name);
 qpic_t *Draw_CachePic(const char *path);
+const char *Draw_LastCachePicName(void);	/* Aftershock */
 
 void Draw_Crosshair(void);
 

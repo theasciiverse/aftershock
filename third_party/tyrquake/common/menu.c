@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "input.h"
 #include "keys.h"
 #include "menu.h"
+#include "av_textui.h"
 #include "net.h"
 #include "quakedef.h"
 #include "r_subdiv.h"
@@ -149,6 +150,13 @@ void
 M_DrawCharacter(int cx, int line, int num)
 {
     int scale = SCR_GetUIScale();
+    int handled, saved = av_draw_ctx;
+
+    av_draw_ctx = AV_CTX_MENU;
+    handled = AV_TextUI_Char(cx, line, num);
+    av_draw_ctx = saved;
+    if (handled)
+	return;
     Draw_CharacterScaled(cx * scale + ((vid.width - 320 * scale) >> 1),
 			 line * scale, num, scale);
 }
@@ -177,6 +185,9 @@ static void
 M_DrawTransPic(int x, int y, const qpic_t *pic)
 {
     int scale = SCR_GetUIScale();
+    if (AV_TextUI_MenuPic(x, y, pic->width, pic->height,
+			  Draw_LastCachePicName()))
+	return;
     Draw_TransPicScaled(x * scale + ((vid.width - 320 * scale) >> 1),
 			y * scale, pic, scale);
 }
@@ -185,6 +196,9 @@ void
 M_DrawPic(int x, int y, const qpic_t *pic)
 {
     int scale = SCR_GetUIScale();
+    if (AV_TextUI_MenuPic(x, y, pic->width, pic->height,
+			  Draw_LastCachePicName()))
+	return;
     Draw_PicScaled(x * scale + ((vid.width - 320 * scale) >> 1),
 		   y * scale, pic, scale);
 }

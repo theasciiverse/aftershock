@@ -17,4 +17,14 @@
 void av_overlay_apply_cells(int cols, int rows, uint32_t *top, uint32_t *bot,
                             uint32_t *ch, size_t stride);
 
+/* Render thread, for backends that draw their own picture: send the text
+ * cells after the frame. */
+void av_overlay_emit(int cols, int rows, int origin_col, int origin_row);
+
+/* Engine thread, after each finished frame: take the engine's text. */
+void av_overlay_capture(void);
+
+/* Rows kept free under the picture for the status line. */
+int av_overlay_reserved_rows(void);
+
 #endif

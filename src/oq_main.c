@@ -7,6 +7,7 @@
 #include "oq_render.h"
 #include "oq_retro.h"
 #include "oq_term.h"
+#include "av_overlay.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -426,6 +427,10 @@ static void fit_canvas(struct sink_ctx *ctx, int term_cols, int term_rows)
     if (ctx->cap_rows > 0 && rows > ctx->cap_rows)
         rows = ctx->cap_rows;
 
+    /* Aftershock: the status line takes the bottom row; the half-block
+     * backend lays it out itself, the others draw above it. */
+    if (ctx->be != &av_backend_half)
+        rows -= av_overlay_reserved_rows();
     if (cols < 1) cols = 1;
     if (rows < 1) rows = 1;
 
@@ -491,6 +496,7 @@ static void video_sink(const uint8_t *rgb, int w, int h, int stride, void *ud)
          * same fd can interleave mid escape-sequence and corrupt the frame. */
         oq_render_reconfigure(ctx->cfg);
     }
+    av_overlay_capture();
     oq_render_submit(rgb, w, h, stride);
 }
 
@@ -566,7 +572,7 @@ static int run_game(const oq_present_backend *be, oq_present_config *cfg,
         int tc, tr, w, h;
 
         oq_term_size(&tc, &tr);
-        av_half_resolution(tc, tr, &w, &h);
+        av_half_resolution(tc, tr - av_overlay_reserved_rows(), &w, &h);
         snprintf(resbuf, sizeof(resbuf), "%dx%d", w, h);
         res = resbuf;
     } else if (!strcmp(res, "auto")) {

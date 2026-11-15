@@ -35,6 +35,8 @@ LRC_OBJ     := $(LRC_SRC:$(LRC)/%.c=$(BUILD)/lrc/%.o)
 CFLAGS      ?= -O2 -g
 CFLAGS      += -Wall -Wextra -std=gnu99
 CPPFLAGS    += -I$(TYRQUAKE)/libretro-common/include
+# Aftershock: the frontend reads the engine's text record (av_textui.h).
+CPPFLAGS    += -iquote $(TYRQUAKE)/common
 LDLIBS      += -lm -pthread
 CFLAGS      += -pthread
 

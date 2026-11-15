@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "sbar.h"
 #include "screen.h"
+#include "av_textui.h"
 #include "sound.h"
 #include "sys.h"
 #include "view.h"
@@ -130,7 +131,7 @@ static int scr_center_lines;
 static int scr_erase_lines;
 static int scr_erase_center;
 
-static qboolean scr_drawloading;
+qboolean scr_drawloading;	/* Aftershock: read by av_textui.c */
 /* Elapsed time (in seconds) since SCR_BeginLoadingPlaque disabled
  * the rendering pipeline. Used as a 5-second safety net to recover
  * from a load that never completed. Aged once per frame in Host_Frame
@@ -537,7 +538,7 @@ static void SCR_CalcRefdef(void)
     * exactly this region. */
    {
       int scale = SCR_GetUIScale();
-      if (size >= 120)
+      if (size >= 120 || av_textui.value)
 	 sb_lines = 0;				/* no status bar at all */
       else if (size >= 110)
 	 sb_lines = 24 * scale;			/* no inventory */
@@ -817,7 +818,26 @@ SCR_UpdateScreen(void)
    perf_timing_section_end(PERF_SECTION_HOST_RV);
 
    perf_timing_section_begin(PERF_SECTION_HOST_2D);
-   if (scr_drawloading) {
+   /* Aftershock: with av_textui the status bar, the level summary, the
+    * loading plaque and all text go to the terminal as text; the engine
+    * only records the characters (av_textui.c). */
+   AV_TextUI_BeginFrame();
+   if (av_textui.value) {
+      if (!scr_drawloading) {
+         if (cl.intermission == 2 || cl.intermission == 3 ||
+             (!cl.intermission && key_dest != key_menu)) {
+            av_draw_ctx = AV_CTX_CENTER;
+            SCR_DrawCenterString();
+         }
+         if (!cl.intermission || key_dest != key_game) {
+            av_draw_ctx = AV_CTX_CONSOLE;
+            SCR_DrawConsole();
+            av_draw_ctx = AV_CTX_MENU;
+            M_Draw();
+         }
+         av_draw_ctx = AV_CTX_NONE;
+      }
+   } else if (scr_drawloading) {
       SCR_DrawLoading();
       Sbar_Draw();
    } else if (cl.intermission == 1 && key_dest == key_game) {
@@ -834,6 +854,7 @@ SCR_UpdateScreen(void)
       SCR_DrawConsole();
       M_Draw();
    }
+   AV_TextUI_EndFrame();
 
    if (pconupdate)
       D_UpdateRects(pconupdate);

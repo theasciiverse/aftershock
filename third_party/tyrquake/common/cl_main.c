@@ -36,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "bgmusic.h"
 #include "cdaudio.h"
 #include "av_family.h"
+#include "av_textui.h"
 
 /* we need to declare some mouse variables here, 
  * because the menu system
@@ -879,6 +880,7 @@ void CL_Init(void)
 
    /* register our commands */
    AV_Family_Init();
+   AV_TextUI_Init();
    Cvar_RegisterVariable(&cl_name);
    Cvar_RegisterVariable(&cl_color);
    Cvar_RegisterVariable(&cl_upspeed);

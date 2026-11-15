@@ -182,7 +182,7 @@ static uint32_t box(const uint8_t *src, int stride, int x0, int x1,
 static void half_frame(const uint8_t *src, int w, int h, int stride)
 {
     int pw, ph, ox, oy;         /* picture size and offset, in grid pixels */
-    int gw = grid_w, gh = grid_h * 2;
+    int gw = grid_w, gh = (grid_h - av_overlay_reserved_rows()) * 2;
     int x, y, r, c;
     uint32_t fg = 0xffffffff, bg = 0xffffffff;
     int cur_r = -1, cur_c = -1;

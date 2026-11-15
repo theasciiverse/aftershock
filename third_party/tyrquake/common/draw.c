@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "console.h"
 #include "d_iface.h"
 #include "draw.h"
+#include "av_textui.h"
 #include "quakedef.h"
 #include "rhi.h"
 #include "sys.h"
@@ -75,6 +76,16 @@ void *Draw_PicFromWad(const char *name)
 Draw_CachePic
 ================
 */
+/* Aftershock: the name of the picture Draw_CachePic last returned, so the
+ * menus can put a text label in its place. */
+static const char *last_cachepic_name;
+
+const char *
+Draw_LastCachePicName(void)
+{
+    return last_cachepic_name;
+}
+
 qpic_t *
 Draw_CachePic(const char *path)
 {
@@ -93,6 +104,7 @@ Draw_CachePic(const char *path)
 	strlcpy(pic->name, path, sizeof(pic->name));
     }
 
+    last_cachepic_name = pic->name;
     dat = (qpic_t*)Cache_Check(&pic->cache);
 
     if (dat)
@@ -230,6 +242,8 @@ smoothly scrolled off.
 */
 void Draw_Character(int x, int y, int num)
 {
+    if (AV_TextUI_Char(x, y, num))
+	return;
     byte *dest;
     byte *source;
     int drawline;
@@ -754,6 +768,8 @@ Draw_TransPicTranslateScaled(int x, int y, const qpic_t *pic,
 void
 Draw_CharacterScaled(int x, int y, int num, int scale)
 {
+    if (scale > 0 && AV_TextUI_Char(x / scale, y / scale, num))
+	return;
     byte *dest;
     byte *source;
     int drawline;

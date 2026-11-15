@@ -1,5 +1,6 @@
 #include "oq_render.h"
 #include "oq_term.h"
+#include "av_overlay.h"
 
 #include <pthread.h>
 #include <stdlib.h>
@@ -61,6 +62,10 @@ static void *render_loop(void *arg)
             backend->resize(&cfg);
         }
         backend->frame(front, front_w, front_h, front_stride);
+        /* Aftershock: other backends get the text drawn after them. */
+        if (backend != &av_backend_half)
+            av_overlay_emit(cfg.cols, cfg.rows + av_overlay_reserved_rows(),
+                            cfg.origin_col, cfg.origin_row);
     }
     return NULL;
 }
