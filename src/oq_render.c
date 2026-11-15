@@ -63,7 +63,7 @@ static void *render_loop(void *arg)
         }
         backend->frame(front, front_w, front_h, front_stride);
         /* Aftershock: other backends get the text drawn after them. */
-        if (backend != &av_backend_half)
+        if ((backend != &av_backend_half && backend != &av_backend_sextant))
             av_overlay_emit(cfg.cols, cfg.rows + av_overlay_reserved_rows(),
                             cfg.origin_col, cfg.origin_row);
     }

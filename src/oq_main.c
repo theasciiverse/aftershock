@@ -429,7 +429,7 @@ static void fit_canvas(struct sink_ctx *ctx, int term_cols, int term_rows)
 
     /* Aftershock: the status line takes the bottom row; the half-block
      * backend lays it out itself, the others draw above it. */
-    if (ctx->be != &av_backend_half)
+    if ((ctx->be != &av_backend_half && ctx->be != &av_backend_sextant))
         rows -= av_overlay_reserved_rows();
     if (cols < 1) cols = 1;
     if (rows < 1) rows = 1;
@@ -568,7 +568,7 @@ static int run_game(const oq_present_backend *be, oq_present_config *cfg,
      * making chafa upscale detail that was never rendered. Raising the engine
      * resolution turns out to be nearly free -- 1920x1200 still holds the
      * 60fps target -- because presentation happens on another thread. */
-    if (!strcmp(res, "auto") && be == &av_backend_half) {
+    if (!strcmp(res, "auto") && (be == &av_backend_half || be == &av_backend_sextant)) {
         int tc, tr, w, h;
 
         oq_term_size(&tc, &tr);

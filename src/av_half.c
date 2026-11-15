@@ -179,6 +179,80 @@ static uint32_t box(const uint8_t *src, int stride, int x0, int x1,
     return (r << 16) | (g << 8) | b;
 }
 
+/* --video=sextant: each cell is 2x3 sub-pixels in two colours, drawn with
+ * the sextant characters of Unicode's Symbols for Legacy Computing
+ * (U+1FB00 on), which most current terminals draw themselves.  Sharper
+ * edges than half blocks, at the cost of two colours per cell. */
+static int sextants;
+
+static unsigned lum(uint32_t c)
+{
+    return ((c >> 16) & 255) * 3 + ((c >> 8) & 255) * 6 + (c & 255);
+}
+
+static uint32_t mean(const uint32_t *c, int n, int mask, int want)
+{
+    unsigned r = 0, g = 0, b = 0, k = 0;
+    int i;
+
+    for (i = 0; i < n; i++) {
+        if (((mask >> i) & 1) != want)
+            continue;
+        r += (c[i] >> 16) & 255;
+        g += (c[i] >> 8) & 255;
+        b += c[i] & 255;
+        k++;
+    }
+    if (!k)
+        return 0;
+    return ((r / k) << 16) | ((g / k) << 8) | (b / k);
+}
+
+static void sextant_cell(cell *k, const uint8_t *src, int stride, int w,
+                         int h, int pw, int ph, int gx, int gy)
+{
+    /* The cell spans [gx, gx+1) by [gy, gy+2) in half-block pixels. */
+    long x0 = (long)gx * w * 2 / pw, x2 = (long)(gx + 1) * w * 2 / pw;
+    long ytop = (long)gy * h * 3 / ph, ybot = (long)(gy + 2) * h * 3 / ph;
+    uint32_t sub[6];
+    unsigned l[6], avg = 0;
+    int i, mask = 0;
+
+    if (ybot > (long)h * 3)
+        ybot = (long)h * 3;
+    /* coordinates above are in halves (x) and thirds (y) of source pixels */
+    for (i = 0; i < 6; i++) {
+        int sx = i & 1, sy = i >> 1;
+        long ax = x0 + (x2 - x0) * sx / 2, bx = x0 + (x2 - x0) * (sx + 1) / 2;
+        long ay = ytop + (ybot - ytop) * sy / 3;
+        long by = ytop + (ybot - ytop) * (sy + 1) / 3;
+
+        sub[i] = box(src, stride, (int)(ax / 2), (int)((bx + 1) / 2),
+                     (int)(ay / 3), (int)((by + 2) / 3));
+        l[i] = lum(sub[i]);
+        avg += l[i];
+    }
+    avg /= 6;
+    for (i = 0; i < 6; i++)
+        if (l[i] > avg)
+            mask |= 1 << i;
+    if (mask == 0 || mask == 63) {
+        k->top = k->bot = mean(sub, 6, 0, 0) ? mean(sub, 6, 0, 0)
+                                               : mean(sub, 6, 63, 1);
+        if (mask == 63)
+            k->top = k->bot = mean(sub, 6, 63, 1);
+        return;
+    }
+    k->top = mean(sub, 6, mask, 1);
+    k->bot = mean(sub, 6, mask, 0);
+    if (mask == 21)
+        k->ch = 0x258C;         /* left half block */
+    else if (mask == 42)
+        k->ch = 0x2590;         /* right half block */
+    else
+        k->ch = 0x1FB00 + mask - 1 - (mask > 21) - (mask > 42);
+}
+
 static void half_frame(const uint8_t *src, int w, int h, int stride)
 {
     int pw, ph, ox, oy;         /* picture size and offset, in grid pixels */
@@ -206,24 +280,38 @@ static void half_frame(const uint8_t *src, int w, int h, int stride)
     for (r = 0; r < grid_h; r++) {
         for (c = 0; c < grid_w; c++) {
             cell *k = &cur[r * grid_w + c];
-            uint32_t px[2];
-            int i;
+            int gx = c - ox, gy = r * 2 - oy;
 
-            for (i = 0; i < 2; i++) {
-                int gy = r * 2 + i - oy, gx = c - ox;
-
-                if (gx < 0 || gx >= pw || gy < 0 || gy >= ph) {
-                    px[i] = 0;
-                    continue;
-                }
-                x = (int)((long)gx * w / pw);
-                y = (int)((long)gy * h / ph);
-                px[i] = box(src, stride, x, (int)((long)(gx + 1) * w / pw),
-                            y, (int)((long)(gy + 1) * h / ph));
-            }
-            k->top = px[0];
-            k->bot = px[1];
             k->ch = 0;
+            if (gx < 0 || gx >= pw || gy < 0 || gy + 1 >= ph + 1 ||
+                gy >= ph) {
+                k->top = k->bot = 0;
+                continue;
+            }
+            if (sextants) {
+                sextant_cell(k, src, stride, w, h, pw, ph, gx, gy);
+                continue;
+            }
+            {
+                uint32_t px[2];
+                int i;
+
+                for (i = 0; i < 2; i++) {
+                    int yy = gy + i;
+
+                    if (yy >= ph) {
+                        px[i] = 0;
+                        continue;
+                    }
+                    x = (int)((long)gx * w / pw);
+                    y = (int)((long)yy * h / ph);
+                    px[i] = box(src, stride, x,
+                                (int)((long)(gx + 1) * w / pw), y,
+                                (int)((long)(yy + 1) * h / ph));
+                }
+                k->top = px[0];
+                k->bot = px[1];
+            }
         }
     }
 
@@ -270,15 +358,21 @@ static void half_frame(const uint8_t *src, int w, int h, int stride)
     }
     out_str("\033[?2026l", 8);
 
+    /* Development aid: AV_DUMP_FRAME=path writes the 150th engine frame as
+     * a PPM, to compare picture modes away from a terminal. */
     {
-        static FILE *dbg;
         static unsigned n;
-        if (!dbg && getenv("AV_DEBUG_FILE"))
-            dbg = fopen(getenv("AV_DEBUG_FILE"), "w");
-        if (dbg && ++n % 30 == 0) {
-            fprintf(dbg, "frame %u src %dx%d grid %dx%d changed %d bytes %zu\n",
-                    n, w, h, grid_w, grid_h, changed, out_len);
-            fflush(dbg);
+        const char *dump = getenv("AV_DUMP_FRAME");
+
+        if (dump && ++n == 150) {
+            FILE *f = fopen(dump, "wb");
+            if (f) {
+                int y;
+                fprintf(f, "P6\n%d %d\n255\n", w, h);
+                for (y = 0; y < h; y++)
+                    fwrite(src + (size_t)y * stride, 3, (size_t)w, f);
+                fclose(f);
+            }
         }
     }
     if (out && (changed || force_full))
@@ -294,6 +388,16 @@ static void half_frame(const uint8_t *src, int w, int h, int stride)
 
 const oq_present_backend av_backend_half = {
     "half", half_init, half_shutdown, half_resize, half_frame
+};
+
+static int sextant_init(const oq_present_config *cfg)
+{
+    sextants = 1;
+    return half_init(cfg);
+}
+
+const oq_present_backend av_backend_sextant = {
+    "sextant", sextant_init, half_shutdown, half_resize, half_frame
 };
 
 /* The engine resolution that fills a grid of cols x rows cells exactly:

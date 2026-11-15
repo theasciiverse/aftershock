@@ -55,6 +55,9 @@ Shots are lifted onto what you face, so you rarely need to look up or down.
 
 - `--video=half` (default): truecolour half blocks, two square pixels per
   character, only changed cells sent. Ours, no library.
+- `--video=sextant`: ours too, sharper: each character is 2x3 sub-pixels
+  in two colours (sextant characters, U+1FB00 on, which most current
+  terminals draw themselves). Same speed as half blocks.
 - `--video=chafa --symbols=fine|block|ascii`: OmaQuake's chafa modes,
   sub-cell glyphs, block shades, or plain letters.
 - `--video=caca`: libcaca, 16 colours.

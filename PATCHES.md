@@ -19,6 +19,9 @@ was taken from it.
   wasted. Only changed cells are sent, colours and cursor moves only when they
   differ, inside synchronised output (`CSI ? 2026`). Uses no library.
   `oq_term_write_raw` (oq_term.c) writes its bytes unchanged.
+- **Sextant picture** (`--video=sextant`, same file): 2x3 sub-pixels per
+  cell in two colours (split at the cell's mean brightness), drawn with the
+  sextant characters; same diffing and text overlay.
 - **Text overlay** (`src/av_overlay.c`, new): terminal text laid over the
   picture cells (HUD and messages).
 - **`make CHAFA=0`** builds without chafa (LGPL-3.0), the configuration that

@@ -53,6 +53,7 @@ typedef struct oq_present_backend {
 } oq_present_backend;
 
 extern const oq_present_backend av_backend_half;
+extern const oq_present_backend av_backend_sextant;
 extern const oq_present_backend oq_backend_chafa;
 extern const oq_present_backend oq_backend_caca;
 
