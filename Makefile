@@ -110,7 +110,9 @@ $(TEST_BIN): tests/oq_evdev_test.c src/oq_evdev.c src/oq_evdev.h | $(BUILD)
 
 engine: $(TYRQUAKE_A)
 
-$(TYRQUAKE_A):
+# Aftershock carries engine changes, so the core is always handed to its own
+# make, which rebuilds only what changed.
+$(TYRQUAKE_A): FORCE
 	$(MAKE) -C $(TYRQUAKE) STATIC_LINKING=1
 
 clean:
