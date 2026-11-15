@@ -503,6 +503,9 @@ static void video_sink(const uint8_t *rgb, int w, int h, int stride, void *ud)
 static void key_sink(unsigned keycode, int down, uint16_t mods, void *ud)
 {
     (void)ud;
+    /* Aftershock: session logging, every key as the engine gets it. */
+    oq_retro_log("key %u %s mods=%u\n", keycode, down ? "down" : "up",
+                 (unsigned)mods);
     oq_retro_key(keycode, down, mods);
 }
 

@@ -12,6 +12,7 @@
  */
 #include "av_overlay.h"
 #include "oq_term.h"
+#include "oq_retro.h"
 
 #define AV_TEXTUI_FRONTEND
 #include "av_textui.h"
@@ -55,6 +56,25 @@ void av_overlay_capture(void)
 
     if (!ui)
         return;
+    /* Session logging: about once a second, what the player sees. */
+    {
+        static unsigned n;
+        static int last_menu = -1, last_inter = -1;
+
+        if (++n % 60 == 0 || ui->menu != last_menu ||
+            ui->intermission != last_inter) {
+            oq_retro_log("state: level \"%s\" game=%d demo=%d menu=%d "
+                         "console=%d intermission=%d health=%d armor=%d "
+                         "weapon=%d ammo=%d kills=%d/%d secrets=%d/%d "
+                         "time=%d\n", ui->level, ui->in_game, ui->demo,
+                         ui->menu, ui->console, ui->intermission,
+                         ui->health, ui->armor, ui->weapon, ui->ammo,
+                         ui->kills, ui->total_kills, ui->secrets,
+                         ui->total_secrets, ui->level_time);
+            last_menu = ui->menu;
+            last_inter = ui->intermission;
+        }
+    }
     pthread_mutex_lock(&lock);
     /* Only the used records: the array is large and mostly empty. */
     memcpy(&pending, ui, offsetof(av_textui_t, rec));
@@ -123,7 +143,7 @@ static void fill_row(grid *g, int r, int c0, int c1, uint32_t paper)
 /* ---- the status line ---------------------------------------------------- */
 
 static const char *const weapon_names[9] = {
-    "", "Blade", "Shotgun", "Double Shotgun", "Spike Gun", "Spike Cannon",
+    "", "Axe", "Shotgun", "Double Shotgun", "Spike Gun", "Spike Cannon",
     "Grenades", "Rockets", "Lightning Gun"
 };
 static const char *const ammo_names[5] = {

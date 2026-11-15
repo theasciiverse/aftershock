@@ -55,13 +55,21 @@ static void RETRO_CALLCONV log_printf(enum retro_log_level level,
                                       const char *fmt, ...)
 {
     va_list ap;
+    char line[2048];
+    static int at_line_start = 1;
+    size_t len;
 
     if (!logfp)
         return;
-    fprintf(logfp, "[%d] ", (int)level);
     va_start(ap, fmt);
-    vfprintf(logfp, fmt, ap);
+    vsnprintf(line, sizeof(line), fmt, ap);
     va_end(ap);
+    /* Aftershock: the engine prints a line in pieces; tag each line once. */
+    if (at_line_start)
+        fprintf(logfp, "[%d] ", (int)level);
+    fputs(line, logfp);
+    len = strlen(line);
+    at_line_start = len > 0 && line[len - 1] == '\n';
     fflush(logfp);
 }
 
