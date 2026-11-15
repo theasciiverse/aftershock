@@ -280,6 +280,8 @@ void
 S_ClearOverflow()
 {
     S_StopAllSounds(true);
+    if (!known_sfx)
+        return; /* sound never started (-nosound) */
     struct known_sfx *known = known_sfx->overflow;
 
     while (known) {
