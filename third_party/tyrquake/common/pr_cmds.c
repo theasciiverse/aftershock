@@ -137,7 +137,9 @@ PF_objerror(void)
     ED_Print(ed);
     ED_Free(ed);
 
-    SV_Error("Program error");
+    /* Aftershock: as in FitzQuake and its descendants, a broken entity is
+     * removed and the level goes on.  LibreQuake's maps are made on those
+     * engines, and one (lq_e3m4) has a path_corner without a name. */
 }
 
 
