@@ -16,6 +16,21 @@ anyone else about it. Our own half-block backend (`--video=half`, the
 default, src/av_half.c) uses no library, so a build without chafa
 (`make CHAFA=0`) is the one we could ship if the answer is no.
 
+Local tags `v0.1.0` to `v0.1.2` (OmaQuake's) and `v0.47` on (TyrQuake's)
+come from the upstream remotes: never `git push --tags`. Our own versions
+are 0.x.0 and are not tagged while the blocker stands (ROADMAP.md says
+what each one holds).
+
+## How to play and test
+
+    sh tools/fetch-librequake.sh && sh tools/build-data.sh && make -j4
+    ./aftershock                     # half blocks; --video=sextant, --sound
+
+Tests and recordings: a scratch `XDG_STATE_HOME` and `HOME` in the same
+command, `--no-sound` (the default) and the 4G scope. `AFTERSHOCK_CMD`
+('map lq_e0m1') and `AFTERSHOCK_CMD_INGAME` ('god') drive the console;
+`--log` holds the console, every key and the player's state once a second.
+
 ## What it is made of
 
 - `src/oq_*.c`: OmaQuake (Raul Dias, GPL-2.0-only), remote `upstream`,
