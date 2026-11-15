@@ -1,0 +1,41 @@
+# Aftershock text table: find<TAB>replace, applied in order to every line
+# the player reads. "gore<TAB>" lines apply only while av_gore is 0.
+#
+# family-friendly obituaries and names
+gore	 was disemboweled by a Moon Rat	 was flattened by a Moon Rat
+gore	 was gutted by a Biohell Warrior	 was knocked flat by a Biohell Warrior
+gore	 was gored by a Gore Hound	 was bowled over by a Grave Hound
+gore	Gore Hound	Grave Hound
+gore	 was gibbed by 	 was blown away by 
+gore	 was hacked to death by 	 was cut down by 
+gore	 was chopped to bits by 	 was chopped down by 
+gore	 was sent home in a box by 	 was sent packing by 
+gore	 was put six feet under by 	 was put down by 
+gore	 sucked on 	 breathed in 
+gore	's muffler	's exhaust
+# level names and messages from the maps
+gore	Destroy Satan's Smelly Spawn!	Destroy the Smelly Spawn!
+gore	Satan's Smelly Spawn	The Smelly Spawn
+gore	Corpse army	The Restless Army
+gore	Holy Bloated Corpse	Holy Bloated Hulk
+gore	Damnation Station	Desolation Station
+# the pentagram item gets a name of our own
+Lucifier's Protection is fading...	The Aegis is fading...
+Lucifier's Protection	the Aegis
+Lucifer's Protection	The Aegis
+# weapon names of our own
+Super Nailgun	Spike Cannon
+Nailgun	Spike Gun
+Thunderbolt	Lightning Gun
+Quad Damage	Demolisher Sigil
+ recovered a Quad with 	 recovered a Demolisher Sigil with 
+# old names from the game code
+Shub-Niggurath	the Shoggoth
+Chthon	Cthulhi
+Shambler	Hollow
+# endings and titles
+Thanks for playing the beta version of LibreQuake!	Thanks for playing Aftershock!
+of LibreQuake!	of Aftershock!
+LibreQuake	Aftershock
+Quake	Aftershock
+QUAKE	AFTERSHOCK

@@ -1,0 +1,8 @@
+#!/bin/sh
+# Start Aftershock from a checkout. The game's settings and saves go to
+# $XDG_STATE_HOME/aftershock (else ~/.local/state/aftershock), and so does
+# the session log. Options are passed on (see ./aftershock --help).
+here=$(cd "$(dirname "$0")" && pwd)
+state=${XDG_STATE_HOME:-$HOME/.local/state}/aftershock
+mkdir -p "$state"
+exec "$here/build/aftershock" --log="$state/session.log" "$@"

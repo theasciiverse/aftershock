@@ -1,4 +1,72 @@
-# OmaQuake — rules for working in this repo
+# Aftershock
+
+A first-person shooter drawn in the terminal: the GPL engine of a 1996
+shooter (TyrQuake, by way of libretro's tyrquake core and Raul Dias's
+OmaQuake terminal frontend) filled only with free content, LibreQuake
+(BSD-3-Clause art, maps, sounds and music; GPL-2.0+ game code). No id
+Software data is needed, shipped or searched for, ever.
+
+## OPEN BLOCKER: licence, waiting on Raul Dias
+
+OmaQuake is GPL-2.0-only and links chafa (LGPL-3.0), which cannot be
+distributed together. David is writing to Raul about it. Until that is
+answered: **no tags, no releases, no release workflow runs**, and the repo
+stays private. Local builds for testing are fine. Do not contact Raul or
+anyone else about it. Our own half-block backend (`--video=half`, the
+default, src/av_half.c) uses no library, so a build without chafa
+(`make CHAFA=0`) is the one we could ship if the answer is no.
+
+## What it is made of
+
+- `src/oq_*.c`: OmaQuake (Raul Dias, GPL-2.0-only), remote `upstream`,
+  history kept. Our changes in them are marked `Aftershock:`.
+- `src/av_*.c`: ours. `av_half.c` the half-block picture, `av_overlay.c`
+  the text drawn over it (HUD, messages).
+- `third_party/tyrquake`: libretro/tyrquake as a subtree, with our changes.
+- `game/aftershock/`: our files over LibreQuake (configs, strings, models,
+  colormap fix), packed by `tools/mkpak.py` into `data/aftershock/pak0.pak`.
+- `data/` (not in git): `tools/fetch-librequake.sh` puts LibreQuake
+  v0.09-beta (pinned SHA-256) in `data/id1`, `tools/build-data.sh` builds
+  `data/aftershock`.
+- The `tyrquake-base` branch holds the first start on plain desktop
+  TyrQuake (before David switched the base to OmaQuake, 2026-11-15).
+
+## Identity rules (David, 2026-11-15)
+
+- The title is **Aftershock**. Never "Quake", id's logos, the Q symbol, id's
+  monster, place or weapon names, or id's story texts in the title, menus,
+  HUD, messages, endings or store text. Use LibreQuake's own names, or ours.
+  Check LibreQuake's QuakeC and texts for leftover id names, including
+  uncompiled branches, and replace anything that would ship.
+- Credit plainly (credits screen, README, PATCHES.md, store draft): built on
+  TyrQuake (Kevin Shanahan and contributors) from id Software's GPL source
+  release, the libretro tyrquake core, OmaQuake (Raul Dias); content by the
+  LibreQuake project. Naming Quake in a credits or history line is fine.
+- Family-friendly by default: debris and sparks instead of blood and gibs,
+  obituaries without "disemboweled" or "gutted". Optional switch for the
+  original effects (`av_gore 1`), default off. No sexual content anywhere.
+- No em-dashes or en-dashes in anything we write.
+
+## Decisions (and conservative choices made while David was away)
+
+- 2026-11-15: base switched from plain TyrQuake to OmaQuake (David).
+- Sound is off unless asked for (`./aftershock --sound`), as the brief says.
+- Mouse: OmaQuake's behaviour is unchanged (evdev when readable, else the
+  terminal's own reports). The game is fully playable on the keyboard.
+- Keyboard-first bindings in `game/aftershock/default.cfg`; the core's own
+  first-boot bind overrides were removed.
+- QuakeC is not recompiled yet: no modern FTEQCC on rover, and building one
+  from a download would mean running downloaded code. Text identity and
+  family-friendly changes are done in the engine (a string table applied to
+  everything the player reads) and by overriding models and sounds. When
+  David installs a QuakeC compiler, the same changes can move into QuakeC.
+- Saves and settings: `$XDG_STATE_HOME/aftershock` (else
+  `~/.local/state/aftershock`). Tests and smoke runs always set a scratch
+  `XDG_STATE_HOME` and `HOME` in the same command, and pass `--no-sound`.
+- Every build, test or recording runs under
+  `systemd-run --user --scope -p MemoryMax=4G` with `-j4`.
+
+# Rules inherited from OmaQuake (still true here)
 
 ## stdout is the picture
 
@@ -53,11 +121,13 @@ missing pkg-config file silently drops a backend, it does not fail the
 build. Verify what's compiled in before assuming a feature (or its absence)
 is real.
 
-## Do not edit third_party/
+## third_party/tyrquake is ours to change (Aftershock)
 
-`third_party/tyrquake` is a git submodule. Do not modify files inside it;
-if the engine itself needs a change, that's a different, larger
-undertaking than anything expected here.
+OmaQuake kept the engine as an untouched submodule. Aftershock needs engine
+changes (key handling, the text HUD, family-friendly effects), so it is a git
+subtree of libretro/tyrquake (remote `libretro-tyrquake`, base commit in
+UPSTREAM.md). Every change there is listed in PATCHES.md and marked
+`Aftershock:` in a comment.
 
 ## Code style
 

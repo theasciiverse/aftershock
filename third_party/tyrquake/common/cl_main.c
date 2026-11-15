@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sound.h"
 #include "bgmusic.h"
 #include "cdaudio.h"
+#include "av_family.h"
 
 /* we need to declare some mouse variables here, 
  * because the menu system
@@ -727,9 +728,9 @@ static void CL_RelinkEntities(void)
       }
 
       if (ent->model->flags & EF_GIB)
-         R_RocketTrail(oldorg, ent->origin, 2);
+         R_RocketTrail(oldorg, ent->origin, AV_TrailType(2));
       else if (ent->model->flags & EF_ZOMGIB)
-         R_RocketTrail(oldorg, ent->origin, 4);
+         R_RocketTrail(oldorg, ent->origin, AV_TrailType(4));
       else if (ent->model->flags & EF_TRACER)
          R_RocketTrail(oldorg, ent->origin, 3);
       else if (ent->model->flags & EF_TRACER2)
@@ -877,6 +878,7 @@ void CL_Init(void)
    CL_InitTEnts();
 
    /* register our commands */
+   AV_Family_Init();
    Cvar_RegisterVariable(&cl_name);
    Cvar_RegisterVariable(&cl_color);
    Cvar_RegisterVariable(&cl_upspeed);

@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "console.h"
 #include "model.h"
 #include "quakedef.h"
+#include "av_family.h"
 #include "server.h"
 
 #include "d_iface.h"
@@ -224,7 +225,7 @@ void R_ParseParticleEffect(void)
    else
       count = msgcount;
 
-   R_RunParticleEffect(org, dir, color, count);
+   R_RunParticleEffect(org, dir, AV_ParticleColor(color), count);
 }
 
 /*

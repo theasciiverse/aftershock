@@ -8,7 +8,7 @@ CC          ?= cc
 PKG_CONFIG  ?= pkg-config
 
 BUILD       := build
-BIN         := $(BUILD)/omaquake
+BIN         := $(BUILD)/aftershock
 
 TYRQUAKE    := third_party/tyrquake
 TYRQUAKE_A  := $(TYRQUAKE)/tyrquake_libretro_unix.a
@@ -39,7 +39,14 @@ LDLIBS      += -lm -pthread
 CFLAGS      += -pthread
 
 # Backends are optional: build whichever libraries are present.
+# Aftershock: CHAFA=0 builds without chafa at all (LGPL-3.0, which a
+# GPL-2.0-only program cannot be shipped with; see CLAUDE.md). That is the
+# shippable build: the half-block backend needs no library, and libcaca
+# (WTFPL) may stay. The default dev build keeps chafa for comparison.
+CHAFA ?= 1
+ifneq ($(CHAFA),0)
 HAVE_CHAFA  := $(shell $(PKG_CONFIG) --exists chafa && echo 1)
+endif
 HAVE_CACA   := $(shell $(PKG_CONFIG) --exists caca && echo 1)
 HAVE_ALSA   := $(shell $(PKG_CONFIG) --exists alsa && echo 1)
 
@@ -120,7 +127,7 @@ clean:
 	-$(MAKE) -C $(TYRQUAKE) clean
 
 install: $(BIN)
-	install -Dm755 $(BIN) $(DESTDIR)$(PREFIX)/bin/omaquake
+	install -Dm755 $(BIN) $(DESTDIR)$(PREFIX)/bin/aftershock
 
 # An always-out-of-date prerequisite. FLAGS_STAMP needs this because an
 # order-only prerequisite alone never re-runs the recipe: once build/.flags

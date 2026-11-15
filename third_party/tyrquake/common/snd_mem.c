@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "sound.h"
 #include "sys.h"
+#include "av_family.h"
 
 /*
 ================
@@ -156,7 +157,7 @@ S_LoadSound(sfx_t *s)
     strlcpy(namebuffer, "sound/", sizeof(namebuffer));
     strlcat(namebuffer, s->name, sizeof(namebuffer));
 
-    data = (byte*)COM_LoadStackFile(namebuffer, stackbuf, sizeof(stackbuf), NULL);
+    data = (byte*)COM_LoadStackFile(AV_GoreFile(namebuffer), stackbuf, sizeof(stackbuf), NULL);
 
     if (!data) {
 	Con_Printf("Couldn't load %s\n", namebuffer);

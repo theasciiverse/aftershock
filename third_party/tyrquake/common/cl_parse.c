@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "compat/strl.h"
 
 #include "cdaudio.h"
+#include "av_family.h"
 #include "client.h"
 #include "cmd.h"
 #include "console.h"
@@ -374,7 +375,7 @@ CL_ParseServerInfo(void)
     /* parse signon message */
     level = cl.levelname;
     maxlen = sizeof(cl.levelname);
-    snprintf(level, maxlen, "%s", MSG_ReadString());
+    snprintf(level, maxlen, "%s", AV_Text(MSG_ReadString()));
 
     /* seperate the printfs so the server message can have a color */
     Con_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36"
@@ -1193,11 +1194,11 @@ CL_ParseServerMessage(void)
             Host_EndGame("Server disconnected\n");
 
          case svc_print:
-            Con_Printf("%s", MSG_ReadString());
+            Con_Printf("%s", AV_Text(MSG_ReadString()));
             break;
 
          case svc_centerprint:
-            SCR_CenterPrint(MSG_ReadString());
+            SCR_CenterPrint(AV_Text(MSG_ReadString()));
             break;
 
          case svc_stufftext:
@@ -1375,14 +1376,14 @@ CL_ParseServerMessage(void)
             cl.intermission = 2;
             cl.completed_time = cl.time;
             vid.recalc_refdef = true;	/* go to full screen */
-            SCR_CenterPrint(MSG_ReadString());
+            SCR_CenterPrint(AV_Text(MSG_ReadString()));
             break;
 
          case svc_cutscene:
             cl.intermission = 3;
             cl.completed_time = cl.time;
             vid.recalc_refdef = true;	/* go to full screen */
-            SCR_CenterPrint(MSG_ReadString());
+            SCR_CenterPrint(AV_Text(MSG_ReadString()));
             break;
 
          case svc_sellscreen:
