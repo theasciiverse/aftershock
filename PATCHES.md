@@ -46,6 +46,8 @@ was taken from it.
 
 ## Engine (third_party/tyrquake)
 
+Every change is marked `Aftershock:` in a comment.
+
 - `common/av_family.c` (new), hooked into `cl_parse.c`, `r_part.c`,
   `cl_main.c`, `model.c`, `snd_mem.c`:
   - `av_gore 0` (default): blood particles become sparks, gib and head
@@ -54,14 +56,40 @@ was taken from it.
     become thuds. `av_gore 1` restores the originals.
   - The text table `av_text.txt` rewrites what the player reads (prints,
     centre messages, level names, endings).
+- `common/av_textui.c` (new), hooked into `draw.c`, `menu.c`, `screen.c`:
+  with `av_textui 1` (default) the engine records the characters of its
+  menus, console and centre messages instead of drawing them, puts text
+  labels (and the AFTERSHOCK title, and a help page of our own) in place of
+  the menu pictures, does not draw the status bar, plaques or level summary,
+  and fills in the player's state for the frontend. `Draw_LastCachePicName`
+  (draw.c) names the picture a menu is about to draw.
+- `menu.c`: our own quit prompts (id's were jokes, not all for children);
+  the Host a game list holds LibreQuake's playable maps by their own names;
+  the mission-pack lists point at it. "No Quake servers found" says "No
+  servers found".
+- `keys.c`: `` ` `` and `~` run their binding in the console again, so they
+  close it (libretro had made them typed characters).
+- `model.c`, `bspfile.h`: the BSP2 format as compilers write it today
+  ("BSP2", float bounds in nodes and leafs) loads; the core only knew the
+  older "2PSB" layout under that name. LibreQuake's lq_e2m4 needs it.
+- `alias_model.c`: skins up to 4096 wide (LibreQuake's two bosses).
+- `pr_cmds.c`: `objerror` removes the entity and the level goes on, as in
+  FitzQuake (lq_e3m4 has a nameless path corner).
+- `r_main.c`: the view model is drawn only when it is an alias model
+  (LibreQuake's demo2 crashed the renderer).
 - `libretro.c`: the console goes to the frontend's log; the first-boot bind
   and gamma overrides are gone (the game's default.cfg rules);
-  `AFTERSHOCK_CMD` hands the console a command line (tests);
-  `aftershock_text_input()` tells the frontend when the keyboard is typing.
+  `AFTERSHOCK_CMD` and `AFTERSHOCK_CMD_INGAME` hand the console a command
+  line at start or once in a level (tests, the preview);
+  `aftershock_text_input()` tells the frontend when the keyboard is typing;
+  only `/id1/` is recognised in the data path, so a folder named like a
+  mission pack switches nothing.
 
 ## Game data (game/aftershock, packed into data/aftershock/pak0.pak)
 
-- `quake.rc`, `default.cfg`: our start-up and keyboard-first bindings.
+- `quake.rc`, `default.cfg`: our start-up, keyboard-first bindings,
+  gamma 0.65, `viewsize 120`, the FitzQuake network protocol
+  (`sv_protocol 666`, for LibreQuake's maps with more than 256 models).
 - `gfx/colormap.lmp`: LibreQuake's, with the one byte the engine's size check
   expects (16385).
 - `progs/av_rubble1..3.mdl`, `progs/av_pile.mdl`: the debris.
