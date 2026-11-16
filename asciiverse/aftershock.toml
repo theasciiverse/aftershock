@@ -41,12 +41,13 @@ utf8 = true
 color = "truecolor"
 mouse = false
 
-# 100x30, asciiverse/record-preview.sh: LibreQuake's attract demo with the
-# status line, the menu, more of the demo; re-encoded at 12 fps
-# (asciiverse/recast.py, from our doom-ascii)
+# 100x30, asciiverse/record-preview.sh: a fight in the prequel's first
+# level, rockets, sparks and debris, the status line throughout; re-encoded
+# at 10 fps (asciiverse/recast.py, from our doom-ascii); the still is a
+# rocket bursting on a wall over a fallen hound
 [media]
 cast = "asciiverse/aftershock.cast"
-thumbnail_at = 10.0
+thumbnail_at = 15.0
 
 [release]
 source = "github"

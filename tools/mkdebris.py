@@ -77,10 +77,10 @@ def main():
     out = sys.argv[1]
     os.makedirs(out, exist_ok=True)
     # small chunks for flying debris, a bigger pile for what a body leaves
-    for i, (r, sq) in enumerate([(3.0, 0.8), (4.0, 0.7), (5.0, 0.9)]):
+    for i, (r, sq) in enumerate([(4.5, 0.8), (6.0, 0.7), (7.5, 0.9)]):
         v, f = stone(10 + i, r, sq)
         write_mdl(os.path.join(out, "av_rubble%d.mdl" % (i + 1)), v, f, 10 + i)
-    v, f = stone(42, 9.0, 0.5)
+    v, f = stone(42, 11.0, 0.5)
     write_mdl(os.path.join(out, "av_pile.mdl"), v, f, 42)
     print("debris models in", out)
 
