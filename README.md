@@ -12,11 +12,12 @@ No id Software data is needed, shipped or looked for.
 ## Build and play (Linux)
 
     sh tools/fetch-librequake.sh    # LibreQuake v0.09-beta into data/id1 (240 MB)
-    sh tools/build-data.sh          # our own files into data/aftershock
+    sh tools/build-data.sh          # game code (gmqcc) and our files into data/aftershock
     make -j4                        # builds build/aftershock
     ./aftershock
 
-Needs a C compiler and make. chafa, libcaca and ALSA are optional
+Needs a C compiler, make, Python 3 and gmqcc (GMQCC 0.3.6, `apt install
+gmqcc`), which compiles the game code in `qcsrc/`. chafa, libcaca and ALSA are optional
 (`make backends` says which were found); `make CHAFA=0` leaves chafa out.
 
 Play in a terminal with 24-bit colour, at least 100x30 (bigger is better),

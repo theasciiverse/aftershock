@@ -48,14 +48,11 @@ was taken from it.
 
 Every change is marked `Aftershock:` in a comment.
 
-- `common/av_family.c` (new), hooked into `cl_parse.c`, `r_part.c`,
-  `cl_main.c`, `model.c`, `snd_mem.c`:
-  - `av_gore 0` (default): blood particles become sparks, gib and head
-    models load as stone debris (`progs/av_*.mdl`, made by
-    `tools/mkdebris.py`), blood trails become smoke, squelching gib sounds
-    become thuds. `av_gore 1` restores the originals.
-  - The text table `av_text.txt` rewrites what the player reads (prints,
-    centre messages, level names, endings).
+- `common/av_family.c` (new), hooked into `cl_parse.c` and `cl_main.c`:
+  the `av_gore` cvar (0, family-friendly, by default; the game code reads
+  it), and the text table `av_text.txt`, which rewrites what the player
+  reads from outside the game code: the maps' own level names and
+  messages, and the engine's lines.
 - `common/av_textui.c` (new), hooked into `draw.c`, `menu.c`, `screen.c`:
   with `av_textui 1` (default) the engine records the characters of its
   menus, console and centre messages instead of drawing them, puts text
@@ -85,6 +82,36 @@ Every change is marked `Aftershock:` in a comment.
   only `/id1/` is recognised in the data path, so a folder named like a
   mission pack switches nothing.
 
+## Game code (qcsrc/)
+
+LibreQuake v0.09-beta's LibreProgsDeluxe (GPL-2.0+), imported unchanged in
+its own commit, then:
+
+- **Built with gmqcc** (GMQCC 0.3.6) by `tools/build-progs.sh`:
+  `-std=fteqcc -funtyped-nil -fassign-function-types -O2`, the file list
+  read from LibreQuake's own `progs.src` (`tools/progs-list.py`). Two
+  FTEQCC-only constructs were rewritten: the epilogue table (a struct
+  array) is a function, `IntermissionEpilogue`, and five casts between
+  function types are plain assignments. gmqcc places a local vector in
+  the last two globals, one past the end, which the engine rejects;
+  `tools/progs-pad.py` adds three spare globals. Same monster and secret
+  totals as LibreQuake's own build on every map compared.
+- **One set of texts** (`localized_text.qc`): LibreQuake's names; id's
+  original texts (the `#else` branches) are removed here and in
+  `client.qc`, `items.qc`, `weapons.qc` and the camera code, so nothing
+  depends on `__LIBREQUAKE__` any more. New episode endings of our own.
+  Family-friendly obituaries (flattened, knocked flat, bowled over by a
+  Grave Hound, blown away, cut down, started over). The pentagram item is
+  the Aegis; the nailguns are the Spike Gun and the Spike Cannon, their
+  ammunition spikes; two typos fixed.
+- **Monster names**: each monster's `netname` is LibreQuake's name.
+- **`aftershock.qc`** (new): with `av_gore 0`, `ThrowGib` and `ThrowHead`
+  throw stone debris (`progs/av_*.mdl`), `SpawnBlood` throws sparks
+  (palette 226 instead of 73), thrown flesh is stone, and the gib sounds
+  (`player/udeath.wav`, `player/gib.wav`, `zombie/z_gib.wav`) are thuds
+  (`player/land2.wav`, `weapons/tink1.wav`). `av_gore 1` brings back the
+  originals at once.
+
 ## Game data (game/aftershock, packed into data/aftershock/pak0.pak)
 
 - `quake.rc`, `default.cfg`: our start-up, keyboard-first bindings,
@@ -92,8 +119,10 @@ Every change is marked `Aftershock:` in a comment.
   (`sv_protocol 666`, for LibreQuake's maps with more than 256 models).
 - `gfx/colormap.lmp`: LibreQuake's, with the one byte the engine's size check
   expects (16385).
-- `progs/av_rubble1..3.mdl`, `progs/av_pile.mdl`: the debris.
-- `av_text.txt`: the text table.
+- `progs/av_rubble1..3.mdl`, `progs/av_pile.mdl`: the debris
+  (`tools/mkdebris.py`).
+- `av_text.txt`: the text table, for map and engine text.
+- `progs.dat`: built from `qcsrc/` by `tools/build-data.sh`, not stored.
 
 ## Removed
 
@@ -106,4 +135,4 @@ Every change is marked `Aftershock:` in a comment.
 
 - OmaQuake's chafa and libcaca backends, mouse handling (evdev or the
   terminal's reports) and ALSA sound.
-- LibreQuake's maps, models, textures, sounds, music and compiled game code.
+- LibreQuake's maps, models, textures, sounds and music.

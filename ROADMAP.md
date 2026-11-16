@@ -35,9 +35,9 @@ the licence question in CLAUDE.md is open.
       left out
 - [ ] Play episodes 1 to 4 through by hand and fix what turns up
 - [ ] An octant mode (Unicode 16) once terminals draw octants widely
-- [x] 100x30 .cast preview (the attract demo; a fight would be better)
+- [x] 100x30 .cast preview, a fight
 - [ ] A credits screen of its own in the menu
 - [ ] Title graphics (conback) of our own
 - [ ] Release workflow (Linux static, macOS, Windows), once the licence is
       settled
-- [ ] QuakeC rebuilt from source once a QuakeC compiler is installed
+- [x] QuakeC built from source with gmqcc; texts and gore defaults in it

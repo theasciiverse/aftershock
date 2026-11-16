@@ -38,8 +38,11 @@ command, `--no-sound` (the default) and the 4G scope. `AFTERSHOCK_CMD`
 - `src/av_*.c`: ours. `av_half.c` the half-block picture, `av_overlay.c`
   the text drawn over it (HUD, messages).
 - `third_party/tyrquake`: libretro/tyrquake as a subtree, with our changes.
-- `game/aftershock/`: our files over LibreQuake (configs, strings, models,
-  colormap fix), packed by `tools/mkpak.py` into `data/aftershock/pak0.pak`.
+- `qcsrc/`: the game code, LibreQuake's LibreProgsDeluxe (GPL-2.0+) with
+  our changes, compiled with gmqcc.
+- `game/aftershock/`: our files over LibreQuake (configs, text table,
+  debris models, colormap fix); `tools/build-data.sh` packs them with the
+  compiled progs.dat into `data/aftershock/pak0.pak`.
 - `data/` (not in git): `tools/fetch-librequake.sh` puts LibreQuake
   v0.09-beta (pinned SHA-256) in `data/id1`, `tools/build-data.sh` builds
   `data/aftershock`.
@@ -70,15 +73,10 @@ command, `--no-sound` (the default) and the 4G scope. `AFTERSHOCK_CMD`
   terminal's own reports). The game is fully playable on the keyboard.
 - Keyboard-first bindings in `game/aftershock/default.cfg`; the core's own
   first-boot bind overrides were removed.
-- QuakeC is not recompiled yet: no modern FTEQCC on rover, and building one
-  from a download would mean running downloaded code. Text identity and
-  family-friendly changes are done in the engine (a string table applied to
-  everything the player reads) and by overriding models and sounds. When
-  David installs a QuakeC compiler, the same changes can move into QuakeC.
-- LibreQuake's compiled game code (progs.dat) ships unchanged, so its
-  uncompiled `#else` branches with id's texts (localized_text.qc) are not
-  in anything we ship. When we fork the QuakeC, drop those branches and
-  move the av_text.txt rules into it.
+- The game code (qcsrc/) is ours, built with gmqcc 0.3.6 (David installed
+  it 2026-11-16) by tools/build-progs.sh. Identity and family-friendly
+  text lives there (localized_text.qc, aftershock.qc); av_text.txt is only
+  for map and engine text. id's #else branches are removed.
 - The text UI replaces menu pictures by name (av_textui.c, `piclabels`); a
   picture it does not know is drawn as before.
 - Gamepad support (src/av_pad.c) was written without a pad to try it on.
