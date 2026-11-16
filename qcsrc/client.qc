@@ -187,28 +187,29 @@ void() GotoNextMap =
 	}
 };
 
-// cypress (09 mar 2024) -- use struct for epilogue levels.
-var struct
+// Aftershock: the epilogue table as a function, which gmqcc can compile
+// (it has no structs).  Same maps, tracks and texts as LibreQuake's table.
+// Returns the epilogue text for the current map, or "" when there is none.
+string() IntermissionEpilogue =
 {
-	string 	map_name;
-	float	cd_track;
-	string 	epilogue_text;
-	string 	freeware_text;
-} intermission_levels[] =
-{
-
 #ifdef __LIBREQUAKE__
-
-	{"maps/lq_e0m7.bsp", 2, LOC_EPILOGUE_0, __NULL__},
-
+	if (world.model == "maps/lq_e0m7.bsp")
+		return LOC_EPILOGUE_0;
 #endif // __LIBREQUAKE__
-
-	{"maps/lq_e1m7.bsp", 2, LOC_EPILOGUE_1, LOC_EPILOGUE_1_FREEWARE},
-	{"maps/lq_e2m6.bsp", 2, LOC_EPILOGUE_2, __NULL__},
-	{"maps/lq_e3m6.bsp", 2, LOC_EPILOGUE_3, __NULL__},
-	{"maps/lq_e4m7.bsp", 2, LOC_EPILOGUE_4, __NULL__}
+	if (world.model == "maps/lq_e1m7.bsp")
+	{
+		if (!cvar("registered"))
+			return LOC_EPILOGUE_1_FREEWARE;
+		return LOC_EPILOGUE_1;
+	}
+	if (world.model == "maps/lq_e2m6.bsp")
+		return LOC_EPILOGUE_2;
+	if (world.model == "maps/lq_e3m6.bsp")
+		return LOC_EPILOGUE_3;
+	if (world.model == "maps/lq_e4m7.bsp")
+		return LOC_EPILOGUE_4;
+	return "";
 };
-// --cypress
 
 void() ExitIntermission =
 {
@@ -227,29 +228,18 @@ void() ExitIntermission =
 //
 	if (intermission_running == 2)
 	{
-		// cypress (09 mar 2024) -- use struct for epilogue levels.
-		for (float i = 0; i < intermission_levels.length; i++)
+		// Aftershock: see IntermissionEpilogue (every epilogue uses track 2)
+		string epilogue = IntermissionEpilogue ();
+		if (epilogue != "")
 		{
-			if (world.model == intermission_levels[i].map_name)
-			{
-				WriteByte (MSG_ALL, SVC_CDTRACK);
-				WriteByte (MSG_ALL, intermission_levels[i].cd_track);	// [cdtrack]
-				WriteByte (MSG_ALL, 3);									// [looptrack], unused.
+			WriteByte (MSG_ALL, SVC_CDTRACK);
+			WriteByte (MSG_ALL, 2);		// [cdtrack]
+			WriteByte (MSG_ALL, 3);		// [looptrack], unused.
 
-				WriteByte(MSG_ALL, SVC_FINALE);
-
-				if (!cvar("registered") && intermission_levels[i].freeware_text != __NULL__)
-				{
-					WriteString(MSG_ALL, intermission_levels[i].freeware_text);
-				}
-				else
-				{
-					WriteString(MSG_ALL, intermission_levels[i].epilogue_text);
-				}
-				return;
-			}
+			WriteByte(MSG_ALL, SVC_FINALE);
+			WriteString(MSG_ALL, epilogue);
+			return;
 		}
-		// --cypress
 
 		GotoNextMap();
 	}
@@ -611,7 +601,7 @@ void() PutClientInServer =
 	W_SetCurrentAmmo ();
 
 	self.attack_finished = time;
-	self.th_pain = (void(entity attacker, float damage)) player_pain;
+	self.th_pain = player_pain;	// Aftershock: no cast (gmqcc, -fassign-function-types)
 	self.th_die = PlayerDie;
 
 	self.deadflag = DEAD_NO;

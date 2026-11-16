@@ -717,7 +717,7 @@ void () fd_secret_done =
 	{
 		self.health = 10000;
 		self.takedamage = DAMAGE_YES;
-		self.th_pain = (void(entity attacker, float damage)) fd_secret_use;	
+		self.th_pain = fd_secret_use;	// Aftershock: no cast (gmqcc)	
 		self.th_die = fd_secret_use;//copypasta'd directly from gpl'd qw source on github. -- secret door kill crash fix
 	}
 	sound(self, CHAN_NO_PHS_ADD+CHAN_VOICE, self.noise3, 1, ATTN_NORM);
@@ -827,7 +827,7 @@ void () func_door_secret =
 	{
 		self.health = 10000;
 		self.takedamage = DAMAGE_YES;
-		self.th_pain = (void(entity attacker, float damage)) fd_secret_use;
+		self.th_pain = fd_secret_use;	// Aftershock: no cast (gmqcc)
 	}
 
 	self.oldorigin = self.origin;
