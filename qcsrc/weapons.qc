@@ -83,7 +83,7 @@ void(vector org, vector vel) SpawnMeatSpray =
 	missile.nextthink = time + 1;
 	missile.think = SUB_Remove;
 
-	setmodel (missile, "progs/zom_gib.mdl");
+	setmodel (missile, AV_GibModel ("progs/zom_gib.mdl"));	// Aftershock
 	setsize (missile, '0 0 0', '0 0 0');
 	setorigin (missile, org);
 };
@@ -104,7 +104,7 @@ void(vector org, vector vel, float damage) SpawnBlood =
 	WriteCoord (MSG_MULTICAST, org_z);
 	multicast (org, MULTICAST_PVS);
 #else
-	particle (org, vel*0.1, 73, damage*2);
+	particle (org, vel*0.1, AV_BloodColor (73), damage*2);	// Aftershock
 #endif
 };
 
@@ -1440,7 +1440,6 @@ void() QuadCheat =
 #define ID_IMPULSE_CYCLEREVERSE	12
 #define ID_IMPULSE_QUADCHEAT	255
 
-#ifdef __LIBREQUAKE__
 #ifndef __QW__ // Cutscene camera is not used in QW
 
 #define LQ_IMPULSE_SPAWNCAM		200
@@ -1449,7 +1448,6 @@ void() QuadCheat =
 #define LQ_IMPULSE_PLAYCAMERAS	203
 
 #endif // __QW__
-#endif // __LIBREQUAKE__
 
 void() ImpulseCommands =
 {
@@ -1466,7 +1464,6 @@ void() ImpulseCommands =
 		case ID_IMPULSE_CYCLEREVERSE: CycleWeaponReverseCommand(); break;
 		case ID_IMPULSE_QUADCHEAT: QuadCheat(); break;
 
-#ifdef __LIBREQUAKE__
 #ifndef __QW__ // Cutscene camera is not used in QW
 
 		case LQ_IMPULSE_SPAWNCAM: LQ_SpawnCamera(); break;
@@ -1475,7 +1472,6 @@ void() ImpulseCommands =
 		case LQ_IMPULSE_PLAYCAMERAS: LQ_PlayCameras(); break;
 
 #endif // __QW__
-#endif // __LIBREQUAKE__
 
 		default: break;
 	}

@@ -365,7 +365,7 @@ void() wiz_die =
 // check for gib
 	if (self.health < -40)
 	{
-		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
+		sound (self, CHAN_VOICE, AV_GibSound ("player/udeath.wav"), 1, ATTN_NORM);
 		ThrowHead ("progs/h_wizard.mdl", self.health);
 		ThrowGib ("progs/gib2.mdl", self.health);
 		ThrowGib ("progs/gib2.mdl", self.health);
@@ -425,7 +425,7 @@ void() monster_wizard =
 
 	//gnounc
 	self.noise = "wizard/wsight.wav";	//gnounc
-	self.netname = "Scrag";
+	self.netname = "Messenger";	// Aftershock: LibreQuake's name
 	self.killstring = LOC_DEATH_WIZARD;
 
 	setsize (self, '-16 -16 -24', '16 16 40');

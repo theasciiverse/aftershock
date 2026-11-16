@@ -228,7 +228,7 @@ void() hknight_die =
 	// check for gib
 	if (self.health < -40)
 	{
-		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
+		sound (self, CHAN_VOICE, AV_GibSound ("player/udeath.wav"), 1, ATTN_NORM);
 		ThrowHead ("progs/h_hellkn.mdl", self.health);
 		ThrowGib ("progs/gib1.mdl", self.health);
 		ThrowGib ("progs/gib2.mdl", self.health);
@@ -462,7 +462,7 @@ void() monster_hell_knight =
 
 	//gnounc
 	self.noise = "hknight/sight1.wav";	//gnounc
-	self.netname = "Hell Knight";
+	self.netname = "Biohell Warrior";	// Aftershock: LibreQuake's name
 	self.killstring = LOC_DEATH_HELL_KNIGHT;
 
 	setsize (self, '-16 -16 -24', '16 16 40');

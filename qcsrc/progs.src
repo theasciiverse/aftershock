@@ -8,6 +8,7 @@
 
 defs.qc
 localized_text.qc       // LQ: Localized strings, also applies to Quake
+aftershock.qc           // Aftershock: family-friendly effects
 deathmatch_settings.qc
 subs.qc
 

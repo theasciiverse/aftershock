@@ -192,10 +192,8 @@ void() GotoNextMap =
 // Returns the epilogue text for the current map, or "" when there is none.
 string() IntermissionEpilogue =
 {
-#ifdef __LIBREQUAKE__
 	if (world.model == "maps/lq_e0m7.bsp")
 		return LOC_EPILOGUE_0;
-#endif // __LIBREQUAKE__
 	if (world.model == "maps/lq_e1m7.bsp")
 	{
 		if (!cvar("registered"))
@@ -1539,18 +1537,12 @@ void(entity targ, entity attacker) ClientObituary =
 			if (attacker.dmg == 666000) {
 				bprint(PRINT_MEDIUM, targ.netname);
 
-#ifdef __LIBREQUAKE__
 
 				if (random() < 0.01)
 					bprint(PRINT_MEDIUM, LOC_DEATH_FALL2);
 				else
 					bprint(PRINT_MEDIUM, LOC_DEATH_FALL1);
 
-#else
-
-				bprint(PRINT_MEDIUM, LOC_DEATH_FALL);
-
-#endif // __LIBREQUAKE__
 
 				bprint(PRINT_MEDIUM, "\n");
 				return;
@@ -1559,18 +1551,12 @@ void(entity targ, entity attacker) ClientObituary =
 			if (attacker.dmg == 666001) {
 				bprint(PRINT_MEDIUM, targ.netname);
 
-#ifdef __LIBREQUAKE__
 
 				if (random() < 0.01)
 					bprint(PRINT_MEDIUM, LOC_DEATH_SPACE2);
 				else
 					bprint(PRINT_MEDIUM, LOC_DEATH_SPACE1);
 
-#else
-
-				bprint(PRINT_MEDIUM, LOC_DEATH_FALL);
-
-#endif // __LIBREQUAKE__
 
 				bprint(PRINT_MEDIUM, "\n");
 				return;
@@ -1579,18 +1565,12 @@ void(entity targ, entity attacker) ClientObituary =
 			if (attacker.dmg == 666002) {
 				bprint(PRINT_MEDIUM, targ.netname);
 
-#ifdef __LIBREQUAKE__
 
 				if (random() < 0.01)
 					bprint(PRINT_MEDIUM, LOC_DEATH_VOID2);
 				else
 					bprint(PRINT_MEDIUM, LOC_DEATH_VOID1);
 
-#else
-
-				bprint(PRINT_MEDIUM, LOC_DEATH_FALL);
-
-#endif // __LIBREQUAKE__
 
 				bprint(PRINT_MEDIUM, "\n");
 				return;
@@ -1703,7 +1683,6 @@ void(entity targ, entity attacker) ClientObituary =
 					deathstring = LOC_DEATH_AXE_1A;
 					deathstring2 = LOC_DEATH_AXE_1B;
 
-#ifdef __LIBREQUAKE__
 					if (attacker.super_damage_finished > 0) {
 						deathstring = LOC_DEATH_AXE_QA;
 						deathstring2 = LOC_DEATH_AXE_QB;
@@ -1712,7 +1691,6 @@ void(entity targ, entity attacker) ClientObituary =
 						deathstring = LOC_DEATH_AXE_2A;
 						deathstring2 = LOC_DEATH_AXE_2B;
 					}
-#endif
 				}
 
 				// Shotgun
@@ -1721,7 +1699,6 @@ void(entity targ, entity attacker) ClientObituary =
 					deathstring = LOC_DEATH_SHOTGUN_1A;
 					deathstring2 = LOC_DEATH_SHOTGUN_1B;
 
-#ifdef __LIBREQUAKE__
 					if (attacker.super_damage_finished > 0) {
 						deathstring = LOC_DEATH_SHOTGUN_QA;
 						deathstring2 = LOC_DEATH_SHOTGUN_QB;
@@ -1730,7 +1707,6 @@ void(entity targ, entity attacker) ClientObituary =
 						deathstring = LOC_DEATH_SHOTGUN_2A;
 						deathstring2 = LOC_DEATH_SHOTGUN_2B;
 					}
-#endif
 				}
 
 				// Super Shotgun
@@ -1739,7 +1715,6 @@ void(entity targ, entity attacker) ClientObituary =
 					deathstring = LOC_DEATH_SUPER_SHOTGUN_1A;
 					deathstring2 = LOC_DEATH_SUPER_SHOTGUN_1B;
 
-#ifdef __LIBREQUAKE__
 					if (attacker.super_damage_finished > 0) {
 						deathstring = LOC_DEATH_SUPER_SHOTGUN_QA;
 						deathstring2 = LOC_DEATH_SUPER_SHOTGUN_QB;
@@ -1748,7 +1723,6 @@ void(entity targ, entity attacker) ClientObituary =
 						deathstring = LOC_DEATH_SUPER_SHOTGUN_2A;
 						deathstring2 = LOC_DEATH_SUPER_SHOTGUN_2B;
 					}
-#endif
 				}
 
 				// Nailgun
@@ -1757,7 +1731,6 @@ void(entity targ, entity attacker) ClientObituary =
 					deathstring = LOC_DEATH_NAILGUN_1A;
 					deathstring2 = LOC_DEATH_NAILGUN_1B;
 
-#ifdef __LIBREQUAKE__
 					if (attacker.super_damage_finished > 0) {
 						deathstring = LOC_DEATH_NAILGUN_QA;
 						deathstring2 = LOC_DEATH_NAILGUN_QB;
@@ -1766,7 +1739,6 @@ void(entity targ, entity attacker) ClientObituary =
 						deathstring = LOC_DEATH_NAILGUN_2A;
 						deathstring2 = LOC_DEATH_NAILGUN_2B;
 					}
-#endif
 				}
 
 				// Super Nailgun
@@ -1775,7 +1747,6 @@ void(entity targ, entity attacker) ClientObituary =
 					deathstring = LOC_DEATH_SUPER_NAILGUN_1A;
 					deathstring2 = LOC_DEATH_SUPER_NAILGUN_1B;
 
-#ifdef __LIBREQUAKE__
 					if (attacker.super_damage_finished > 0) {
 						deathstring = LOC_DEATH_SUPER_NAILGUN_QA;
 						deathstring2 = LOC_DEATH_SUPER_NAILGUN_QB;
@@ -1784,7 +1755,6 @@ void(entity targ, entity attacker) ClientObituary =
 						deathstring = LOC_DEATH_SUPER_NAILGUN_2A;
 						deathstring2 = LOC_DEATH_SUPER_NAILGUN_2B;
 					}
-#endif
 				}
 
 				// Grenade Launcher
@@ -1793,7 +1763,6 @@ void(entity targ, entity attacker) ClientObituary =
 					deathstring = LOC_DEATH_GRENADE_LAUNCHER_1A;
 					deathstring2 = LOC_DEATH_GRENADE_LAUNCHER_1B;
 
-#ifdef __LIBREQUAKE__
 					if (attacker.super_damage_finished > 0) {
 						deathstring = LOC_DEATH_GRENADE_LAUNCHER_QA;
 						deathstring2 = LOC_DEATH_GRENADE_LAUNCHER_QB;
@@ -1806,12 +1775,6 @@ void(entity targ, entity attacker) ClientObituary =
 						deathstring = LOC_DEATH_GRENADE_LAUNCHER_2A;
 						deathstring2 = LOC_DEATH_GRENADE_LAUNCHER_2B;
 					}
-#else
-					if (targ.health < -40) {
-						deathstring = LOC_DEATH_GRENADE_LAUNCHER_GA;
-						deathstring2 = LOC_DEATH_GRENADE_LAUNCHER_GB;
-					}
-#endif
 				}
 
 				// Rocket Launcher
@@ -1820,7 +1783,6 @@ void(entity targ, entity attacker) ClientObituary =
 					deathstring = LOC_DEATH_ROCKET_LAUNCHER_1A;
 					deathstring2 = LOC_DEATH_ROCKET_LAUNCHER_1B;
 
-#ifdef __LIBREQUAKE__
 					if (attacker.super_damage_finished > 0) {
 						deathstring = LOC_DEATH_ROCKET_LAUNCHER_Q1A;
 						deathstring2 = LOC_DEATH_ROCKET_LAUNCHER_Q1B;
@@ -1833,35 +1795,6 @@ void(entity targ, entity attacker) ClientObituary =
 						deathstring = LOC_DEATH_ROCKET_LAUNCHER_2A;
 						deathstring2 = LOC_DEATH_ROCKET_LAUNCHER_2B;
 					}
-#else
-					if (targ.health < -40) {
-						if (attacker.super_damage_finished > 0) {
-							rnum = random();
-							if (rnum < 0.3) {
-								deathstring = LOC_DEATH_ROCKET_LAUNCHER_Q1A;
-								deathstring2 = LOC_DEATH_ROCKET_LAUNCHER_Q1B;
-							}
-							else if (rnum < 0.6) {
-								deathstring = LOC_DEATH_ROCKET_LAUNCHER_Q2A;
-								deathstring2 = LOC_DEATH_ROCKET_LAUNCHER_Q2B;
-							}
-							else {
-								// This one flips the order of attacker and target
-								bprint (PRINT_MEDIUM, attacker.netname);
-								bprint (PRINT_MEDIUM, LOC_DEATH_ROCKET_LAUNCHER_Q3A);
-								bprint (PRINT_MEDIUM, targ.netname);
-								bprint (PRINT_MEDIUM, LOC_DEATH_ROCKET_LAUNCHER_Q3B);
-								bprint (PRINT_MEDIUM, "\n");
-								return;
-							}
-						}
-						else 
-						{
-							deathstring = LOC_DEATH_ROCKET_LAUNCHER_GA;
-							deathstring2 = LOC_DEATH_ROCKET_LAUNCHER_GB;
-						}
-					}
-#endif
 				}
 
 				// Lightning Gun
@@ -1869,7 +1802,6 @@ void(entity targ, entity attacker) ClientObituary =
 					deathstring = LOC_DEATH_LIGHTNING_1A;
 					deathstring2 = LOC_DEATH_LIGHTNING_1B;
 
-#ifdef __LIBREQUAKE__
 					if (attacker.super_damage_finished > 0) {
 						deathstring = LOC_DEATH_LIGHTNING_QA;
 						deathstring2 = LOC_DEATH_LIGHTNING_QB;
@@ -1878,7 +1810,6 @@ void(entity targ, entity attacker) ClientObituary =
 						deathstring = LOC_DEATH_LIGHTNING_2A;
 						deathstring2 = LOC_DEATH_LIGHTNING_2B;
 					}
-#endif
 				}
 
 				// Lightning Gun Discharge
@@ -1918,18 +1849,12 @@ void(entity targ, entity attacker) ClientObituary =
 			{
 				targ.deathtype = string_null;
 				
-#ifdef __LIBREQUAKE__
 
 				if (random() < 0.01)
 					bprint(PRINT_MEDIUM, LOC_DEATH_FALL2);
 				else
 					bprint(PRINT_MEDIUM, LOC_DEATH_FALL1);
 
-#else
-
-				bprint(PRINT_MEDIUM, LOC_DEATH_FALL);
-
-#endif // __LIBREQUAKE__
 
 				bprint(PRINT_MEDIUM, "\n");
 				return;

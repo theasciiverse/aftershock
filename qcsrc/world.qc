@@ -237,6 +237,7 @@ void() worldspawn =
 	precache_sound ("misc/power.wav");			//lightning for boss
 
 // player gib sounds
+	AV_Precache ();		// Aftershock: debris and thuds
 	precache_sound ("player/gib.wav");			// player gib sound
 	precache_sound ("player/udeath.wav");		// player gib sound
 	precache_sound ("player/tornoff2.wav");		// gib sound

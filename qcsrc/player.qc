@@ -553,7 +553,7 @@ void(string gibname, float dm) ThrowGib =
 
 	new = spawn();
 	new.origin = self.origin;
-	setmodel (new, gibname);
+	setmodel (new, AV_GibModel (gibname));	// Aftershock
 	setsize (new, '0 0 0', '0 0 0');
 	new.velocity = VelocityForDamage (dm);
 	new.movetype = MOVETYPE_BOUNCE;
@@ -570,7 +570,7 @@ void(string gibname, float dm) ThrowGib =
 
 void(string gibname, float dm) ThrowHead =
 {
-	setmodel (self, gibname);
+	setmodel (self, AV_HeadModel (gibname));	// Aftershock
 	self.frame = 0;
 	self.nextthink = -1;
 	self.movetype = MOVETYPE_BOUNCE;
@@ -606,10 +606,10 @@ void() GibPlayer =
 	}
 
 	if (random() < 0.5)
-		sound (self, CHAN_VOICE, "player/gib.wav", 1, ATTN_NONE);
+		sound (self, CHAN_VOICE, AV_GibSound ("player/gib.wav"), 1, ATTN_NONE);
 
 	else
-		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NONE);
+		sound (self, CHAN_VOICE, AV_GibSound ("player/udeath.wav"), 1, ATTN_NONE);
 };
 
 void() PlayerDie =

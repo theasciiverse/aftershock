@@ -129,7 +129,7 @@ void() shalrath_die =
 	// check for gib
 	if (self.health < -90)
 	{
-		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
+		sound (self, CHAN_VOICE, AV_GibSound ("player/udeath.wav"), 1, ATTN_NORM);
 		ThrowHead ("progs/h_shal.mdl", self.health);
 		ThrowGib ("progs/gib1.mdl", self.health);
 		ThrowGib ("progs/gib2.mdl", self.health);
@@ -266,7 +266,7 @@ void() monster_shalrath =
 
 	//gnounc
 	self.noise = "shalrath/sight.wav";	//gnounc
-	self.netname = "Vore";
+	self.netname = "Servant of Nyarlathotep";	// Aftershock: LibreQuake's name
 	self.killstring = LOC_DEATH_SHALRATH;
 
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);

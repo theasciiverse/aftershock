@@ -35,72 +35,10 @@
 
 cvar_t av_gore = { "av_gore", "0", true };
 
-static const char *const gore_files[][2] = {
-    { "progs/gib1.mdl",      "progs/av_rubble1.mdl" },
-    { "progs/gib2.mdl",      "progs/av_rubble2.mdl" },
-    { "progs/gib3.mdl",      "progs/av_rubble3.mdl" },
-    { "progs/zom_gib.mdl",   "progs/av_rubble2.mdl" },
-    { "progs/h_player.mdl",  "progs/av_pile.mdl" },
-    { "progs/h_dog.mdl",     "progs/av_pile.mdl" },
-    { "progs/h_mega.mdl",    "progs/av_pile.mdl" },
-    { "progs/h_guard.mdl",   "progs/av_pile.mdl" },
-    { "progs/h_knight.mdl",  "progs/av_pile.mdl" },
-    { "progs/h_hellkn.mdl",  "progs/av_pile.mdl" },
-    { "progs/h_wizard.mdl",  "progs/av_pile.mdl" },
-    { "progs/h_ogre.mdl",    "progs/av_pile.mdl" },
-    { "progs/h_demon.mdl",   "progs/av_pile.mdl" },
-    { "progs/h_shams.mdl",   "progs/av_pile.mdl" },
-    { "progs/h_shal.mdl",    "progs/av_pile.mdl" },
-    { "progs/h_zombie.mdl",  "progs/av_pile.mdl" },
-    { "sound/player/udeath.wav",   "sound/player/land2.wav" },
-    { "sound/player/gib.wav",      "sound/player/land2.wav" },
-    { "sound/player/tornoff2.wav", "sound/player/land.wav" },
-    { "sound/zombie/z_gib.wav",    "sound/weapons/tink1.wav" },
-};
-
 void
 AV_Family_Init(void)
 {
     Cvar_RegisterVariable(&av_gore);
-}
-
-const char *
-AV_GoreFile(const char *path)
-{
-    size_t i;
-
-    if (av_gore.value)
-        return path;
-    for (i = 0; i < sizeof(gore_files) / sizeof(gore_files[0]); i++)
-        if (!strcmp(path, gore_files[i][0]))
-            return gore_files[i][1];
-    return path;
-}
-
-/*
- * The game paints blood with palette colour 73 (a red ramp, 72..79 after the
- * renderer's random offset).  Without gore it is sparks: the yellow and
- * orange fire ramp, which also reads as hits landing.
- */
-int
-AV_ParticleColor(int color)
-{
-    if (av_gore.value)
-        return color;
-    if (color >= 64 && color < 80)
-        return 224 + (color & 7) / 2;
-    return color;
-}
-
-/* Trail types 2 (blood) and 4 (slight blood) become smoke (1). */
-int
-AV_TrailType(int type)
-{
-    if (av_gore.value)
-        return type;
-    if (type == 2 || type == 4)
-        return 1;
-    return type;
 }
 
 /* ---- the text table ---------------------------------------------------- */

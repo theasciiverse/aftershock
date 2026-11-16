@@ -729,9 +729,9 @@ static void CL_RelinkEntities(void)
       }
 
       if (ent->model->flags & EF_GIB)
-         R_RocketTrail(oldorg, ent->origin, AV_TrailType(2));
+         R_RocketTrail(oldorg, ent->origin, 2);
       else if (ent->model->flags & EF_ZOMGIB)
-         R_RocketTrail(oldorg, ent->origin, AV_TrailType(4));
+         R_RocketTrail(oldorg, ent->origin, 4);
       else if (ent->model->flags & EF_TRACER)
          R_RocketTrail(oldorg, ent->origin, 3);
       else if (ent->model->flags & EF_TRACER2)

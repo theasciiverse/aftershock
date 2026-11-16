@@ -265,7 +265,7 @@ void() army_die =
 	// check for gib
 	if (self.health < -35)
 	{
-		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
+		sound (self, CHAN_VOICE, AV_GibSound ("player/udeath.wav"), 1, ATTN_NORM);
 		ThrowHead ("progs/h_guard.mdl", self.health);
 		ThrowGib ("progs/gib1.mdl", self.health);
 		ThrowGib ("progs/gib2.mdl", self.health);
@@ -319,7 +319,7 @@ void() monster_army =
 
 	//gnounc
 	self.noise = "soldier/sight1.wav";	//gnounc
-	self.netname = "Grunt";
+	self.netname = "Chosen";	// Aftershock: LibreQuake's name
 	self.killstring = LOC_DEATH_ARMY;
 
 	setsize (self, '-16 -16 -24', '16 16 40');

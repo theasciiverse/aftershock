@@ -10,7 +10,7 @@ command -v gmqcc >/dev/null || { echo "gmqcc not found (apt install gmqcc)" >&2;
 mkdir -p build/qc
 python3 -I tools/progs-list.py qcsrc/progs.src ../../qcsrc/ > build/qc/progs.src
 cd build/qc
-gmqcc -std=fteqcc -funtyped-nil -fassign-function-types -D__LIBREQUAKE__ \
+gmqcc -std=fteqcc -funtyped-nil -fassign-function-types \
       -O2 -Wno-unused-variable > gmqcc.log 2>&1 || { cat gmqcc.log >&2; exit 1; }
 python3 -I ../../tools/progs-pad.py progs.dat
 grep -E "warning|error" gmqcc.log | grep -v "unused" >&2 || true

@@ -257,7 +257,7 @@ void() dog_die =
 	// check for gib
 	if (self.health < -35)
 	{
-		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
+		sound (self, CHAN_VOICE, AV_GibSound ("player/udeath.wav"), 1, ATTN_NORM);
 		ThrowGib ("progs/gib3.mdl", self.health);
 		ThrowGib ("progs/gib3.mdl", self.health);
 		ThrowGib ("progs/gib3.mdl", self.health);
@@ -373,7 +373,7 @@ void() monster_dog =
 
 	//gnounc
 	self.noise = "dog/dsight.wav";
-	self.netname = "Rottweiler";
+	self.netname = "Grave Hound";	// Aftershock: LibreQuake's name
 	self.killstring = LOC_DEATH_DOG;
 
 	setsize (self, '-32 -32 -24', '32 32 40');

@@ -473,7 +473,7 @@ void() ogre_die =
 	// check for gib
 	if (self.health < -80)
 	{
-		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
+		sound (self, CHAN_VOICE, AV_GibSound ("player/udeath.wav"), 1, ATTN_NORM);
 		ThrowHead ("progs/h_ogre.mdl", self.health);
 		ThrowGib ("progs/gib3.mdl", self.health);
 		ThrowGib ("progs/gib3.mdl", self.health);
@@ -533,7 +533,7 @@ void() monster_ogre =
 
 	//gnounc
 	self.noise = "ogre/ogwake.wav";	//gnounc
-	self.netname = "Ogre";
+	self.netname = "Barrel Fang";	// Aftershock: LibreQuake's name
 	self.killstring = LOC_DEATH_OGRE;
 
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);

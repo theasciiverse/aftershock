@@ -198,7 +198,7 @@ void() monster_fish =
 	setmodel (self, "progs/fish.mdl");
 
 	//gnounc
-	self.netname = "Rotfish";
+	self.netname = "Spine Eel";	// Aftershock: LibreQuake's name
 	self.noise = "fish/idle.wav"; //gnounc 	(for completeness..just in case)
 	self.killstring = LOC_DEATH_FISH;
 

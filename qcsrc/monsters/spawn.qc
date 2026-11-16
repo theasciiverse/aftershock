@@ -234,7 +234,7 @@ void() monster_tarbaby =
 
 	//gnounc
 	self.noise = "blob/sight1.wav";	//gnounc
-	self.netname = "Spawn";
+	self.netname = "Bog Face";	// Aftershock: LibreQuake's name
 	self.killstring = LOC_DEATH_TARBABY;
 
 	setsize (self, '-16 -16 -24', '16 16 40');

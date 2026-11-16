@@ -297,7 +297,7 @@ void() monster_oldone =
 	
 	//gnounc
 	setmodel (self, "progs/oldone.mdl");
-	self.netname = "Shub-Niggurath";
+	self.netname = "Shoggoth";	// Aftershock: LibreQuake's name
 	self.killstring = LOC_DEATH_OLDONE;
 
 	setsize (self, '-160 -128 -24', '160 128 256');

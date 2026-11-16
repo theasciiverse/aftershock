@@ -34,7 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "render.h"
 #include "sys.h"
-#include "av_family.h"
 /* FIXME - quick hack to enable merging of NQ/QWSV shared code */
 #define SV_Error Sys_Error
 
@@ -553,7 +552,7 @@ Mod_LoadModel(model_t *mod, qboolean crash)
     }
 
     /* load the file */
-    buf = (unsigned int*)COM_LoadStackFile(AV_GoreFile(mod->name), stackbuf, sizeof(stackbuf), &size);
+    buf = (unsigned int*)COM_LoadStackFile(mod->name, stackbuf, sizeof(stackbuf), &size);
     if (!buf) {
 	if (crash)
 	    SV_Error("%s: %s not found", __func__, mod->name);

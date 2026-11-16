@@ -211,7 +211,7 @@ void(vector st) ZombieFireGrenade =
 	missile.nextthink = time + 2.5;
 	missile.think = SUB_Remove;
 
-	setmodel (missile, "progs/zom_gib.mdl");
+	setmodel (missile, AV_GibModel ("progs/zom_gib.mdl"));	// Aftershock
 	setsize (missile, '0 0 0', '0 0 0');
 	setorigin (missile, org);
 };
@@ -448,7 +448,7 @@ void() zombie_paine30	=[	$paine30,	zombie_run1		] {};
 
 void() zombie_die =
 {
-	sound (self, CHAN_VOICE, "zombie/z_gib.wav", 1, ATTN_NORM);
+	sound (self, CHAN_VOICE, AV_GibSound ("zombie/z_gib.wav"), 1, ATTN_NORM);
 	ThrowHead ("progs/h_zombie.mdl", self.health);
 	ThrowGib ("progs/gib1.mdl", self.health);
 	ThrowGib ("progs/gib2.mdl", self.health);
@@ -565,7 +565,7 @@ void() monster_zombie =
 
 	//gnounc
 	self.noise = "zombie/z_idle.wav";	//gnounc
-	self.netname = "zombie";
+	self.netname = "Deathless Cultist";	// Aftershock: LibreQuake's name
 	self.killstring = LOC_DEATH_ZOMBIE;
 
 	setsize (self, '-16 -16 -24', '16 16 40');

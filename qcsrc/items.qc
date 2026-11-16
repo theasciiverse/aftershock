@@ -1363,7 +1363,6 @@ void() sigil_touch =
 	if (other.health <= 0)
 		return;
 
-#ifdef __LIBREQUAKE__
 
 	string msg;
 
@@ -1386,11 +1385,6 @@ void() sigil_touch =
 		centerprint2 (other, LOC_RUNE_LQ_YOU, msg);
 	} 
 
-#else
-
-	centerprint(other, LOC_RUNE_GET);
-
-#endif // __LIBREQUAKE__
 
 	sound (other, CHAN_ITEM, self.noise, 1, ATTN_NORM);
 	stuffcmd (other, "bf\n");

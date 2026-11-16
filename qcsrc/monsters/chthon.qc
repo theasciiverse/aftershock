@@ -266,7 +266,7 @@ void() boss_awake =
 	setmodel (self, "progs/boss.mdl");
 
 	//gnounc
-	self.netname = "Chthon";
+	self.netname = "Cthulhi";	// Aftershock: LibreQuake's name
 	self.killstring = LOC_DEATH_BOSS;
 
 	setsize (self, '-128 -128 -24', '128 128 256');

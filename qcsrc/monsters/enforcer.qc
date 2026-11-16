@@ -259,7 +259,7 @@ void() enf_die =
 	// check for gib
 	if (self.health < -35)
 	{
-		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
+		sound (self, CHAN_VOICE, AV_GibSound ("player/udeath.wav"), 1, ATTN_NORM);
 		ThrowHead ("progs/h_mega.mdl", self.health);
 		ThrowGib ("progs/gib1.mdl", self.health);
 		ThrowGib ("progs/gib2.mdl", self.health);
@@ -313,7 +313,7 @@ void() monster_enforcer =
 	setmodel (self, "progs/enforcer.mdl");
 
 	//gnounc
-	self.netname = "enforcer";
+	self.netname = "Cyberhunter";	// Aftershock: LibreQuake's name
 	self.killstring = LOC_DEATH_ENFORCER;
 	self.noise = "enforcer/sight1.wav";	//gnounc
 	self.noise1 = "enforcer/sight2.wav";	//gnounc

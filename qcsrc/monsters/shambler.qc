@@ -366,7 +366,7 @@ void() sham_die =
 	// check for gib
 	if (self.health < -60)
 	{
-		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
+		sound (self, CHAN_VOICE, AV_GibSound ("player/udeath.wav"), 1, ATTN_NORM);
 		ThrowHead ("progs/h_shams.mdl", self.health);
 		ThrowGib ("progs/gib1.mdl", self.health);
 		ThrowGib ("progs/gib2.mdl", self.health);
@@ -417,7 +417,7 @@ void() monster_shambler =
 
 	//gnounc
 	self.noise = "shambler/ssight.wav";	//gnounc
-	self.netname = "Shambler";
+	self.netname = "Hollow";	// Aftershock: LibreQuake's name
 	self.killstring = LOC_DEATH_SHAMBLER;
 
 
