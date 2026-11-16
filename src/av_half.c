@@ -131,11 +131,11 @@ static int alloc_grid(int w, int h)
     return 0;
 }
 
-static int sextants;            /* --video=sextant: see below */
+static int style;               /* 0 half, 1 sextants, 2 Braille: below */
 
 static int half_init(const oq_present_config *cfg)
 {
-    sextants = 0;
+    style = 0;
     conf = *cfg;
     return alloc_grid(cfg->cols, cfg->rows);
 }
@@ -182,11 +182,13 @@ static uint32_t box(const uint8_t *src, int stride, int x0, int x1,
     return (r << 16) | (g << 8) | b;
 }
 
-/* --video=sextant: each cell is 2x3 sub-pixels in two colours, drawn with
- * the sextant characters of Unicode's Symbols for Legacy Computing
- * (U+1FB00 on), which most current terminals draw themselves.  Sharper
- * edges than half blocks, at the cost of two colours per cell. */
-static int sextants;
+/* --video=sextant and --video=braille: each cell is a small grid of
+ * sub-pixels in two colours.  Sextants (2x3, U+1FB00 on, Symbols for Legacy
+ * Computing) fill the cell; Braille (2x4 dots, U+2800 on) draws dots, which
+ * come out square on a cell twice as tall as wide, with the second colour
+ * filling between them.  Sharper edges than half blocks, at the cost of two
+ * colours per cell.  `style`: 0 half blocks, 1 sextants, 2 Braille. */
+static int style;
 
 static unsigned lum(uint32_t c)
 {
@@ -211,49 +213,61 @@ static uint32_t mean(const uint32_t *c, int n, int mask, int want)
     return ((r / k) << 16) | ((g / k) << 8) | (b / k);
 }
 
-static void sextant_cell(cell *k, const uint8_t *src, int stride, int w,
-                         int h, int pw, int ph, int gx, int gy)
-{
-    /* The cell spans [gx, gx+1) by [gy, gy+2) in half-block pixels. */
-    long x0 = (long)gx * w * 2 / pw, x2 = (long)(gx + 1) * w * 2 / pw;
-    long ytop = (long)gy * h * 3 / ph, ybot = (long)(gy + 2) * h * 3 / ph;
-    uint32_t sub[6];
-    unsigned l[6], avg = 0;
-    int i, mask = 0;
+/* Braille's dot bits for the 2x4 grid read row by row. */
+static const unsigned char braille_bit[8] = {
+    0x01, 0x08, 0x02, 0x10, 0x04, 0x20, 0x40, 0x80
+};
 
-    if (ybot > (long)h * 3)
-        ybot = (long)h * 3;
-    /* coordinates above are in halves (x) and thirds (y) of source pixels */
-    for (i = 0; i < 6; i++) {
+static void split_cell(cell *k, const uint8_t *src, int stride, int w,
+                       int h, int pw, int ph, int gx, int gy)
+{
+    /* The cell spans [gx, gx+1) by [gy, gy+2) in half-block pixels; ny is
+     * the sub-pixel rows (3 or 4), 2 columns always.  Coordinates below are
+     * in halves (x) and ny-ths (y) of source pixels. */
+    int ny = style == 2 ? 4 : 3, n = 2 * ny;
+    long x0 = (long)gx * w * 2 / pw, x2 = (long)(gx + 1) * w * 2 / pw;
+    long ytop = (long)gy * h * ny / ph, ybot = (long)(gy + 2) * h * ny / ph;
+    uint32_t sub[8];
+    unsigned l[8], avg = 0;
+    int i, mask = 0, full = (1 << n) - 1;
+
+    if (ybot > (long)h * ny)
+        ybot = (long)h * ny;
+    for (i = 0; i < n; i++) {
         int sx = i & 1, sy = i >> 1;
         long ax = x0 + (x2 - x0) * sx / 2, bx = x0 + (x2 - x0) * (sx + 1) / 2;
-        long ay = ytop + (ybot - ytop) * sy / 3;
-        long by = ytop + (ybot - ytop) * (sy + 1) / 3;
+        long ay = ytop + (ybot - ytop) * sy / ny;
+        long by = ytop + (ybot - ytop) * (sy + 1) / ny;
 
         sub[i] = box(src, stride, (int)(ax / 2), (int)((bx + 1) / 2),
-                     (int)(ay / 3), (int)((by + 2) / 3));
+                     (int)(ay / ny), (int)((by + ny - 1) / ny));
         l[i] = lum(sub[i]);
         avg += l[i];
     }
-    avg /= 6;
-    for (i = 0; i < 6; i++)
+    avg /= n;
+    for (i = 0; i < n; i++)
         if (l[i] > avg)
             mask |= 1 << i;
-    if (mask == 0 || mask == 63) {
-        k->top = k->bot = mean(sub, 6, 0, 0) ? mean(sub, 6, 0, 0)
-                                               : mean(sub, 6, 63, 1);
-        if (mask == 63)
-            k->top = k->bot = mean(sub, 6, 63, 1);
+    if (mask == 0 || mask == full) {
+        k->top = k->bot = mean(sub, n, 0, 0);   /* one colour: all of them */
         return;
     }
-    k->top = mean(sub, 6, mask, 1);
-    k->bot = mean(sub, 6, mask, 0);
-    if (mask == 21)
+    k->top = mean(sub, n, mask, 1);
+    k->bot = mean(sub, n, mask, 0);
+    if (style == 2) {
+        unsigned dots = 0;
+
+        for (i = 0; i < 8; i++)
+            if (mask & (1 << i))
+                dots |= braille_bit[i];
+        k->ch = 0x2800 + dots;
+    } else if (mask == 21) {
         k->ch = 0x258C;         /* left half block */
-    else if (mask == 42)
+    } else if (mask == 42) {
         k->ch = 0x2590;         /* right half block */
-    else
+    } else {
         k->ch = 0x1FB00 + mask - 1 - (mask > 21) - (mask > 42);
+    }
 }
 
 static void half_frame(const uint8_t *src, int w, int h, int stride)
@@ -291,8 +305,8 @@ static void half_frame(const uint8_t *src, int w, int h, int stride)
                 k->top = k->bot = 0;
                 continue;
             }
-            if (sextants) {
-                sextant_cell(k, src, stride, w, h, pw, ph, gx, gy);
+            if (style) {
+                split_cell(k, src, stride, w, h, pw, ph, gx, gy);
                 continue;
             }
             {
@@ -397,13 +411,31 @@ static int sextant_init(const oq_present_config *cfg)
 {
     int r = half_init(cfg);
 
-    sextants = 1;
+    style = 1;
     return r;
 }
 
 const oq_present_backend av_backend_sextant = {
     "sextant", sextant_init, half_shutdown, half_resize, half_frame
 };
+
+static int braille_init(const oq_present_config *cfg)
+{
+    int r = half_init(cfg);
+
+    style = 2;
+    return r;
+}
+
+const oq_present_backend av_backend_braille = {
+    "braille", braille_init, half_shutdown, half_resize, half_frame
+};
+
+int av_half_family(const oq_present_backend *be)
+{
+    return be == &av_backend_half || be == &av_backend_sextant ||
+           be == &av_backend_braille;
+}
 
 /* The engine resolution that fills a grid of cols x rows cells exactly:
  * the half-block grid's own aspect (cols by rows*2 square pixels), scaled by

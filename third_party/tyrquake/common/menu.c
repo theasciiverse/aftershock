@@ -1313,15 +1313,20 @@ M_OptionsVideo_AdjustSliders(int dir)
           break;
        }
        case 20: {		/* Aftershock: the terminal picture */
-          /* Cycle through the pictures this build can draw. */
-          int v = (int)av_picture.value, i;
+          /* Cycle through the pictures this build can draw, ours first:
+           * the numbers are saved, so Braille (added last) is 6. */
+          static const int order[AV_PICTURES] = { 0, 1, 6, 2, 3, 4, 5 };
+          int v = (int)av_picture.value, at = 0, i;
 
+          for (i = 0; i < AV_PICTURES; i++)
+             if (order[i] == v)
+                at = i;
           for (i = 0; i < AV_PICTURES; i++) {
-             v = (v + dir + AV_PICTURES) % AV_PICTURES;
-             if (aftershock_pictures & (1u << v))
+             at = (at + dir + AV_PICTURES) % AV_PICTURES;
+             if (aftershock_pictures & (1u << order[at]))
                 break;
           }
-          Cvar_SetValue("av_picture", (float)v);
+          Cvar_SetValue("av_picture", (float)order[at]);
           break;
        }
     }
@@ -1507,7 +1512,7 @@ M_OptionsVideo_Draw(void)
     {
 	static const char *picture_names[AV_PICTURES] = {
 	    "Half blocks", "Sextants", "Chafa fine", "Chafa blocks",
-	    "Chafa ASCII", "Caca"
+	    "Chafa ASCII", "Caca", "Braille"
 	};
 	int pic_v = (int)av_picture.value;
 

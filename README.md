@@ -68,6 +68,9 @@ opens in it next time. Naming one with `--video` sets it too.
 - `--video=sextant`: ours too, sharper: each character is 2x3 sub-pixels
   in two colours (sextant characters, U+1FB00 on, which most current
   terminals draw themselves). Same speed as half blocks.
+- `--video=braille`: ours as well: each character is 2x4 dots (Braille,
+  U+2800 on), square on the screen, in two colours with the second filling
+  between the dots.
 - `--video=chafa --symbols=fine|block|ascii`: OmaQuake's chafa modes,
   sub-cell glyphs, block shades, or plain letters.
 - `--video=caca`: libcaca, 16 colours.

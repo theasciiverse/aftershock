@@ -22,8 +22,10 @@ was taken from it.
 - **Sextant picture** (`--video=sextant`, same file): 2x3 sub-pixels per
   cell in two colours (split at the cell's mean brightness), drawn with the
   sextant characters; same diffing and text overlay.
-- **Picture setting**: half blocks, sextants, chafa (fine, blocks, ASCII)
-  or caca, those compiled in, chosen in Options, Video (`menu.c`, cvar
+- **Braille picture** (`--video=braille`, `av_half.c`): 2x4 dots a cell in
+  two colours, the dots square on a 1:2 cell; shares the sextants' code.
+- **Picture setting**: half blocks, sextants, Braille, chafa (fine, blocks,
+  ASCII) or caca, those compiled in, chosen in Options, Video (`menu.c`, cvar
   `av_picture` in `av_textui.c`, saved with the settings). The frontend
   switches backends between frames on the render thread
   (`oq_render_switch`), opens in the saved one (`saved_picture` in

@@ -83,9 +83,9 @@ typedef struct {
 extern int aftershock_picture_arg;
 /* Set by the frontend: bit n when picture n can be drawn (the Picture menu
  * skips the others).  0 half blocks, 1 sextants, 2 to 4 chafa fine, block
- * and ascii, 5 caca. */
+ * and ascii, 5 caca, 6 Braille. */
 extern unsigned aftershock_pictures;
-#define AV_PICTURES 6
+#define AV_PICTURES 7
 
 #ifndef AV_TEXTUI_FRONTEND
 #include "cvar.h"

@@ -5,6 +5,7 @@
 static const oq_present_backend *const backends[] = {
     &av_backend_half,
     &av_backend_sextant,
+    &av_backend_braille,
 #ifdef OQ_HAVE_CHAFA
     &oq_backend_chafa,
 #endif
@@ -59,6 +60,7 @@ static const struct {
 #else
     { NULL, OQ_SYMBOLS_FINE },
 #endif
+    { &av_backend_braille, OQ_SYMBOLS_FINE },
 };
 
 #define NPICTURES ((int)(sizeof(pictures) / sizeof(pictures[0])))

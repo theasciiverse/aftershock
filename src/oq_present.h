@@ -54,6 +54,9 @@ typedef struct oq_present_backend {
 
 extern const oq_present_backend av_backend_half;
 extern const oq_present_backend av_backend_sextant;
+extern const oq_present_backend av_backend_braille;
+/* Ours (half blocks, sextants, Braille): they lay out the text themselves. */
+int av_half_family(const oq_present_backend *be);
 extern const oq_present_backend oq_backend_chafa;
 extern const oq_present_backend oq_backend_caca;
 
@@ -66,7 +69,7 @@ const oq_present_backend *oq_present_lookup(const char *name);
 const char *oq_present_available(void);
 
 /* Aftershock: the Picture setting (av_picture).  0 half blocks, 1 sextants,
- * 2 to 4 chafa fine, block and ascii, 5 caca.  NULL / -1 when that picture
+ * 2 to 4 chafa fine, block and ascii, 5 caca, 6 Braille.  NULL / -1 when that picture
  * is not compiled in. */
 const oq_present_backend *oq_present_picture(int p, oq_symbols *symbols);
 int oq_present_picture_of(const oq_present_backend *be, oq_symbols symbols);
