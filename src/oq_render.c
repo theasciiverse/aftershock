@@ -9,6 +9,7 @@
 static const oq_present_backend *backend;
 static oq_present_config config;
 static int config_dirty;
+static const oq_present_backend *next_backend;
 
 static pthread_t thread;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
@@ -53,7 +54,24 @@ static void *render_loop(void *arg)
         cfg = config;
         reconf = config_dirty;
         config_dirty = 0;
-        pthread_mutex_unlock(&lock);
+        {
+            const oq_present_backend *nb = next_backend;
+
+            next_backend = NULL;
+            pthread_mutex_unlock(&lock);
+            /* Aftershock: the Picture setting changed.  The old backend is
+             * closed and the new one opened here, between frames, on the
+             * thread that owns the terminal. */
+            if (nb && nb != backend) {
+                backend->shutdown();
+                backend = nb;
+                oq_term_clear();
+                backend->init(&cfg);
+                reconf = 0;
+            } else if (nb) {
+                reconf = 1;     /* same backend, other symbols */
+            }
+        }
 
         if (reconf) {
             /* Clear here, not on the engine thread: all terminal writes must
@@ -136,4 +154,12 @@ void oq_render_stop(void)
 unsigned long oq_render_dropped(void)
 {
     return dropped;
+}
+
+void oq_render_switch(const oq_present_backend *be, const oq_present_config *cfg)
+{
+    pthread_mutex_lock(&lock);
+    config = *cfg;
+    next_backend = be;
+    pthread_mutex_unlock(&lock);
 }

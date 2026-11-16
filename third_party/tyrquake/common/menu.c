@@ -1312,9 +1312,18 @@ M_OptionsVideo_AdjustSliders(int dir)
           Cvar_SetValue("r_aspect", (float)v);
           break;
        }
-       case 20:			/* Aftershock: the terminal picture */
-          Cvar_SetValue("av_picture", av_picture.value ? 0.0f : 1.0f);
+       case 20: {		/* Aftershock: the terminal picture */
+          /* Cycle through the pictures this build can draw. */
+          int v = (int)av_picture.value, i;
+
+          for (i = 0; i < AV_PICTURES; i++) {
+             v = (v + dir + AV_PICTURES) % AV_PICTURES;
+             if (aftershock_pictures & (1u << v))
+                break;
+          }
+          Cvar_SetValue("av_picture", (float)v);
           break;
+       }
     }
 }
 
@@ -1495,7 +1504,17 @@ M_OptionsVideo_Draw(void)
 
     /* Aftershock: how the terminal draws the picture (src/av_half.c). */
     M_Print(16, 192, "              Picture");
-    M_Print(220, 192, av_picture.value ? "Sextants" : "Half blocks");
+    {
+	static const char *picture_names[AV_PICTURES] = {
+	    "Half blocks", "Sextants", "Chafa fine", "Chafa blocks",
+	    "Chafa ASCII", "Caca"
+	};
+	int pic_v = (int)av_picture.value;
+
+	if (pic_v < 0 || pic_v >= AV_PICTURES)
+	    pic_v = 0;
+	M_Print(220, 192, picture_names[pic_v]);
+    }
 
 /* cursor */
     M_DrawCharacter(200, 32 + optionsvideo_cursor * 8,

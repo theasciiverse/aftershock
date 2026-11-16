@@ -131,8 +131,11 @@ static int alloc_grid(int w, int h)
     return 0;
 }
 
+static int sextants;            /* --video=sextant: see below */
+
 static int half_init(const oq_present_config *cfg)
 {
+    sextants = 0;
     conf = *cfg;
     return alloc_grid(cfg->cols, cfg->rows);
 }
@@ -265,16 +268,6 @@ static void half_frame(const uint8_t *src, int w, int h, int stride)
     if (!cur || gw <= 0 || gh <= 0 || w <= 0 || h <= 0)
         return;
 
-    /* The Picture setting can change mid-game; every cell is drawn anew. */
-    {
-        int want = av_overlay_picture();
-
-        if (want >= 0 && want != sextants) {
-            sextants = want;
-            force_full = 1;
-        }
-    }
-
     /* Fit at the source aspect, assuming square terminal half-cells. */
     pw = gw;
     ph = (int)((long)gw * h / w);
@@ -402,8 +395,10 @@ const oq_present_backend av_backend_half = {
 
 static int sextant_init(const oq_present_config *cfg)
 {
+    int r = half_init(cfg);
+
     sextants = 1;
-    return half_init(cfg);
+    return r;
 }
 
 const oq_present_backend av_backend_sextant = {

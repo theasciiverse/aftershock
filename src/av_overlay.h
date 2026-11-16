@@ -27,8 +27,4 @@ void av_overlay_capture(void);
 /* Rows kept free under the picture for the status line. */
 int av_overlay_reserved_rows(void);
 
-/* The picture chosen in Options, Video (0 half blocks, 1 sextants), or -1
- * before the engine has finished a frame.  Render thread. */
-int av_overlay_picture(void);
-
 #endif

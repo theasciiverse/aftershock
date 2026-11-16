@@ -65,4 +65,12 @@ const oq_present_backend *oq_present_lookup(const char *name);
 /* Comma-separated list of compiled-in backend names, for --help. */
 const char *oq_present_available(void);
 
+/* Aftershock: the Picture setting (av_picture).  0 half blocks, 1 sextants,
+ * 2 to 4 chafa fine, block and ascii, 5 caca.  NULL / -1 when that picture
+ * is not compiled in. */
+const oq_present_backend *oq_present_picture(int p, oq_symbols *symbols);
+int oq_present_picture_of(const oq_present_backend *be, oq_symbols symbols);
+/* Bit n set when picture n is compiled in. */
+unsigned oq_present_pictures(void);
+
 #endif /* OQ_PRESENT_H */

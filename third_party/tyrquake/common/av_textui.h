@@ -73,14 +73,19 @@ typedef struct {
     int console;            /* rows of console shown, in pixels */
     int damage_flash;       /* recently hurt: 0..255 */
 
-    /* how the frontend draws the picture: 0 half blocks, 1 sextants
-     * (av_picture, chosen in Options, Video) */
+    /* how the frontend draws the picture (av_picture, chosen in Options,
+     * Video): see aftershock_pictures */
     int picture;
 } av_textui_t;
 
-/* Set by the frontend before the core starts when --video named a picture:
- * 0 half blocks, 1 sextants, -1 (the default) keeps the saved choice. */
+/* Set by the frontend before the core starts: the picture it opens in
+ * (from --video, or the saved choice), or -1 to leave av_picture alone. */
 extern int aftershock_picture_arg;
+/* Set by the frontend: bit n when picture n can be drawn (the Picture menu
+ * skips the others).  0 half blocks, 1 sextants, 2 to 4 chafa fine, block
+ * and ascii, 5 caca. */
+extern unsigned aftershock_pictures;
+#define AV_PICTURES 6
 
 #ifndef AV_TEXTUI_FRONTEND
 #include "cvar.h"

@@ -22,11 +22,13 @@ was taken from it.
 - **Sextant picture** (`--video=sextant`, same file): 2x3 sub-pixels per
   cell in two colours (split at the cell's mean brightness), drawn with the
   sextant characters; same diffing and text overlay.
-- **Picture setting**: half blocks or sextants, chosen in Options, Video
-  (`menu.c`, cvar `av_picture` in `av_textui.c`, saved with the settings) and
-  switched at once mid-game (`av_half.c` follows it through the overlay
-  record); `--video=half` or `--video=sextant` sets it (`libretro.c`,
-  `oq_main.c`).
+- **Picture setting**: half blocks, sextants, chafa (fine, blocks, ASCII)
+  or caca, those compiled in, chosen in Options, Video (`menu.c`, cvar
+  `av_picture` in `av_textui.c`, saved with the settings). The frontend
+  switches backends between frames on the render thread
+  (`oq_render_switch`), opens in the saved one (`saved_picture` in
+  `oq_main.c` reads config.cfg), and `--video` sets it (`libretro.c`).
+  The numbers are in `oq_present.c`'s table: append only.
 - **Text overlay** (`src/av_overlay.c`, new): terminal text laid over the
   picture cells (HUD and messages).
 - **`make CHAFA=0`** builds without chafa (LGPL-3.0), the configuration that

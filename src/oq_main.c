@@ -414,6 +414,7 @@ struct sink_ctx {
     int      cap_cols, cap_rows;   /* 0 = fill the terminal */
     int64_t  period_ns;            /* minimum gap between presents */
     int64_t  next_present;
+    int      picture;              /* Aftershock: av_picture being shown */
 };
 
 /* Work out the canvas size and where to put it.
@@ -502,6 +503,23 @@ static void video_sink(const uint8_t *rgb, int w, int h, int stride, void *ud)
          * same fd can interleave mid escape-sequence and corrupt the frame. */
         oq_render_reconfigure(ctx->cfg);
     }
+    /* Aftershock: the Picture setting in Options, Video changed. */
+    {
+        const av_textui_t *ui = aftershock_textui();
+        oq_symbols sym;
+        const oq_present_backend *nb;
+
+        if (ui && ui->picture != ctx->picture &&
+            (nb = oq_present_picture(ui->picture, &sym)) != NULL) {
+            oq_retro_log("picture: %d\n", ui->picture);
+            ctx->picture = ui->picture;
+            ctx->be = nb;
+            ctx->cfg->symbols = sym;
+            oq_term_size(&cols, &rows);
+            fit_canvas(ctx, cols, rows);
+            oq_render_switch(nb, ctx->cfg);
+        }
+    }
     av_overlay_capture();
     oq_render_submit(rgb, w, h, stride);
 }
@@ -540,6 +558,7 @@ static int run_game(const oq_present_backend *be, oq_present_config *cfg,
     memset(&ctx, 0, sizeof(ctx));
     ctx.be = be;
     ctx.cfg = cfg;
+    ctx.picture = oq_present_picture_of(be, cfg->symbols);
     ctx.period_ns = fps > 0 ? (int64_t)(1000000000.0 / fps) : 0;
 
     /* Fill the terminal by default. Capping only makes sense when the engine
@@ -669,6 +688,29 @@ static int run_game(const oq_present_backend *be, oq_present_config *cfg,
     oq_term_mouse_disable();
     oq_retro_shutdown();
     return 0;
+}
+
+/* Aftershock: av_picture as last saved in config.cfg, or -1.  Read here,
+ * before the engine starts, so the game opens in the chosen picture. */
+static int saved_picture(void)
+{
+    char path[1100], line[256];
+    FILE *f;
+    int p = -1;
+
+    snprintf(path, sizeof(path), "%s/aftershock/config.cfg", av_state_dir());
+    f = fopen(path, "r");
+    if (!f)
+        return -1;
+    while (fgets(line, sizeof(line), f)) {
+        float v;
+
+        if (sscanf(line, "av_picture \"%f\"", &v) == 1 ||
+            sscanf(line, "av_picture %f", &v) == 1)
+            p = (int)v;
+    }
+    fclose(f);
+    return p;
 }
 
 /* Resolve the game data the way a normal run does, and explain the failure
@@ -841,12 +883,22 @@ int main(int argc, char **argv)
                 video, oq_present_available());
         return 2;
     }
-    /* Half blocks and sextants are one backend that follows the Picture
-     * setting in Options, Video; naming one here sets it (and saves it). */
-    if (video_given && be == &av_backend_half)
-        aftershock_picture_arg = 0;
-    else if (video_given && be == &av_backend_sextant)
-        aftershock_picture_arg = 1;
+    /* The Picture setting in Options, Video chooses the backend: naming one
+     * here sets it (and saves it), else the saved one is used. */
+    aftershock_pictures = oq_present_pictures();
+    if (video_given) {
+        aftershock_picture_arg = oq_present_picture_of(be, cfg.symbols);
+    } else {
+        int p = saved_picture();
+        oq_symbols sym;
+        const oq_present_backend *sb = oq_present_picture(p, &sym);
+
+        if (sb) {
+            be = sb;
+            cfg.symbols = sym;
+            aftershock_picture_arg = p;
+        }
+    }
     if (!demo && !keytest) {
         /* Finding the data is not the player's job. Search the usual places
          * and only complain, with the list, when there is nothing to find. */

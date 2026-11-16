@@ -59,8 +59,9 @@ Shots are lifted onto what you face, so you rarely need to look up or down.
 
 ## Pictures
 
-Half blocks and sextants are also a setting, **Picture** in Options, Video:
-it switches at once and is remembered.
+Every picture below is also a setting, **Picture** in Options, Video
+(those the build has): it switches at once and is remembered, and the game
+opens in it next time. Naming one with `--video` sets it too.
 
 - `--video=half` (the first default): truecolour half blocks, two square pixels per
   character, only changed cells sent. Ours, no library.

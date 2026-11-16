@@ -28,6 +28,10 @@ void oq_render_reconfigure(const oq_present_config *cfg);
 /* Drain and stop. */
 void oq_render_stop(void);
 
+/* Aftershock: change to another backend (the Picture setting) before the
+ * next frame, with this config.  The render thread does the switch. */
+void oq_render_switch(const oq_present_backend *be, const oq_present_config *cfg);
+
 /* Frames dropped because the renderer could not keep up. */
 unsigned long oq_render_dropped(void);
 

@@ -1445,8 +1445,8 @@ bool retro_load_game(const struct retro_game_info *info)
     * default.cfg sets a keyboard-first scheme.  Tests and tools can hand
     * the console a command line through AFTERSHOCK_CMD (e.g. "map start"). */
    (void)cfg_file;
-   /* --video=half or --video=sextant beats the saved Picture setting; it
-    * runs after the config is executed, so it is also what gets saved. */
+   /* The picture the frontend opened in (--video beats the saved Picture
+    * setting); it runs after config.cfg, so it is also what gets saved. */
    if (aftershock_picture_arg >= 0)
       Cbuf_AddText("av_picture %d\n", aftershock_picture_arg);
    {
