@@ -456,3 +456,16 @@ void av_overlay_emit(int cols, int rows, int origin_col, int origin_row)
     oq_term_write_raw(out, o);
     free(out);
 }
+
+int av_overlay_picture(void)
+{
+    int p = -1;
+
+    pthread_mutex_lock(&lock);
+    if (have_pending)
+        p = pending.picture;
+    else if (have_shown)
+        p = shown.picture;
+    pthread_mutex_unlock(&lock);
+    return p;
+}

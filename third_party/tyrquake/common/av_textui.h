@@ -72,12 +72,21 @@ typedef struct {
     int menu;               /* a menu is up */
     int console;            /* rows of console shown, in pixels */
     int damage_flash;       /* recently hurt: 0..255 */
+
+    /* how the frontend draws the picture: 0 half blocks, 1 sextants
+     * (av_picture, chosen in Options, Video) */
+    int picture;
 } av_textui_t;
+
+/* Set by the frontend before the core starts when --video named a picture:
+ * 0 half blocks, 1 sextants, -1 (the default) keeps the saved choice. */
+extern int aftershock_picture_arg;
 
 #ifndef AV_TEXTUI_FRONTEND
 #include "cvar.h"
 
 extern cvar_t av_textui;
+extern cvar_t av_picture;
 extern av_textui_t av_ui;
 extern int av_draw_ctx;
 

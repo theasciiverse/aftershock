@@ -59,7 +59,10 @@ Shots are lifted onto what you face, so you rarely need to look up or down.
 
 ## Pictures
 
-- `--video=half` (default): truecolour half blocks, two square pixels per
+Half blocks and sextants are also a setting, **Picture** in Options, Video:
+it switches at once and is remembered.
+
+- `--video=half` (the first default): truecolour half blocks, two square pixels per
   character, only changed cells sent. Ours, no library.
 - `--video=sextant`: ours too, sharper: each character is 2x3 sub-pixels
   in two colours (sextant characters, U+1FB00 on, which most current

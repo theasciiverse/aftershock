@@ -23,6 +23,9 @@
 #include "av_textui.h"
 
 cvar_t av_textui = { "av_textui", "1", true };
+/* Aftershock: the picture, 0 half blocks, 1 sextants; saved with the settings. */
+cvar_t av_picture = { "av_picture", "0", true };
+int aftershock_picture_arg = -1;
 av_textui_t av_ui;
 int av_draw_ctx;
 
@@ -34,6 +37,7 @@ void
 AV_TextUI_Init(void)
 {
     Cvar_RegisterVariable(&av_textui);
+    Cvar_RegisterVariable(&av_picture);
 }
 
 void
@@ -276,6 +280,7 @@ AV_TextUI_EndFrame(void)
     av_ui.menu = (key_dest == key_menu);
     av_ui.console = (int)scr_con_current;
     av_ui.damage_flash = cl.cshifts[CSHIFT_DAMAGE].percent;
+    av_ui.picture = av_picture.value ? 1 : 0;
 }
 
 const av_textui_t *

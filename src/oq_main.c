@@ -10,6 +10,9 @@
 #include "av_overlay.h"
 #include "av_pad.h"
 
+#define AV_TEXTUI_FRONTEND
+#include "av_textui.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +28,8 @@ static void usage(const char *argv0)
     fprintf(stderr,
         "usage: %s [options] [data folder holding aftershock/ and id1/]\n"
         "\n"
-        "  --video=NAME     presentation backend: %s (default: half)\n"
+        "  --video=NAME     presentation backend: %s (default: the Picture\n"
+        "                   setting in Options, Video; half at first)\n"
         "  --symbols=SET    for chafa: ascii | block | fine (default: fine)\n"
         "  --color=DEPTH    mono | 16 | 256 | true      (default: true)\n"
         "  --demo           render a test pattern instead of the game\n"
@@ -692,6 +696,7 @@ static int resolve_pak(const char *game, char *pak, size_t pakcap)
 int main(int argc, char **argv)
 {
     const char *video = "half";
+    int video_given = 0;
     const char *game = NULL;
     const char *res = "auto";
     const char *logpath = NULL;
@@ -735,6 +740,7 @@ int main(int argc, char **argv)
 
         if (!strncmp(a, "--video=", 8)) {
             video = a + 8;
+            video_given = 1;
         } else if (!strncmp(a, "--symbols=", 10)) {
             if (parse_symbols(a + 10, &cfg.symbols)) {
                 usage(argv[0]);
@@ -835,6 +841,12 @@ int main(int argc, char **argv)
                 video, oq_present_available());
         return 2;
     }
+    /* Half blocks and sextants are one backend that follows the Picture
+     * setting in Options, Video; naming one here sets it (and saves it). */
+    if (video_given && be == &av_backend_half)
+        aftershock_picture_arg = 0;
+    else if (video_given && be == &av_backend_sextant)
+        aftershock_picture_arg = 1;
     if (!demo && !keytest) {
         /* Finding the data is not the player's job. Search the usual places
          * and only complain, with the list, when there is nothing to find. */
