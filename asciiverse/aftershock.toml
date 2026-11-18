@@ -35,7 +35,7 @@ cols = 80
 rows = 24
 
 # 24-bit colour and the upper half block (U+2580); keyboard first, mouse
-# optional. Sound through ALSA with --sound
+# optional. Sound and music through ALSA, --no-sound for silence
 [requires]
 utf8 = true
 color = "truecolor"

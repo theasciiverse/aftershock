@@ -25,7 +25,7 @@ Your shots find what you face, so there is little need to aim up or down. It pla
 
 ## Options
 
-- `--sound`: sound effects and music
+- `--no-sound`: play silently
 - `--video=caca`: the picture in sixteen colours
 
 Settings and saved games are kept in `~/.local/state/aftershock`.

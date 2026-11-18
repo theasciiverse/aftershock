@@ -24,10 +24,10 @@ what each one holds).
 ## How to play and test
 
     sh tools/fetch-librequake.sh && sh tools/build-data.sh && make -j4
-    ./aftershock                     # half blocks; --video=sextant, --sound
+    ./aftershock                     # half blocks, sound on; --video=sextant, --no-sound
 
 Tests and recordings: a scratch `XDG_STATE_HOME` and `HOME` in the same
-command, `--no-sound` (the default) and the 4G scope. `AFTERSHOCK_CMD`
+command, `--no-sound` (sound is on otherwise) and the 4G scope. `AFTERSHOCK_CMD`
 ('map lq_e0m1') and `AFTERSHOCK_CMD_INGAME` ('god') drive the console;
 `--log` holds the console, every key and the player's state once a second.
 
@@ -68,7 +68,8 @@ command, `--no-sound` (the default) and the 4G scope. `AFTERSHOCK_CMD`
 ## Decisions (and conservative choices made while David was away)
 
 - 2026-11-15: base switched from plain TyrQuake to OmaQuake (David).
-- Sound is off unless asked for (`./aftershock --sound`), as the brief says.
+- Sound and music are on by default (David, 2026-11-18; until then off
+  unless asked for with `--sound`, which still works). `--no-sound` silences.
 - Mouse: OmaQuake's behaviour is unchanged (evdev when readable, else the
   terminal's own reports). The game is fully playable on the keyboard.
 - Keyboard-first bindings in `game/aftershock/default.cfg`; the core's own

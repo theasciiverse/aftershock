@@ -23,7 +23,7 @@ tmux new-session -d -s as-rec -x 100 -y 30 \
      AFTERSHOCK_CMD_INGAME='con_notifytime 0; god; give 7; give r 60; wait; wait; wait; impulse 7' \
    asciinema rec --window-size 100x30 --idle-time-limit 2 \
      --capture-env TERM,COLORTERM,LANG --title 'Aftershock' \
-     --command '$PWD/build/aftershock --mouse=none --no-pad --log=$tmp/session.log' $out"
+     --command '$PWD/build/aftershock --no-sound --mouse=none --no-pad --log=$tmp/session.log' $out"
 k() { tmux send-keys -t as-rec "$@"; }
 hold() { key=$1; n=$2; i=0; while [ $i -lt $n ]; do k "$key"; sleep 0.04; i=$((i+1)); done; }
 sleep 6

@@ -25,8 +25,8 @@ ideally one with the kitty keyboard protocol (Ghostty, kitty, WezTerm, foot,
 Alacritty, iTerm2): then every key press and release is exact. Elsewhere,
 and inside tmux or screen, releases are guessed and it still plays.
 
-    ./aftershock                    # half blocks, sound off
-    ./aftershock --sound            # with sound and music
+    ./aftershock                    # half blocks, with sound and music
+    ./aftershock --no-sound         # silently
     ./aftershock --video=chafa --symbols=fine    # OmaQuake's modes, see below
     ./aftershock --help
 

@@ -43,8 +43,8 @@ static void usage(const char *argv0)
         "  --fps=N          presentation rate cap, 0 = every frame (default 30)\n"
         "  --cells=WxH      cap the canvas (default 0x0: fill the terminal)\n"
         "  --log=PATH       write the engine log here (never to stdout)\n"
-        "  --sound          play sound and music (off by default)\n"
-        "  --no-sound       do not open the audio device\n"
+        "  --sound          play sound and music (the default)\n"
+        "  --no-sound       play silently: the audio device is not opened\n"
         "  --no-pad         do not read a gamepad\n"
         "  --mouse=SRC      evdev | term | none | auto  (default: auto --\n"
         "                   evdev when a pointer can be opened and grabbed,\n"
@@ -746,7 +746,7 @@ int main(int argc, char **argv)
     oq_present_config cfg;
     oq_mouse_config mc;
     const char *mouse_dev = NULL;
-    int demo = 0, keytest = 0, nframes = 0, sound = 0, i, rc;
+    int demo = 0, keytest = 0, nframes = 0, sound = 1, i, rc;
     int find_pak = 0;
     int fps = 30, cap_cols = -1, cap_rows = -1;
     int mouse_mode = MOUSE_AUTO, edge_given = 0, turn_given = 0;
@@ -839,7 +839,7 @@ int main(int argc, char **argv)
         } else if (!strcmp(a, "--no-sound")) {
             sound = 0;
         } else if (!strcmp(a, "--sound")) {
-            sound = 1;          /* Aftershock: sound is off unless asked */
+            sound = 1;          /* the default; kept for old scripts */
         } else if (!strcmp(a, "--no-pad")) {
             use_pad = 0;
         } else if (!strcmp(a, "--keytest")) {
