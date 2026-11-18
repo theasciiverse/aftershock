@@ -1042,6 +1042,10 @@ static void update_variables(bool startup)
       if (h_in == 0)            h_in = 200;
       if (w_in > MAXWIDTH)      w_in = MAXWIDTH;
       if (h_in > MAXHEIGHT)     h_in = MAXHEIGHT;
+      /* Aftershock: whole groups of 8 columns, as the software renderer
+       * has always assumed (Draw_ConsoleBackground writes 4 at a time, and
+       * a 638 wide picture wrote past the framebuffer's end). */
+      w_in &= ~7UL;
 
       width  = (unsigned)w_in;
       height = (unsigned)h_in;
@@ -1716,6 +1720,7 @@ void VID_Init(unsigned char *palette)
    if (height < 200)         height = 200;
    if (width  > MAXWIDTH)    width  = MAXWIDTH;
    if (height > MAXHEIGHT)   height = MAXHEIGHT;
+   width &= ~7u;              /* Aftershock: see the resolution parsing */
 
    /* width and height are now bounded; width * height fits
     * comfortably in size_t (max 1920*1200 = 2.3M pixels = 4.6M

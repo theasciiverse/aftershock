@@ -42,7 +42,8 @@ was taken from it.
   folders is gone, so id data is never picked up. `AFTERSHOCK_DATA` replaces
   `OMAQUAKE_PAK`.
 - **Saves and settings** in `$XDG_STATE_HOME/aftershock` (oq_main.c).
-- **Sound off unless `--sound`** (oq_main.c).
+- **Sound and music on by default**, `--no-sound` for silence (oq_main.c;
+  our first builds were silent unless `--sound`).
 - **Plain-terminal keys** (oq_input.c): without the kitty protocol a fresh
   press holds 550 ms and each auto-repeat 100 ms (doom-ascii's timings; were
   260 ms flat, which made walking stutter in terminals with a long repeat
@@ -81,6 +82,11 @@ Every change is marked `Aftershock:` in a comment.
 - `alias_model.c`: skins up to 4096 wide (LibreQuake's two bosses).
 - `pr_cmds.c`: `objerror` removes the entity and the level goes on, as in
   FitzQuake (lq_e3m4 has a nameless path corner).
+- `libretro.c`, `draw.c`: the engine's width is a whole number of 8
+  columns, and the console background fills the last pixels of a row one at
+  a time. A terminal 319 columns wide asked for a 638 wide picture, and the
+  console, drawn 4 pixels at a time, wrote past the framebuffer's end; glibc
+  aborted a second after starting.
 - `r_main.c`: the view model is drawn only when it is an alias model
   (LibreQuake's demo2 crashed the renderer).
 - `libretro.c`: the console goes to the frontend's log; the first-boot bind

@@ -935,7 +935,9 @@ Draw_ConsoleBackground(int lines)
 	    else {
 		f = 0;
 		fstep = conback->width * 0x10000 / vid.conwidth;
-		for (x = 0; x < vid.conwidth; x += 4) {
+		/* Aftershock: whole groups of 4 only, then the rest one at
+		 * a time, so no width writes past the row */
+		for (x = 0; x + 3 < vid.conwidth; x += 4) {
 		    dest[x] = src[f >> 16];
 		    f += fstep;
 		    dest[x + 1] = src[f >> 16];
@@ -943,6 +945,10 @@ Draw_ConsoleBackground(int lines)
 		    dest[x + 2] = src[f >> 16];
 		    f += fstep;
 		    dest[x + 3] = src[f >> 16];
+		    f += fstep;
+		}
+		for (; x < vid.conwidth; x++) {
+		    dest[x] = src[f >> 16];
 		    f += fstep;
 		}
 	    }
