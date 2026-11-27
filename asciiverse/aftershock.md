@@ -41,6 +41,6 @@ In 2026 Raul Dias turned the engine's pictures into characters with OmaQuake. Af
 ## Credits
 
 - Engine: TyrQuake, Kevin Shanahan and contributors, from id Software's GPL source release; the libretro tyrquake core
-- Terminal frontend: OmaQuake, Raul Dias
+- Terminal frontend: Aftershock's own, after OmaQuake by Raul Dias
 - World, art, maps, sounds and music: the LibreQuake project and its contributors
-- License: GPL-2.0-only (the program), BSD-3-Clause (LibreQuake's art, maps, sounds and music)
+- License: GPL-2.0-or-later (the program; GPL-3.0-or-later for a build with chafa), BSD-3-Clause (LibreQuake's art, maps, sounds and music)

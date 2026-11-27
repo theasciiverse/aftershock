@@ -6,9 +6,10 @@ title = "Aftershock"
 description = "A first-person shooter in your terminal: the 1996 shooter's engine and a whole free world of cultists, knights and things from beyond, in full colour, with a status line you can read at a glance."
 year = 2026
 new = true
-license = "GPL-2.0-only AND BSD-3-Clause"
+# a build with chafa linked is GPL-3.0-or-later AND BSD-3-Clause
+license = "GPL-2.0-or-later AND BSD-3-Clause"
 repo = "theasciiverse/aftershock"
-provenance = "id Software released the source of its 1996 shooter's engine in 1999; Kevin Shanahan's TyrQuake carried it on, libretro made it a core, and Raul Dias brought it to the terminal as OmaQuake in 2026. The LibreQuake project has made free maps, monsters, sounds and music for it since 2019."
+provenance = "id Software released the source of its 1996 shooter's engine in 1999; Kevin Shanahan's TyrQuake carried it on, libretro made it a core, Raul Dias brought it to the terminal as OmaQuake in 2026, and Aftershock gave it a terminal frontend of its own. The LibreQuake project has made free maps, monsters, sounds and music for it since 2019."
 changes = "PATCHES.md"
 topics = ["shooter", "first-person", "fps", "3d", "classic", "music", "librequake"]
 genre = "action"
@@ -17,13 +18,13 @@ genre = "action"
 name = "Asciiverse"
 url = "https://asciiverse.sh"
 
-# OmaQuake (terminal frontend) on the libretro tyrquake core, with our
-# half-block picture, text HUD and menus, keyboard scheme, identity and
+# Our own terminal frontend (after OmaQuake) on the libretro tyrquake
+# core, with our half-block picture, text HUD and menus, keyboard scheme, identity and
 # family-friendly changes; LibreQuake v0.09-beta's data ships in the archive.
 # No id Software data.
 [upstream]
-name = "Raul Dias (OmaQuake) and the LibreQuake project"
-url = "https://github.com/rsd/omaquake"
+name = "libretro's tyrquake core and the LibreQuake project"
+url = "https://github.com/libretro/tyrquake"
 
 # the start script runs build/aftershock with the session log in
 # $XDG_STATE_HOME/aftershock, where settings and saves live too

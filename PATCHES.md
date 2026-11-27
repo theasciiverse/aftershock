@@ -1,10 +1,12 @@
 # Changes from upstream
 
-Aftershock is OmaQuake 0.1.2 (Raul Dias, GPL-2.0-only,
-github.com/rsd/omaquake) with the libretro tyrquake core (GPL-2.0+) carried
-as a subtree, played with LibreQuake v0.09-beta (BSD-3-Clause data, GPL-2.0+
-game code) instead of id Software's data. `main` starts at OmaQuake's
-`master` with its history; UPSTREAM.md has every remote and base.
+Aftershock is the libretro tyrquake core (GPL-2.0+) carried as a subtree,
+with a terminal frontend of our own, played with LibreQuake v0.09-beta
+(BSD-3-Clause data, GPL-2.0+ game code) instead of id Software's data.
+`main` starts at OmaQuake 0.1.2's `master` (Raul Dias, GPL-2.0-only,
+github.com/rsd/omaquake) with its history; on 2026-11-27 OmaQuake's files
+were replaced by our own, written clean-room from docs/FRONTEND-SPEC.md.
+UPSTREAM.md has every remote and base.
 
 AnsiQuake (Ben Morris, github.com/pixelbadger/AnsiQuake; its README says
 GPLv2, the repository has no LICENSE file) was read as a reference. No code
@@ -12,13 +14,25 @@ was taken from it.
 
 ## Frontend (src/)
 
+- **Our own frontend** (`src/av_*.c`, GPL-2.0-or-later), written from
+  docs/FRONTEND-SPEC.md: command line and game loop (`av_main.c`),
+  terminal (`av_term.c`), keys (`av_keys.c`), pointer (`av_pointer.c`,
+  `av_look.c`, `av_evdev.c`), libretro host (`av_host.c`), render thread
+  (`av_render.c`), Picture table (`av_pictures.c`), sound (`av_sound.c`),
+  data search (`av_data.c`), chafa and libcaca (`av_chafa.c`,
+  `av_caca.c`), and `tests/av_evdev_test.c`. It behaves as OmaQuake's did
+  with our changes below, except: the menu's Quit ends the program (it
+  left the player at the console), Ctrl-G also lets the terminal pointer
+  go, kitty's F3 (`CSI 13~`) is read, and the exit line names the picture
+  in use. `AFTERSHOCK_ALSA_DEVICE` replaces `OMAQUAKE_ALSA_DEVICE`, which
+  is still read when the new one is unset.
 - **Half-block picture** (`src/av_half.c`, new, the default `--video=half`):
   truecolour upper half blocks, two square pixels per cell, each the average
   of the engine pixels it covers. The engine renders at the grid's own aspect
   times a whole number (`av_half_resolution`), so nothing is stretched or
   wasted. Only changed cells are sent, colours and cursor moves only when they
   differ, inside synchronised output (`CSI ? 2026`). Uses no library.
-  `oq_term_write_raw` (oq_term.c) writes its bytes unchanged.
+  `av_term_write_raw` (av_term.c) writes its bytes unchanged.
 - **Sextant picture** (`--video=sextant`, same file): 2x3 sub-pixels per
   cell in two colours (split at the cell's mean brightness), drawn with the
   sextant characters; same diffing and text overlay.
@@ -28,29 +42,30 @@ was taken from it.
   ASCII) or caca, those compiled in, chosen in Options, Video (`menu.c`, cvar
   `av_picture` in `av_textui.c`, saved with the settings). The frontend
   switches backends between frames on the render thread
-  (`oq_render_switch`), opens in the saved one (`saved_picture` in
-  `oq_main.c` reads config.cfg), and `--video` sets it (`libretro.c`).
-  The numbers are in `oq_present.c`'s table: append only.
+  (`av_render_switch`), opens in the saved one (`saved_picture` in
+  `av_main.c` reads config.cfg), and `--video` sets it (`libretro.c`).
+  The numbers are in `av_pictures.c`'s table: append only.
 - **Text overlay** (`src/av_overlay.c`, new): terminal text laid over the
   picture cells (HUD and messages).
-- **`make CHAFA=0`** builds without chafa (LGPL-3.0), the configuration that
-  can be shipped with this GPL-2.0-only program; libcaca (WTFPL) may stay.
-- **Data search** (`oq_paths.c`): only Aftershock's own data folders
+- **`make CHAFA=0`** builds without chafa (LGPL-3.0-or-later). With chafa
+  linked the program is distributed under GPL-3.0-or-later, without it
+  under GPL-2.0-or-later; libcaca (WTFPL) may stay either way.
+- **Data search** (`av_data.c`): only Aftershock's own data folders
   (`data/` beside the binary or in the checkout, `$XDG_DATA_HOME/aftershock`,
   `/usr/share/aftershock`), each needing `aftershock/pak0.pak` and
-  LibreQuake's `id1/`. OmaQuake's search of Quake, QuakeSpasm and Steam
-  folders is gone, so id data is never picked up. `AFTERSHOCK_DATA` replaces
+  LibreQuake's `id1/`. OmaQuake searched Quake, QuakeSpasm and Steam
+  folders; ours never does, so id data is never picked up. `AFTERSHOCK_DATA` replaces
   `OMAQUAKE_PAK`.
-- **Saves and settings** in `$XDG_STATE_HOME/aftershock` (oq_main.c).
-- **Sound and music on by default**, `--no-sound` for silence (oq_main.c;
+- **Saves and settings** in `$XDG_STATE_HOME/aftershock` (av_main.c).
+- **Sound and music on by default**, `--no-sound` for silence (av_main.c;
   our first builds were silent unless `--sound`).
-- **Plain-terminal keys** (oq_input.c): without the kitty protocol a fresh
+- **Plain-terminal keys** (av_keys.c): without the kitty protocol a fresh
   press holds 550 ms and each auto-repeat 100 ms (doom-ascii's timings; were
   260 ms flat, which made walking stutter in terminals with a long repeat
   delay). In menus, the console and message lines every press is a whole
   keystroke, so typed letters are no longer swallowed.
 - **Bigger engine memory**: the frontend answers the core's memory query so
-  it takes a 128 MB hunk for LibreQuake's larger maps (oq_retro.c).
+  it takes a 128 MB hunk for LibreQuake's larger maps (av_host.c).
 - The binary is `build/aftershock`; `./aftershock` starts it with a session
   log in the state folder.
 
@@ -145,9 +160,10 @@ its own commit, then:
   `preview.png`, which carry id's logo), its Arch packaging for the id
   shareware data (`packaging/`), and its shareware key settings
   (`share/autoexec.cfg`, `config.cfg`). They are in OmaQuake's history.
+- OmaQuake's frontend (`src/oq_*`, its Makefile, `tests/oq_evdev_test.c`,
+  `docs/DESIGN.md`, `docs/OmaQuake-README.md`), replaced by ours on
+  2026-11-27. They are in the history.
 
 ## Not changed
 
-- OmaQuake's chafa and libcaca backends, mouse handling (evdev or the
-  terminal's reports) and ALSA sound.
 - LibreQuake's maps, models, textures, sounds and music.

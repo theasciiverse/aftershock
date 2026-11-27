@@ -1,21 +1,25 @@
 # Aftershock
 
 A first-person shooter drawn in the terminal: the GPL engine of a 1996
-shooter (TyrQuake, by way of libretro's tyrquake core and Raul Dias's
-OmaQuake terminal frontend) filled only with free content, LibreQuake
+shooter (TyrQuake, by way of libretro's tyrquake core) with a terminal
+frontend of our own (it began as Raul Dias's OmaQuake), filled only with
+free content, LibreQuake
 (BSD-3-Clause art, maps, sounds and music; GPL-2.0+ game code). No id
 Software data is needed, shipped or searched for, ever.
 
-## OPEN BLOCKER: licence, frontend being rewritten
+## Licence: frontend rewritten, release is David's call
 
-OmaQuake is GPL-2.0-only and links chafa (LGPL-3.0+), which cannot be
+OmaQuake is GPL-2.0-only and linked chafa (LGPL-3.0+), which cannot be
 distributed together. David wrote to Raul Dias and got no answer, so on
-2026-11-27 he decided to rewrite the frontend ourselves, clean room, from
-`docs/FRONTEND-SPEC.md` (rover's job, ASSIGNMENTS-2026-11-27-aftershock.md
-in rover's ~/code). Whoever writes the new code does not open the OmaQuake
-files the spec lists. Once they are gone, Aftershock is GPL-2.0-or-later
-(the engine and LibreQuake's game code allow it) and a chafa build is
-GPL-3.0-or-later. Until then: **no tags, no releases, no release workflow
+2026-11-27 the frontend was rewritten clean room from
+`docs/FRONTEND-SPEC.md` (rover, ASSIGNMENTS-2026-11-27-aftershock.md) and
+OmaQuake's files were removed. Aftershock is now GPL-2.0-or-later (the
+engine and LibreQuake's game code allow it); a build with chafa linked is
+distributed under GPL-3.0-or-later (LICENSES/GPL-3.0.txt). OmaQuake's code
+must not come back: do not copy from its history (`git show` on Raul's
+commits) into the tree.
+
+Until David says otherwise: **no tags, no releases, no release workflow
 runs**, and the repo stays private. Local builds for testing are fine. Do
 not contact Raul or anyone else about it.
 
@@ -36,10 +40,17 @@ command, `--no-sound` (sound is on otherwise) and the 4G scope. `AFTERSHOCK_CMD`
 
 ## What it is made of
 
-- `src/oq_*.c`: OmaQuake (Raul Dias, GPL-2.0-only), remote `upstream`,
-  history kept. Our changes in them are marked `Aftershock:`.
-- `src/av_*.c`: ours. `av_half.c` the half-block picture, `av_overlay.c`
-  the text drawn over it (HUD, messages).
+- `src/av_*.c`: ours, GPL-2.0-or-later, the whole frontend.
+  `av_main.c` command line and game loop, `av_term.c` the terminal,
+  `av_keys.c` bytes to keys, `av_pointer.c`/`av_look.c`/`av_evdev.c` the
+  mouse, `av_host.c` the libretro host and the log, `av_render.c` the
+  render thread, `av_pictures.c` the backend table, `av_half.c` our
+  half-block/sextant/Braille pictures, `av_chafa.c`, `av_caca.c`,
+  `av_overlay.c` the text drawn over the picture (HUD, messages),
+  `av_sound.c` ALSA, `av_data.c` the data search, `av_pad.c` gamepad.
+  docs/FRONTEND-SPEC.md describes how all of it must behave and why.
+- OmaQuake (Raul Dias, GPL-2.0-only), remote `upstream`: history only;
+  `main` starts at its master, its files were removed 2026-11-27.
 - `third_party/tyrquake`: libretro/tyrquake as a subtree, with our changes.
 - `qcsrc/`: the game code, LibreQuake's LibreProgsDeluxe (GPL-2.0+) with
   our changes, compiled with gmqcc.
@@ -73,8 +84,8 @@ command, `--no-sound` (sound is on otherwise) and the 4G scope. `AFTERSHOCK_CMD`
 - 2026-11-15: base switched from plain TyrQuake to OmaQuake (David).
 - Sound and music are on by default (David, 2026-11-18; until then off
   unless asked for with `--sound`, which still works). `--no-sound` silences.
-- Mouse: OmaQuake's behaviour is unchanged (evdev when readable, else the
-  terminal's own reports). The game is fully playable on the keyboard.
+- Mouse: as OmaQuake had it (evdev when readable, else the terminal's own
+  reports), now in `av_pointer.c`. The game is fully playable on the keyboard.
 - Keyboard-first bindings in `game/aftershock/default.cfg`; the core's own
   first-boot bind overrides were removed.
 - The game code (qcsrc/) is ours, built with gmqcc 0.3.6 (David installed
@@ -90,7 +101,7 @@ command, `--no-sound` (sound is on otherwise) and the 4G scope. `AFTERSHOCK_CMD`
 - Every build, test or recording runs under
   `systemd-run --user --scope -p MemoryMax=4G` with `-j4`.
 
-# Rules inherited from OmaQuake (still true here)
+# Rules (inherited from OmaQuake, still true)
 
 ## stdout is the picture
 
@@ -98,23 +109,24 @@ This program's stdout **is** the rendered game frame, written as raw escape
 sequences. Never `printf`/`puts`/write anything to stdout from any code path
 that can run while the terminal is in presentation mode: one stray log line
 corrupts the frame mid-escape-sequence. Diagnostics go to `--log=PATH`
-(`oq_retro.c`'s `log_printf`) or to `stderr` only *after* `oq_term_shutdown()`
+(`av_host_log()` in `av_host.c`) or to `stderr` only *after* `av_term_restore()`
 has restored the terminal. Same rule applies to anything ALSA might try to
-print: see the silent error handler in `src/oq_audio.c`; do not remove it.
+print: see the silent error handler in `src/av_sound.c`; do not remove it.
 
 ## Never run the game without silencing audio
 
-Any command that launches `omaquake` in a non-interactive context (tests,
+Any command that launches `aftershock` in a non-interactive context (tests,
 benchmarking, CI, this agent's own tool calls) **must** pass `--no-sound` or
-set `OMAQUAKE_ALSA_DEVICE=null`. Without one of those it opens the default
+set `AFTERSHOCK_ALSA_DEVICE=null` (the old `OMAQUAKE_ALSA_DEVICE` is
+still read when the new one is unset). Without one of those it opens the default
 ALSA device and plays sound out of the user's speakers.
 
 ## The binary requires a real tty
 
-`oq_term_init()` refuses to start unless both stdin and stdout are ttys.
+`av_term_init()` refuses to start unless both stdin and stdout are ttys.
 Test it via a pty, not by piping:
 
-    script -qe -c "stty cols 200 rows 50; ./build/omaquake --demo --frames=60" /dev/null
+    script -qe -c "stty cols 200 rows 50; ./build/aftershock --demo --frames=60" /dev/null
 
 **`COLUMNS`/`LINES` environment variables do not resize a pty.** Only `stty`
 (or an ioctl) does. Forgetting this silently benchmarks/tests an 80x24
@@ -124,19 +136,18 @@ command, and confirm by checking what the program itself reports.
 
 ## Threading: writes to the terminal happen on the render thread only
 
-`src/oq_render.c` is the only place that should be writing frame data to
+`src/av_render.c` is the only place that should be writing frame data to
 stdout, from `render_loop()`. The engine thread (`retro_run()`,
-`oq_retro.c`, `oq_main.c`'s game loop) must never write to the terminal
+`av_host.c`, `av_main.c`'s game loop) must never write to the terminal
 directly: two threads writing to the same fd can interleave mid escape
 sequence and corrupt the frame. Even the clear-on-resize goes through
-`oq_render_reconfigure()` so it executes on the render thread, not inline
-in `video_sink()`.
+`av_render_reconfigure()` so it executes on the render thread, not inline
+in `engine_frame()`.
 
 ## Building and checking what got compiled in
 
-    git submodule update --init   # third_party/tyrquake
     make engine                    # builds the static libretro core
-    make                            # builds ./build/omaquake
+    make                            # builds ./build/aftershock
     make backends                   # reports which of chafa/caca/alsa were found
 
 chafa, libcaca and ALSA are all optional and detected via `pkg-config`.
@@ -158,7 +169,7 @@ UPSTREAM.md). Every change there is listed in PATCHES.md and marked
 - 4-space indentation, K&R brace style.
 - Must compile clean under `-Wall -Wextra -std=gnu99` (see `Makefile`
   `CFLAGS`): no new warnings.
-- Comments explain *why*, not *what*: see any of `src/oq_*.c` for the
+- Comments explain *why*, not *what*: see any of `src/av_*.c` for the
   house style. Non-obvious constraints (threading, protocol quirks, ALSA
   timing) get a comment at the point a future change would plausibly get
   it wrong.

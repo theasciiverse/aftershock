@@ -1,7 +1,7 @@
 # Roadmap
 
-Versions stay 0.x.0 until the whole game is in. No tags or releases while
-the licence question in CLAUDE.md is open.
+Versions stay 0.x.0 until the whole game is in. No tags or releases until
+David says (see CLAUDE.md).
 
 ## 0.1.0, first light
 - [x] OmaQuake's frontend on the libretro tyrquake core, LibreQuake's data,
@@ -38,6 +38,7 @@ the licence question in CLAUDE.md is open.
 - [x] 100x30 .cast preview, a fight
 - [ ] A credits screen of its own in the menu
 - [ ] Title graphics (conback) of our own
-- [ ] Release workflow (Linux static, macOS, Windows), once the licence is
-      settled
+- [x] Our own terminal frontend, written clean room from
+      docs/FRONTEND-SPEC.md: the program is GPL-2.0-or-later
+- [ ] Release workflow (Linux static, macOS, Windows), when David says
 - [x] QuakeC built from source with gmqcc; texts and gore defaults in it
