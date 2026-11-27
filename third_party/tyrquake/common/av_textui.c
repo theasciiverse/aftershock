@@ -14,6 +14,7 @@
 
 #include "client.h"
 #include "common.h"
+#include "compat/strl.h"
 #include "console.h"
 #include "cvar.h"
 #include "keys.h"
