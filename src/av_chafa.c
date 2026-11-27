@@ -43,7 +43,12 @@ static int build(const av_config *cfg)
     default:
         tags = CHAFA_SYMBOL_TAG_BLOCK | CHAFA_SYMBOL_TAG_SPACE |
                CHAFA_SYMBOL_TAG_HALF | CHAFA_SYMBOL_TAG_QUAD |
-               CHAFA_SYMBOL_TAG_SEXTANT | CHAFA_SYMBOL_TAG_OCTANT;
+               CHAFA_SYMBOL_TAG_SEXTANT;
+#if CHAFA_MAJOR_VERSION > 1 || CHAFA_MINOR_VERSION >= 16
+        /* Octants came in chafa 1.16; the release builds on Ubuntu
+         * 22.04's 1.8, and few terminals draw octants yet anyway. */
+        tags |= CHAFA_SYMBOL_TAG_OCTANT;
+#endif
         break;
     }
     switch (cfg->color) {
