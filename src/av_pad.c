@@ -15,7 +15,7 @@
  * its way around them.
  */
 #include "av_pad.h"
-#include "oq_retro.h"
+#include "av_host.h"
 
 #include <libretro.h>
 
@@ -109,7 +109,7 @@ int av_pad_open(void)
     key_aux[1] = aftershock_keynum("AUX3");     /* back */
     key_aux[2] = aftershock_keynum("AUX2");     /* left */
     key_aux[3] = aftershock_keynum("AUX1");     /* right */
-    oq_retro_log("pad: %s\n", devname);
+    av_host_log("pad: %s\n", devname);
     return 0;
 }
 
@@ -133,7 +133,7 @@ static double norm(int code)
 static void key(int keynum, int down)
 {
     if (keynum > 0)
-        oq_retro_key((unsigned)keynum, down, 0);
+        av_host_key((unsigned)keynum, down, 0);
 }
 
 static void button(int code, int down)
@@ -208,7 +208,7 @@ void av_pad_poll(int focused)
             continue;
         if (n <= 0) {
             if (n == 0 || (errno != EAGAIN && errno != EWOULDBLOCK)) {
-                oq_retro_log("pad: gone\n");
+                av_host_log("pad: gone\n");
                 close(fd);
                 fd = -1;
                 return;
@@ -260,7 +260,7 @@ void av_pad_poll(int focused)
     rx = norm(ABS_RX);
     ry = norm(ABS_RY);
     if (rx || ry)
-        oq_retro_mouse_move((int)(rx * fabs(rx) * 9.0),
+        av_host_mouse_move((int)(rx * fabs(rx) * 9.0),
                             (int)(ry * fabs(ry) * 5.0));
 }
 

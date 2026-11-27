@@ -11,8 +11,8 @@
  * render thread takes the newest copy when it draws a frame.
  */
 #include "av_overlay.h"
-#include "oq_term.h"
-#include "oq_retro.h"
+#include "av_term.h"
+#include "av_host.h"
 
 #define AV_TEXTUI_FRONTEND
 #include "av_textui.h"
@@ -63,7 +63,7 @@ void av_overlay_capture(void)
 
         if (++n % 60 == 0 || ui->menu != last_menu ||
             ui->intermission != last_inter) {
-            oq_retro_log("state: level \"%s\" game=%d demo=%d menu=%d "
+            av_host_log("state: level \"%s\" game=%d demo=%d menu=%d "
                          "console=%d intermission=%d health=%d armor=%d "
                          "weapon=%d ammo=%d kills=%d/%d secrets=%d/%d "
                          "time=%d\n", ui->level, ui->in_game, ui->demo,
@@ -453,6 +453,6 @@ void av_overlay_emit(int cols, int rows, int origin_col, int origin_row)
         }
     }
     o += (size_t)snprintf(out + o, ocap - o, "\033[0m\033[?2026l");
-    oq_term_write_raw(out, o);
+    av_term_write_raw(out, o);
     free(out);
 }

@@ -1,139 +1,129 @@
-# OmaQuake -- Quake in characters.
+# Aftershock: a first-person shooter in the terminal.
 #
-# The engine is libretro/tyrquake built as a static archive (STATIC_LINKING=1)
-# so the result is a single self-contained binary, not a dlopen'd core.
+# One binary, build/aftershock: our frontend (src/av_*.c) linked with the
+# libretro tyrquake core built as a static archive (STATIC_LINKING=1).
+#
+#   make            the game (chafa, libcaca and ALSA when pkg-config finds them)
+#   make CHAFA=0    without chafa (chafa is LGPL-3.0-or-later; a build with it
+#                   is distributed under GPL-3.0-or-later)
+#   make backends   which optional libraries were found
+#   make test       the evdev device-selection test
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
 
-PREFIX      ?= /usr/local
-CC          ?= cc
-PKG_CONFIG  ?= pkg-config
+PREFIX     ?= /usr/local
+CC         ?= cc
+PKG_CONFIG ?= pkg-config
 
-BUILD       := build
-BIN         := $(BUILD)/aftershock
+B          := build
+BIN        := $(B)/aftershock
 
-TYRQUAKE    := third_party/tyrquake
-TYRQUAKE_A  := $(TYRQUAKE)/tyrquake_libretro_unix.a
+CORE_DIR   := third_party/tyrquake
+CORE_LIB   := $(CORE_DIR)/tyrquake_libretro_unix.a
+LRC        := $(CORE_DIR)/libretro-common
 
-SRC         := src/oq_main.c src/oq_present.c src/oq_term.c \
-               src/oq_input.c src/oq_mouse.c src/oq_evdev.c \
-               src/oq_retro.c src/oq_render.c src/oq_audio.c src/oq_paths.c \
-               src/av_half.c src/av_overlay.c src/av_pad.c
+SOURCES    := av_main av_term av_keys av_look av_pointer av_evdev av_host \
+              av_render av_pictures av_sound av_data \
+              av_half av_overlay av_pad
 
-# With STATIC_LINKING=1 the core deliberately drops libretro-common (see
-# tyrquake/Makefile.common:119) and expects the frontend to provide it.
-LRC         := $(TYRQUAKE)/libretro-common
-LRC_SRC     := \
-  $(LRC)/file/retro_dirent.c $(LRC)/encodings/encoding_utf.c \
-  $(LRC)/string/stdstring.c $(LRC)/streams/file_stream.c \
-  $(LRC)/streams/file_stream_transforms.c $(LRC)/vfs/vfs_implementation.c \
-  $(LRC)/file/file_path.c $(LRC)/file/file_path_io.c \
-  $(LRC)/features/features_cpu.c $(LRC)/compat/fopen_utf8.c \
-  $(LRC)/compat/compat_strl.c $(LRC)/compat/compat_posix_string.c \
-  $(LRC)/compat/compat_strcasestr.c $(LRC)/compat/compat_snprintf.c \
-  $(LRC)/time/rtime.c \
-  $(LRC)/net/net_compat.c $(LRC)/net/net_socket.c
-LRC_OBJ     := $(LRC_SRC:$(LRC)/%.c=$(BUILD)/lrc/%.o)
-CFLAGS      ?= -O2 -g
-CFLAGS      += -Wall -Wextra -std=gnu99
-CPPFLAGS    += -I$(TYRQUAKE)/libretro-common/include
-# Aftershock: the frontend reads the engine's text record (av_textui.h).
-CPPFLAGS    += -iquote $(TYRQUAKE)/common
-LDLIBS      += -lm -pthread
-CFLAGS      += -pthread
+# Linking statically, the core leaves these libretro-common files to the
+# frontend (its Makefile.common says which).  A missing one shows up as a
+# named link error.
+LRC_FILES  := file/retro_dirent encodings/encoding_utf string/stdstring \
+              streams/file_stream streams/file_stream_transforms \
+              vfs/vfs_implementation file/file_path file/file_path_io \
+              features/features_cpu compat/fopen_utf8 compat/compat_strl \
+              compat/compat_posix_string compat/compat_strcasestr \
+              compat/compat_snprintf time/rtime net/net_compat net/net_socket
 
-# Backends are optional: build whichever libraries are present.
-# Aftershock: CHAFA=0 builds without chafa at all (LGPL-3.0, which a
-# GPL-2.0-only program cannot be shipped with; see CLAUDE.md). That is the
-# shippable build: the half-block backend needs no library, and libcaca
-# (WTFPL) may stay. The default dev build keeps chafa for comparison.
+CFLAGS     ?= -O2 -g
+CFLAGS     += -Wall -Wextra -std=gnu99 -pthread
+# libretro.h, and the core's av_textui.h (the engine's text record).
+CPPFLAGS   += -I$(LRC)/include -iquote $(CORE_DIR)/common
+LDLIBS     += -lm -pthread
+
+# Optional libraries, each adding its file and a define.
 CHAFA ?= 1
 ifneq ($(CHAFA),0)
-HAVE_CHAFA  := $(shell $(PKG_CONFIG) --exists chafa && echo 1)
+HAVE_CHAFA := $(shell $(PKG_CONFIG) --exists chafa && echo 1)
 endif
-HAVE_CACA   := $(shell $(PKG_CONFIG) --exists caca && echo 1)
-HAVE_ALSA   := $(shell $(PKG_CONFIG) --exists alsa && echo 1)
+HAVE_CACA  := $(shell $(PKG_CONFIG) --exists caca && echo 1)
+HAVE_ALSA  := $(shell $(PKG_CONFIG) --exists alsa && echo 1)
 
 ifeq ($(HAVE_CHAFA),1)
-  SRC      += src/oq_chafa.c
-  CPPFLAGS += -DOQ_HAVE_CHAFA $(shell $(PKG_CONFIG) --cflags chafa)
-  LDLIBS   += $(shell $(PKG_CONFIG) --libs chafa)
+SOURCES    += av_chafa
+CPPFLAGS   += -DAV_HAVE_CHAFA $(shell $(PKG_CONFIG) --cflags chafa)
+LDLIBS     += $(shell $(PKG_CONFIG) --libs chafa)
 endif
 ifeq ($(HAVE_CACA),1)
-  SRC      += src/oq_caca.c
-  CPPFLAGS += -DOQ_HAVE_CACA $(shell $(PKG_CONFIG) --cflags caca)
-  LDLIBS   += $(shell $(PKG_CONFIG) --libs caca)
+SOURCES    += av_caca
+CPPFLAGS   += -DAV_HAVE_CACA $(shell $(PKG_CONFIG) --cflags caca)
+LDLIBS     += $(shell $(PKG_CONFIG) --libs caca)
 endif
-# Audio is one sink rather than a choice of backends, so src/oq_audio.c is
-# always compiled and stubs itself out; only the flags are conditional.
+# Sound is always compiled: without ALSA it is a set of stubs.
 ifeq ($(HAVE_ALSA),1)
-  CPPFLAGS += -DOQ_HAVE_ALSA $(shell $(PKG_CONFIG) --cflags alsa)
-  LDLIBS   += $(shell $(PKG_CONFIG) --libs alsa)
+CPPFLAGS   += -DAV_HAVE_ALSA $(shell $(PKG_CONFIG) --cflags alsa)
+LDLIBS     += $(shell $(PKG_CONFIG) --libs alsa)
 endif
 
-OBJ         := $(SRC:src/%.c=$(BUILD)/%.o) $(LRC_OBJ)
+OBJS       := $(SOURCES:%=$(B)/%.o) $(LRC_FILES:%=$(B)/lrc/%.o)
 
-# Which backends are available changes CPPFLAGS, and make does not track
-# flag changes -- without this stamp a newly installed backend leaves stale
-# objects behind and the binary silently lacks it.
-FLAGS_STAMP := $(BUILD)/.flags
+# make does not notice flags changing.  When a library appears or goes,
+# the flags do, and this stamp makes everything that depends on them
+# rebuild (a stale object once left chafa out of a binary built "with" it).
+STAMP      := $(B)/.flags
 
-.DEFAULT_GOAL := all
-.PHONY: all clean engine install backends test FORCE
+.PHONY: all engine backends test clean install always
 .DELETE_ON_ERROR:
+
 all: $(BIN)
 
-backends:
-	@echo "chafa: $(if $(HAVE_CHAFA),yes,NO - install 'chafa')"
-	@echo "caca:  $(if $(HAVE_CACA),yes,NO - install 'libcaca')"
-	@echo "alsa:  $(if $(HAVE_ALSA),yes,NO - install 'alsa-lib'; sound off)"
+$(BIN): $(OBJS) $(CORE_LIB)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(CORE_LIB) $(LDLIBS)
 
-$(BIN): $(OBJ) $(TYRQUAKE_A) | $(BUILD)
-	$(CC) $(CFLAGS) -o $@ $(OBJ) $(TYRQUAKE_A) $(LDLIBS)
+$(B)/%.o: src/%.c $(STAMP)
+	@mkdir -p $(B)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -MMD -MP -c -o $@ $<
 
-$(BUILD)/%.o: src/%.c $(FLAGS_STAMP) | $(BUILD)
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
-
-# libretro-common is third-party: build it quietly rather than drowning our
-# own warnings in it.
-$(BUILD)/lrc/%.o: $(LRC)/%.c | $(BUILD)
+# Third-party code: built quietly so our own warnings stand out.
+$(B)/lrc/%.o: $(LRC)/%.c $(STAMP)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -w -I$(LRC)/include -c -o $@ $<
 
-$(FLAGS_STAMP): FORCE | $(BUILD)
-	@echo '$(CC) $(CFLAGS) $(CPPFLAGS) $(LDLIBS)' > $@.tmp
-	@cmp -s $@.tmp $@ || mv $@.tmp $@
-	@rm -f $@.tmp
+$(STAMP): always
+	@mkdir -p $(B)
+	@echo '$(CC) $(CFLAGS) $(CPPFLAGS) $(LDLIBS)' > $@.new
+	@if cmp -s $@.new $@; then rm -f $@.new; else mv $@.new $@; fi
 
-$(BUILD):
-	@mkdir -p $(BUILD)
+# The core carries our changes, so its own make always runs; it rebuilds
+# only what changed.
+engine: $(CORE_LIB)
+$(CORE_LIB): always
+	$(MAKE) -C $(CORE_DIR) STATIC_LINKING=1
 
-# The evdev pointer detector is the one piece here that can do real harm if
-# it is wrong -- reading a keyboard event device is keylogging -- so it gets
-# a test.  Needs no engine and no backends; it builds the module directly.
-TEST_BIN := $(BUILD)/oq_evdev_test
+backends:
+	@echo "chafa: $(if $(HAVE_CHAFA),yes,no$(if $(filter 0,$(CHAFA)), (CHAFA=0), (install chafa)))"
+	@echo "caca:  $(if $(HAVE_CACA),yes,no (install libcaca))"
+	@echo "alsa:  $(if $(HAVE_ALSA),yes,no (install alsa-lib; the game is silent))"
+
+# Device selection is the one part that can do real harm (reading a
+# keyboard is keylogging), so it has a test of its own.
+TEST_BIN   := $(B)/av_evdev_test
 
 test: $(TEST_BIN)
 	$(TEST_BIN)
 
-$(TEST_BIN): tests/oq_evdev_test.c src/oq_evdev.c src/oq_evdev.h | $(BUILD)
-	$(CC) $(CFLAGS) -Isrc -o $@ tests/oq_evdev_test.c src/oq_evdev.c
-
-engine: $(TYRQUAKE_A)
-
-# Aftershock carries engine changes, so the core is always handed to its own
-# make, which rebuilds only what changed.
-$(TYRQUAKE_A): FORCE
-	$(MAKE) -C $(TYRQUAKE) STATIC_LINKING=1
+$(TEST_BIN): tests/av_evdev_test.c src/av_evdev.c src/av_evdev.h
+	@mkdir -p $(B)
+	$(CC) $(CFLAGS) -Isrc -o $@ tests/av_evdev_test.c src/av_evdev.c
 
 clean:
-	rm -rf $(BUILD)
-	-$(MAKE) -C $(TYRQUAKE) clean
+	rm -rf $(B)
+	-$(MAKE) -C $(CORE_DIR) clean
 
 install: $(BIN)
 	install -Dm755 $(BIN) $(DESTDIR)$(PREFIX)/bin/aftershock
 
-# An always-out-of-date prerequisite. FLAGS_STAMP needs this because an
-# order-only prerequisite alone never re-runs the recipe: once build/.flags
-# exists make considers it final, the stamp goes stale, and the flag-change
-# detection it exists for stops working. Keep this rule LAST -- defined before
-# `all` it becomes the default goal and `make` silently builds nothing.
-FORCE:
+always:
+
+-include $(SOURCES:%=$(B)/%.d)

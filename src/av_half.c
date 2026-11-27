@@ -20,8 +20,8 @@
  *
  * No library is involved; chafa stays available as --video=chafa.
  */
-#include "oq_present.h"
-#include "oq_term.h"
+#include "av_pictures.h"
+#include "av_term.h"
 #include "av_overlay.h"
 
 #include <stdio.h>
@@ -33,7 +33,7 @@ typedef struct {
     uint32_t ch;            /* 0 = picture cell, else an overlay character */
 } cell;
 
-static oq_present_config conf;
+static av_config conf;
 static cell *prev, *cur;
 static int grid_w, grid_h;      /* cells */
 static int force_full;
@@ -133,7 +133,7 @@ static int alloc_grid(int w, int h)
 
 static int style;               /* 0 half, 1 sextants, 2 Braille: below */
 
-static int half_init(const oq_present_config *cfg)
+static int half_init(const av_config *cfg)
 {
     style = 0;
     conf = *cfg;
@@ -150,7 +150,7 @@ static void half_shutdown(void)
     out_cap = out_len = 0;
 }
 
-static int half_resize(const oq_present_config *cfg)
+static int half_resize(const av_config *cfg)
 {
     conf = *cfg;
     return alloc_grid(cfg->cols, cfg->rows);
@@ -393,7 +393,7 @@ static void half_frame(const uint8_t *src, int w, int h, int stride)
         }
     }
     if (out && (changed || force_full))
-        oq_term_write_raw(out, out_len);
+        av_term_write_raw(out, out_len);
     force_full = 0;
 
     {
@@ -403,11 +403,11 @@ static void half_frame(const uint8_t *src, int w, int h, int stride)
     }
 }
 
-const oq_present_backend av_backend_half = {
+const av_backend av_backend_half = {
     "half", half_init, half_shutdown, half_resize, half_frame
 };
 
-static int sextant_init(const oq_present_config *cfg)
+static int sextant_init(const av_config *cfg)
 {
     int r = half_init(cfg);
 
@@ -415,11 +415,11 @@ static int sextant_init(const oq_present_config *cfg)
     return r;
 }
 
-const oq_present_backend av_backend_sextant = {
+const av_backend av_backend_sextant = {
     "sextant", sextant_init, half_shutdown, half_resize, half_frame
 };
 
-static int braille_init(const oq_present_config *cfg)
+static int braille_init(const av_config *cfg)
 {
     int r = half_init(cfg);
 
@@ -427,11 +427,11 @@ static int braille_init(const oq_present_config *cfg)
     return r;
 }
 
-const oq_present_backend av_backend_braille = {
+const av_backend av_backend_braille = {
     "braille", braille_init, half_shutdown, half_resize, half_frame
 };
 
-int av_half_family(const oq_present_backend *be)
+int av_half_family(const av_backend *be)
 {
     return be == &av_backend_half || be == &av_backend_sextant ||
            be == &av_backend_braille;
