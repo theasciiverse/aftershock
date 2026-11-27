@@ -1,0 +1,115 @@
+# Builds Aftershock for the Asciiverse catalog: one archive per target,
+# named aftershock-<target>.tar.gz, plus a SHA256SUMS file, attached to a
+# GitHub release (hub/catalog/SCHEMA.md, release.source = "github"). Each
+# archive holds the start script, the binary in lib/, LibreQuake v0.09-beta
+# and our game data in data/, and the licences (asciiverse/stage.sh).
+#
+# Tags look like v0.2.0: our own version (ROADMAP.md). Linux only, glibc,
+# built on Ubuntu 22.04 so it runs on glibc 2.35 and newer; the binary
+# links libc and libm only (asciiverse/build.sh). No macOS or Windows yet:
+# the frontend reads the mouse and gamepads through Linux's /dev/input.
+#
+# The game code is compiled with gmqcc built from a pinned commit, the one
+# Debian's 0.3.5+git20251116 is: it gives a byte-identical progs.dat.
+
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "existing tag to build and release"
+        required: true
+
+env:
+  ID: aftershock
+  TAG: ${{ inputs.tag || github.ref_name }}
+  GMQCC_COMMIT: b2a319efb41069b9a250e76991dbe505ff8d030d
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: x86_64-unknown-linux-gnu, runner: ubuntu-22.04 }
+          - { target: aarch64-unknown-linux-gnu, runner: ubuntu-22.04-arm }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Libraries
+        # chafa and GLib as static archives, ALSA's headers only
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libchafa-dev libglib2.0-dev libpcre2-dev libasound2-dev unzip
+
+      - name: gmqcc
+        run: |
+          git clone -q https://github.com/graphitemaster/gmqcc "$RUNNER_TEMP/gmqcc"
+          git -C "$RUNNER_TEMP/gmqcc" checkout -q "$GMQCC_COMMIT"
+          make -C "$RUNNER_TEMP/gmqcc" -j4 gmqcc
+          echo "$RUNNER_TEMP/gmqcc" >> "$GITHUB_PATH"
+
+      - name: Build
+        run: |
+          sh asciiverse/build.sh
+          file build/aftershock
+          ldd build/aftershock
+          # libc and libm only: chafa is linked in, libasound loaded at run time
+          ! ldd build/aftershock | grep -v -E 'linux-vdso|libc\.so|libm\.so|libmvec\.so|ld-linux'
+
+      - name: Smoke test
+        # the staged game in a 100x30 pseudo-terminal, silent, on the first
+        # map: the player enters it and half blocks are drawn
+        run: |
+          sh asciiverse/stage.sh
+          export HOME="$RUNNER_TEMP/home" XDG_STATE_HOME="$RUNNER_TEMP/state"
+          mkdir -p "$HOME"
+          AFTERSHOCK_CMD='map lq_e0m1' script -qec \
+            "stty cols 100 rows 30; timeout 60 stage/aftershock --no-sound --frames=200" \
+            /dev/null </dev/null >smoke.out 2>&1 || true
+          log="$XDG_STATE_HOME/aftershock/session.log"
+          tail -5 "$log"
+          grep -a -q 'entered the game' "$log" || { cat "$log"; exit 1; }
+          grep -a -q "$(printf '\342\226\200')" smoke.out || { cat -v smoke.out | tail -20; exit 1; }
+
+      - name: Package for av
+        run: |
+          mkdir -p dist
+          tar -czf "dist/$ID-${{ matrix.target }}.tar.gz" -C stage .
+          ls -l dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/*
+
+  release:
+    needs: [build]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum * > SHA256SUMS && cat SHA256SUMS
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$TAG" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
+            || gh release create "$TAG" -R "$GITHUB_REPOSITORY" --title "Aftershock $TAG" \
+                 --notes "Aftershock ${TAG#v}: a first-person shooter in the terminal, on the GPL engine of a 1996 shooter (TyrQuake, libretro's tyrquake core) with our own terminal frontend, filled with LibreQuake's free content. Built for the Asciiverse catalog; Linux x86-64 and ARM64. See PATCHES.md."
+          gh release upload "$TAG" dist/* -R "$GITHUB_REPOSITORY" --clobber

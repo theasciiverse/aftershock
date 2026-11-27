@@ -104,3 +104,5 @@ The program is GPL-2.0-or-later, see COPYING. A build with chafa linked
 (the default when chafa is installed) is distributed under GPL-3.0-or-later,
 as chafa is LGPL-3.0-or-later, see LICENSES/GPL-3.0.txt; `make CHAFA=0`
 builds without it. LibreQuake's content is BSD-3-Clause, see LICENSES/.
+The release archives have chafa and GLib linked in; their notices are in
+asciiverse/licenses/THIRD-PARTY-NOTICES.md (licenses/ in the archive).

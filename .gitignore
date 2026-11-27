@@ -8,3 +8,5 @@ id1/
 compile_commands.json
 data/
 build-ship/
+stage/
+dist/

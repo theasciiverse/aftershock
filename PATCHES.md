@@ -26,6 +26,12 @@ was taken from it.
   go, kitty's F3 (`CSI 13~`) is read, and the exit line names the picture
   in use. `AFTERSHOCK_ALSA_DEVICE` replaces `OMAQUAKE_ALSA_DEVICE`, which
   is still read when the new one is unset.
+- **ALSA loaded at run time** (`src/av_sound.c`): libasound.so.2 is opened
+  when sound starts rather than linked, so a release binary needs only
+  libc and libm and plays silently where ALSA's library is missing.
+- **Release builds** (`asciiverse/`): `make CHAFA_STATIC=1` links chafa and
+  GLib from their static archives, `make CACA=0` leaves libcaca out; the
+  archive is the start script, `lib/aftershock` and the data in `data/`.
 - **Half-block picture** (`src/av_half.c`, new, the default `--video=half`):
   truecolour upper half blocks, two square pixels per cell, each the average
   of the engine pixels it covers. The engine renders at the grid's own aspect

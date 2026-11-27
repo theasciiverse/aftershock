@@ -1,7 +1,7 @@
 # Roadmap
 
-Versions stay 0.x.0 until the whole game is in. No tags or releases until
-David says (see CLAUDE.md).
+Versions stay 0.x.0 until the whole game is in. 0.2.0 is the first
+release (2026-11-27), Linux x86-64 and ARM64.
 
 ## 0.1.0, first light
 - [x] OmaQuake's frontend on the libretro tyrquake core, LibreQuake's data,
@@ -16,7 +16,7 @@ David says (see CLAUDE.md).
 - [x] Saves and settings in `$XDG_STATE_HOME/aftershock`, session log
 - [x] `make CHAFA=0`: the shippable build, no chafa linked
 
-## 0.2.0, readable and ours
+## 0.2.0, readable and ours (released 2026-11-27)
 - [x] HUD, centre messages and notify lines as real terminal text
 - [x] Menus and console as terminal text
 - [x] Identity: Aftershock in menus, title, messages and endings; no id
@@ -26,6 +26,9 @@ David says (see CLAUDE.md).
       `av_gore 1` for the originals
 - [x] Credits on the Help page, in the README and the store draft
 - [x] Gamepad (Linux /dev/input), untested with a real pad
+- [x] Our own terminal frontend, written clean room (GPL-2.0-or-later)
+- [x] Release archives: libc and libm only, chafa linked in, ALSA loaded
+      when sound starts
 - [x] Our own sextant mode
 - [x] Every real LibreQuake map loads (BSP2, FitzQuake protocol,
       non-fatal object errors)

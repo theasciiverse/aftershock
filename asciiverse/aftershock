@@ -1,0 +1,15 @@
+#!/bin/sh
+# Starts Aftershock from an av install or a release archive.
+#
+# The binary is lib/aftershock and finds the game data in data/ beside
+# lib/ by itself. Settings, saves and the session log go to
+# ${XDG_STATE_HOME:-~/.local/state}/aftershock. Every option is the
+# game's own (aftershock --help).
+#
+# av links ~/.local/bin/aftershock to this file, so follow that link first.
+set -e
+self=$(readlink "$0" 2>/dev/null || printf '%s' "$0")
+dir=$(cd "$(dirname "$self")" && pwd)
+state=${XDG_STATE_HOME:-$HOME/.local/state}/aftershock
+mkdir -p "$state"
+exec "$dir/lib/aftershock" --log="$state/session.log" "$@"

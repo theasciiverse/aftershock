@@ -7,7 +7,7 @@ free content, LibreQuake
 (BSD-3-Clause art, maps, sounds and music; GPL-2.0+ game code). No id
 Software data is needed, shipped or searched for, ever.
 
-## Licence: frontend rewritten, release is David's call
+## Licence and releases
 
 OmaQuake is GPL-2.0-only and linked chafa (LGPL-3.0+), which cannot be
 distributed together. David wrote to Raul Dias and got no answer, so on
@@ -17,16 +17,16 @@ OmaQuake's files were removed. Aftershock is now GPL-2.0-or-later (the
 engine and LibreQuake's game code allow it); a build with chafa linked is
 distributed under GPL-3.0-or-later (LICENSES/GPL-3.0.txt). OmaQuake's code
 must not come back: do not copy from its history (`git show` on Raul's
-commits) into the tree.
+commits) into the tree. Do not contact Raul or anyone else about it.
 
-Until David says otherwise: **no tags, no releases, no release workflow
-runs**, and the repo stays private. Local builds for testing are fine. Do
-not contact Raul or anyone else about it.
+Released from v0.2.0 (David, 2026-11-27): the repo is public, and a `v*`
+tag runs `.github/workflows/release.yml` (Linux x86-64 and ARM64; the
+archive is laid out by `asciiverse/stage.sh`, the build is
+`asciiverse/build.sh`). Our versions are plain `vX.Y.Z` (ROADMAP.md).
 
 Local tags `v0.1.0` to `v0.1.2` (OmaQuake's) and `v0.47` on (TyrQuake's)
-come from the upstream remotes: never `git push --tags`. Our own versions
-are 0.x.0 and are not tagged while the blocker stands (ROADMAP.md says
-what each one holds).
+come from the upstream remotes: never `git push --tags`, push our own tag
+by name.
 
 ## How to play and test
 
