@@ -6,15 +6,18 @@ OmaQuake terminal frontend) filled only with free content, LibreQuake
 (BSD-3-Clause art, maps, sounds and music; GPL-2.0+ game code). No id
 Software data is needed, shipped or searched for, ever.
 
-## OPEN BLOCKER: licence, waiting on Raul Dias
+## OPEN BLOCKER: licence, frontend being rewritten
 
-OmaQuake is GPL-2.0-only and links chafa (LGPL-3.0), which cannot be
-distributed together. David is writing to Raul about it. Until that is
-answered: **no tags, no releases, no release workflow runs**, and the repo
-stays private. Local builds for testing are fine. Do not contact Raul or
-anyone else about it. Our own half-block backend (`--video=half`, the
-default, src/av_half.c) uses no library, so a build without chafa
-(`make CHAFA=0`) is the one we could ship if the answer is no.
+OmaQuake is GPL-2.0-only and links chafa (LGPL-3.0+), which cannot be
+distributed together. David wrote to Raul Dias and got no answer, so on
+2026-11-27 he decided to rewrite the frontend ourselves, clean room, from
+`docs/FRONTEND-SPEC.md` (rover's job, ASSIGNMENTS-2026-11-27-aftershock.md
+in rover's ~/code). Whoever writes the new code does not open the OmaQuake
+files the spec lists. Once they are gone, Aftershock is GPL-2.0-or-later
+(the engine and LibreQuake's game code allow it) and a chafa build is
+GPL-3.0-or-later. Until then: **no tags, no releases, no release workflow
+runs**, and the repo stays private. Local builds for testing are fine. Do
+not contact Raul or anyone else about it.
 
 Local tags `v0.1.0` to `v0.1.2` (OmaQuake's) and `v0.47` on (TyrQuake's)
 come from the upstream remotes: never `git push --tags`. Our own versions
