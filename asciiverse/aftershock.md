@@ -1,4 +1,3 @@
-<!-- DRAFT for hub/catalog/aftershock.md (not in the hub: David's call) -->
 **THE GROUND IS STILL SHAKING. SOMETHING CAME UP WITH IT.**
 
 Four runes hold the gate shut: the Rune of Blood, the Rune of Bone, the Rune of Mind and the Rune of Soul. Someone has scattered them across worlds that should never have been joined, and every one of those worlds has woken up.
@@ -26,7 +25,7 @@ Your shots find what you face, so there is little need to aim up or down. It pla
 ## Options
 
 - `--no-sound`: play silently
-- `--video=caca`: the picture in sixteen colours
+- `--video=sextant`: a finer picture, six pixels to a character; Options, Video, Picture switches it while you play
 
 Settings and saved games are kept in `~/.local/state/aftershock`.
 

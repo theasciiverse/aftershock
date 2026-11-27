@@ -1,4 +1,3 @@
-# DRAFT for hub/catalog/aftershock.toml (not in the hub: David's call)
 schema_version = 1
 id = "aftershock"
 kind = "game"
@@ -6,8 +5,9 @@ title = "Aftershock"
 description = "A first-person shooter in your terminal: the 1996 shooter's engine and a whole free world of cultists, knights and things from beyond, in full colour, with a status line you can read at a glance."
 year = 2026
 new = true
-# a build with chafa linked is GPL-3.0-or-later AND BSD-3-Clause
-license = "GPL-2.0-or-later AND BSD-3-Clause"
+# GPL-3.0-or-later with chafa linked in, as the release builds are; the
+# source is GPL-2.0-or-later
+license = "GPL-3.0-or-later AND BSD-3-Clause"
 repo = "theasciiverse/aftershock"
 provenance = "id Software released the source of its 1996 shooter's engine in 1999; Kevin Shanahan's TyrQuake carried it on, libretro made it a core, Raul Dias brought it to the terminal as OmaQuake in 2026, and Aftershock gave it a terminal frontend of its own. The LibreQuake project has made free maps, monsters, sounds and music for it since 2019."
 changes = "PATCHES.md"
