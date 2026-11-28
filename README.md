@@ -82,7 +82,8 @@ opens in it next time. Naming one with `--video` sets it too.
   team and contributors.
 - Content: the LibreQuake project (github.com/lavenderdotpet/LibreQuake),
   art, maps, sounds and music under BSD-3-Clause, game code under GPL-2.0+.
-  Its contributors are listed in data/id1/docs/CREDITS.
+  Its contributors are listed in data/id1/docs/CREDITS, and by name on
+  the Credits screen in the game's menu.
 - Aftershock: the terminal frontend, the half-block picture, text HUD,
   keyboard scheme, identity and family-friendly changes. PATCHES.md lists
   every change.

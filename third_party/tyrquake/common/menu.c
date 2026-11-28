@@ -67,6 +67,7 @@ static void M_Menu_Setup_f(void);
 static void M_Menu_Keys_f(void);
 static void M_Menu_Video_f(void);
 static void M_Menu_Help_f(void);
+static void M_Menu_Credits_f(void);
 static void M_Menu_LanConfig_f(void);
 static void M_Menu_GameOptions_f(void);
 static void M_Menu_Search_f(void);
@@ -86,6 +87,7 @@ static void M_OptionsGame_Draw(void);
 static void M_Keys_Draw(void);
 static void M_Video_Draw(void);
 static void M_Help_Draw(void);
+static void M_Credits_Draw(void);
 static void M_Quit_Draw(void);
 static void M_LanConfig_Draw(void);
 static void M_GameOptions_Draw(void);
@@ -106,6 +108,7 @@ static void M_OptionsGame_Key(int key);
 static void M_Keys_Key(int key);
 static void M_Video_Key(int key);
 static void M_Help_Key(int key);
+static void M_Credits_Key(int key);
 static void M_Quit_Key(int key);
 static void M_LanConfig_Key(int key);
 static void M_GameOptions_Key(int key);
@@ -124,7 +127,7 @@ enum m_state_enum {
     m_none, m_main, m_singleplayer, m_load, m_save, m_multiplayer, m_setup,
     m_options, m_optionsinput, m_optionsvideo, m_optionsaudio, m_optionsgame,
     m_video, m_keys, m_help, m_quit, m_lanconfig, m_gameoptions,
-    m_search, m_slist
+    m_search, m_slist, m_credits
 };
 
 int m_state;
@@ -329,7 +332,14 @@ M_ToggleMenu_f(void)
 
 static int m_main_cursor;
 
-#define MAIN_ITEMS 5
+/* Aftershock: Credits sits between Help and Quit (av_textui.c labels). */
+#define MAIN_ITEMS 6
+
+/* The same labels, for the picture mode (av_textui 0): LibreQuake's
+ * mainmenu.lmp has only five rows. */
+static const char *const main_labels[MAIN_ITEMS] = {
+    "Play", "Online", "Options", "Help", "Credits", "Quit"
+};
 
 static void
 M_Menu_Main_f(void)
@@ -353,7 +363,14 @@ M_Main_Draw(void)
     M_DrawTransPic(16, 4, Draw_CachePic("gfx/qplaque.lmp"));
     p = Draw_CachePic("gfx/ttl_main.lmp");
     M_DrawPic((320 - p->width) / 2, 4, p);
-    M_DrawTransPic(72, 32, Draw_CachePic("gfx/mainmenu.lmp"));
+    if (av_textui.value) {
+	M_DrawTransPic(72, 32, Draw_CachePic("gfx/mainmenu.lmp"));
+    } else {
+	int i;
+
+	for (i = 0; i < MAIN_ITEMS; i++)
+	    M_PrintWhite(74, 32 + i * 20 + 6, main_labels[i]);
+    }
 
     f = (int)(host_time * 10) % 6;
 
@@ -413,6 +430,10 @@ M_Main_Key(int key)
 	    break;
 
 	case 4:
+	    M_Menu_Credits_f();
+	    break;
+
+	case 5:
 	    M_Menu_Quit_f();
 	    break;
 	}
@@ -2234,6 +2255,193 @@ M_Help_Key(int key)
 }
 
 /* ============================================================================= */
+/* CREDITS (Aftershock) */
+
+/*
+ * credits.txt in the game folder (tools/make-credits.py writes it), one
+ * line per row; a line starting with '#' is a heading.  It rolls up by
+ * itself, and the arrows and Page keys move it by hand; the roll goes on
+ * a few seconds after the last key.
+ */
+#define CREDITS_BYTES 32768
+#define CREDITS_MAX_LINES 1024
+#define CREDITS_ROWS 17
+#define CREDITS_Y0 40
+#define CREDITS_IDLE 3.0	/* seconds after a key before it rolls */
+#define CREDITS_STEP 0.6	/* seconds a row */
+
+static char credits_buf[CREDITS_BYTES];
+static const char *credits_line[CREDITS_MAX_LINES];
+static int credits_lines;
+static int credits_top;
+static double credits_key_time;
+
+static const char *const credits_fallback[] = {
+    "#Aftershock",
+    "",
+    "#Engine",
+    "TyrQuake, by Kevin Shanahan and",
+    "contributors, from id Software's GPL",
+    "source release of Quake",
+    "The libretro tyrquake core",
+    "",
+    "#World",
+    "The LibreQuake project",
+    "",
+    "#In the terminal",
+    "OmaQuake by Raul Dias",
+    "The Aftershock authors",
+    NULL
+};
+
+static void
+M_Credits_Load(void)
+{
+    unsigned long len = 0;
+    char *p;
+
+    if (credits_lines)
+	return;
+    p = COM_LoadStackFile("credits.txt", credits_buf, sizeof(credits_buf),
+			  &len);
+    /* Anything bigger than the buffer comes back in temporary memory the
+     * next level load reuses, so only our own buffer is kept. */
+    if (p == credits_buf) {
+	char *line = p;
+
+	while (*line && credits_lines < CREDITS_MAX_LINES) {
+	    char *end = strchr(line, '\n');
+
+	    if (end)
+		*end = 0;
+	    if (end && end > line && end[-1] == '\r')
+		end[-1] = 0;
+	    credits_line[credits_lines++] = line;
+	    if (!end)
+		break;
+	    line = end + 1;
+	}
+    }
+    if (!credits_lines) {
+	int i;
+
+	for (i = 0; credits_fallback[i]; i++)
+	    credits_line[credits_lines++] = credits_fallback[i];
+    }
+}
+
+static void
+M_Menu_Credits_f(void)
+{
+    if (key_dest != key_menu) {
+	m_save_demonum = cls.demonum;
+	cls.demonum = -1;
+    }
+    key_dest = key_menu;
+    m_state = m_credits;
+    m_entersound = true;
+    M_Credits_Load();
+    credits_top = 0;
+    credits_key_time = realtime;
+}
+
+/* The last top row that still shows something. */
+static int
+M_Credits_Last(void)
+{
+    return credits_lines > CREDITS_ROWS ? credits_lines - CREDITS_ROWS : 0;
+}
+
+/* The top row now: where the keys left it, plus the roll since. */
+static int
+M_Credits_Top(void)
+{
+    double idle = realtime - credits_key_time - CREDITS_IDLE;
+    int last = M_Credits_Last(), top = credits_top;
+
+    if (idle > 0 && last > 0) {
+	/* Past the end it pauses on the last page, then starts over. */
+	int period = last + 1 + (int)(CREDITS_IDLE / CREDITS_STEP);
+
+	top += (int)(idle / CREDITS_STEP);
+	top %= period;
+	if (top > last)
+	    top = last;
+    }
+    return top;
+}
+
+static void
+M_Credits_Draw(void)
+{
+    const qpic_t *p = Draw_CachePic("gfx/ttl_main.lmp");
+    int top = M_Credits_Top(), i;
+
+    M_DrawPic((320 - p->width) / 2, 4, p);
+    M_Print(160 - 4 * 7, 24, "Credits");
+    for (i = 0; i < CREDITS_ROWS && top + i < credits_lines; i++) {
+	const char *s = credits_line[top + i];
+	int len;
+
+	if (s[0] == '#') {
+	    s++;
+	    len = (int)strlen(s);
+	    M_Print(160 - 4 * len, CREDITS_Y0 + i * 8, s);
+	} else {
+	    len = (int)strlen(s);
+	    M_PrintWhite(160 - 4 * len, CREDITS_Y0 + i * 8, s);
+	}
+    }
+    M_PrintWhite(160 - 4 * 28, CREDITS_Y0 + (CREDITS_ROWS + 1) * 8,
+		 "Arrows, Page keys   Esc back");
+}
+
+static void
+M_Credits_Key(int key)
+{
+    int top = M_Credits_Top(), last = M_Credits_Last();
+
+    switch (key) {
+    case K_JOY_B:
+    case K_ESCAPE:
+	M_Menu_Main_f();
+	return;
+    case K_JOY_UP:
+    case K_UPARROW:
+	top--;
+	break;
+    case K_JOY_DOWN:
+    case K_DOWNARROW:
+	top++;
+	break;
+    case K_JOY_LEFT:
+    case K_LEFTARROW:
+    case K_PGUP:
+	top -= CREDITS_ROWS;
+	break;
+    case K_JOY_RIGHT:
+    case K_RIGHTARROW:
+    case K_PGDN:
+	top += CREDITS_ROWS;
+	break;
+    case K_HOME:
+	top = 0;
+	break;
+    case K_END:
+	top = last;
+	break;
+    default:
+	return;
+    }
+    if (top < 0)
+	top = 0;
+    if (top > last)
+	top = last;
+    credits_top = top;
+    credits_key_time = realtime;
+}
+
+/* ============================================================================= */
 /* QUIT MENU */
 
 static int msgNumber;
@@ -3172,6 +3380,7 @@ M_Init(void)
     Cmd_AddCommand("menu_keys", M_Menu_Keys_f);
     Cmd_AddCommand("menu_video", M_Menu_Video_f);
     Cmd_AddCommand("help", M_Menu_Help_f);
+    Cmd_AddCommand("credits", M_Menu_Credits_f);	/* Aftershock */
     Cmd_AddCommand("menu_quit", M_Menu_Quit_f);
 }
 
@@ -3253,6 +3462,10 @@ M_Draw(void)
 
       case m_help:
          M_Help_Draw();
+         break;
+
+      case m_credits:
+         M_Credits_Draw();
          break;
 
       case m_quit:
@@ -3344,6 +3557,10 @@ M_Keydown(int key)
 
     case m_help:
 	M_Help_Key(key);
+	return;
+
+    case m_credits:
+	M_Credits_Key(key);
 	return;
 
     case m_quit:

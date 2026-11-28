@@ -39,7 +39,7 @@ release (2026-11-27), Linux x86-64 and ARM64.
 - [ ] Play episodes 1 to 4 through by hand and fix what turns up
 - [ ] An octant mode (Unicode 16) once terminals draw octants widely
 - [x] 100x30 .cast preview, a fight
-- [ ] A credits screen of its own in the menu
+- [x] A credits screen of its own in the menu
 - [ ] Title graphics (conback) of our own
 - [x] Our own terminal frontend, written clean room from
       docs/FRONTEND-SPEC.md: the program is GPL-2.0-or-later

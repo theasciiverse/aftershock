@@ -1,0 +1,121 @@
+#Aftershock
+A shooter in the terminal
+
+#Engine
+TyrQuake
+by Kevin Shanahan and contributors,
+from id Software's GPL source
+release of Quake
+
+The libretro tyrquake core
+by the libretro team and contributors
+
+#In the terminal
+OmaQuake by Raul Dias
+first brought this engine
+to the terminal
+
+The terminal frontend, pictures,
+text HUD and menus, keyboard play
+and family-friendly changes
+by the Aftershock authors
+
+#World
+The LibreQuake project
+maps, art, sounds and music,
+and the game code
+
+#The LibreQuake team
+Rhoq
+textures
+
+Arthur Biver (aDaya)
+models, textures, sounds
+
+fw
+maps
+
+James Greenwood (Greenwood)
+textures, maps
+
+Emberlynn Bland (Ember)
+teleport sounds
+
+Calvin Martinez (ZungryWare)
+programming, models, animation, maps,
+textures, management
+
+Silja Midsummer (MissLavender)
+textures, models, sounds, configs,
+management
+
+Azure Midsummer (Millenia3D)
+models, textures
+
+Futuretime23
+music
+
+James Lewis (therektafire)
+maps, maphacks, sounds
+
+Beak
+textures (brick0)
+
+giwake
+sound, models
+
+Nolcoz
+models, animation, maps, textures
+
+Squid V.
+level textures
+
+Jack Folkner (Diplodokus)
+sound
+
+Markie Music
+sound, music
+
+Jack Perkins (dantescanline)
+readme, animation
+
+FK/Rat
+art
+
+Ashat Maself
+sound effects
+
+Marcel Schubert (Mr. M)
+models, concept art (ammo)
+
+ValhaHazred
+concept art
+
+Cass Python (Owly)
+README file
+
+Rob (EGO DEATH)
+concept art
+
+riktoi
+textures
+
+John S. Weekley (PRIMEVAL)
+music
+
+Akai
+slope.map
+
+Mikko Uusitalo (NewHouse)
+concept art
+
+Ivy Bowling (CypressImplex)
+QuakeC source
+
+Senn
+sounds
+
+#Thanks
+To everyone who kept this engine
+and its worlds free to play,
+and to you, for playing.

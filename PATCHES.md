@@ -91,6 +91,11 @@ Every change is marked `Aftershock:` in a comment.
   the menu pictures, does not draw the status bar, plaques or level summary,
   and fills in the player's state for the frontend. `Draw_LastCachePicName`
   (draw.c) names the picture a menu is about to draw.
+- `menu.c`: a Credits screen in the main menu (between Help and Quit, also
+  the `credits` command): `credits.txt` from the game folder rolls up by
+  itself and the arrows, Page keys, Home and End move it; with
+  `av_textui 0` the main menu's six rows are printed, since LibreQuake's
+  `mainmenu.lmp` holds five.
 - `menu.c`: our own quit prompts (id's were jokes, not all for children);
   the Host a game list holds LibreQuake's playable maps by their own names;
   the mission-pack lists point at it. "No Quake servers found" says "No
@@ -158,6 +163,9 @@ its own commit, then:
 - `progs/av_rubble1..3.mdl`, `progs/av_pile.mdl`: the debris
   (`tools/mkdebris.py`).
 - `av_text.txt`: the text table, for map and engine text.
+- `credits.txt`: the Credits screen, written by `tools/make-credits.py`
+  (its head, then LibreQuake's team by name and what each made, read from
+  LibreQuake's `docs/CREDITS`).
 - `progs.dat`: built from `qcsrc/` by `tools/build-data.sh`, not stored.
 
 ## Removed
