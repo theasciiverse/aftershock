@@ -568,7 +568,7 @@ close the log.
 
 Linux: ALSA, optional at build time (pkg-config `alsa`); without it every
 call is a stub, init fails with "built without ALSA support", and the game
-is silent. macOS and Windows: silent for now.
+is silent. macOS and Windows: miniaudio, below.
 
 - Install a silent ALSA error handler before anything else: the default
   one prints to stderr, which is the picture.
@@ -583,6 +583,20 @@ is silent. macOS and Windows: silent for now.
 - Sound failing to open is not fatal: log `audio: disabled (<reason>)`
   and play on. On success log `audio: <rate> Hz on '<device>'`.
 
+**macOS and Windows** (`av_sound_ma.c`): miniaudio
+(`third_party/miniaudio`, public domain or MIT-0), configured in
+`av_miniaudio.h` for playback only (no decoders, generation, resource
+manager, node graph or engine) and the backends each system needs: Core
+Audio on macOS (linked, `-framework CoreFoundation CoreAudio
+AudioToolbox`), WASAPI then DirectSound then WinMM on Windows, and the
+null backend. Its implementation is built alone in `av_miniaudio.c`,
+quietly, as third-party code. The contract is the same as ALSA's: the
+default playback device, signed 16-bit stereo at the core's rate (the
+device converts), and writes that never wait. The engine thread writes
+into an 80 ms ring and the device's thread reads it, one writer and one
+reader, the two positions atomic (acquire and release). A write that does
+not fit is dropped and counted; a read that finds the ring short plays
+silence for the rest. The device name logged is `<backend>: <device>`.
 
 ## Game loop and timing
 
@@ -756,10 +770,11 @@ Rewrite the `Makefile` too (it began as OmaQuake's). Needs:
   compiler picks it: `mingw` is Windows, `darwin` macOS, anything else
   Linux. The core is always made with `platform=unix` (nothing in it is
   system-specific beyond libretro-common, and the archive keeps its
-  name). macOS and Windows never look for ALSA, and leave chafa and
+  name). macOS and Windows build `av_sound_ma.c` and `av_miniaudio.c` in
+  place of `av_sound.c`, never look for ALSA, and leave chafa and
   libcaca out unless `CHAFA=1` or `CACA=1` is given. Windows: the binary
   is `build/aftershock.exe`, linked `-static` (winpthreads and libgcc
-  inside), with `-lws2_32 -lwinmm`; `timeBeginPeriod(1)` at start
+  inside), with `-lws2_32 -lwinmm -lole32`; `timeBeginPeriod(1)` at start
   so frame sleeps of a few milliseconds are not rounded up to 15.6 ms.
 
 ## Tests

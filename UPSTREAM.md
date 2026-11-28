@@ -7,6 +7,7 @@
 | Engine lineage | TyrQuake, Kevin Shanahan, https://disenchant.net/tyrquake/ (mirror https://github.com/sezero/tyrquake) | `tyrquake` | branch `tyrquake-base`: our first start on desktop TyrQuake 6531579 |
 | Game code | LibreQuake's LibreProgsDeluxe (qcsrc/, GPL-2.0+) | none | imported from the v0.09-beta source archive, sha256 a4c86aab43c62b11454237c4c0976c1737743e7aafa2f1c3499675505e0cf9cc, then ours |
 | Content | LibreQuake, https://github.com/lavenderdotpet/LibreQuake (BSD-3-Clause data, GPL-2.0+ QuakeC) | none; fetched | release v0.09-beta, `full.zip`, SHA-256 623e463b35811216244f9ba15e0c45abc1765288650b5e3d36a899b35e4bcf3d |
+| Sound on macOS and Windows | miniaudio, David Reid, https://github.com/mackron/miniaudio (public domain or MIT-0) | none; vendored | `third_party/miniaudio/miniaudio.h` from tag 0.11.25, SHA-256 ac7af4de748b7e26b777f37e01cee313a308a7296a3eb080e2906b320cc55c89, unchanged |
 | Reference only | AnsiQuake, Ben Morris, https://github.com/pixelbadger/AnsiQuake (README says GPLv2, no LICENSE file) | none | read, no code taken |
 
 Pulling from upstream:

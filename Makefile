@@ -7,7 +7,7 @@
 #
 # Linux is the home platform.  macOS (cc) and Windows (MinGW-w64, e.g.
 # make CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-ar) build the same
-# frontend without chafa and libcaca (and, so far, silent);
+# frontend with sound through miniaudio and without chafa and libcaca;
 # the compiler's target decides which (cc -dumpmachine).
 #   make CHAFA=0    without chafa (chafa is LGPL-3.0-or-later; a build with it
 #                   is distributed under GPL-3.0-or-later)
@@ -102,11 +102,20 @@ CPPFLAGS   += -DAV_HAVE_ALSA $(shell $(PKG_CONFIG) --cflags alsa)
 LDLIBS     += -ldl
 endif
 
+# macOS and Windows: sound through miniaudio (third_party/miniaudio, public
+# domain or MIT-0) in place of ALSA.
+ifneq ($(TARGET_OS),linux)
+SOURCES    := $(filter-out av_sound,$(SOURCES)) av_sound_ma av_miniaudio
+endif
+ifeq ($(TARGET_OS),macos)
+LDLIBS     += -framework CoreFoundation -framework CoreAudio \
+              -framework AudioToolbox
+endif
 # One self-contained .exe: winpthreads and libgcc linked in.  Sockets for
 # libretro-common's net files, winmm for the 1 ms timer period.
 ifeq ($(TARGET_OS),windows)
 LDFLAGS    += -static
-LDLIBS     += -lws2_32 -lwinmm
+LDLIBS     += -lws2_32 -lwinmm -lole32
 endif
 
 OBJS       := $(SOURCES:%=$(B)/%.o) $(LRC_FILES:%=$(B)/lrc/%.o)
@@ -127,6 +136,11 @@ $(BIN): $(OBJS) $(CORE_LIB)
 $(B)/%.o: src/%.c $(STAMP)
 	@mkdir -p $(B)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -MMD -MP -c -o $@ $<
+
+# miniaudio's implementation is third-party code too.
+$(B)/av_miniaudio.o: src/av_miniaudio.c src/av_miniaudio.h $(STAMP)
+	@mkdir -p $(B)
+	$(CC) $(CFLAGS) -w -c -o $@ $<
 
 # Third-party code: built quietly so our own warnings stand out.
 $(B)/lrc/%.o: $(LRC)/%.c $(STAMP)
@@ -150,7 +164,7 @@ backends:
 	@echo "chafa: $(if $(HAVE_CHAFA),yes,no$(if $(filter 0,$(CHAFA)), (CHAFA=0), (install chafa)))"
 	@echo "caca:  $(if $(HAVE_CACA),yes,no$(if $(filter 0,$(CACA)), (CACA=0), (install libcaca)))"
 	@echo "target: $(TARGET_OS) ($(MACHINE))"
-	@echo "alsa:  $(if $(HAVE_ALSA),yes,$(if $(filter linux,$(TARGET_OS)),no (install alsa-lib; the game is silent),no (silent)))"
+	@echo "alsa:  $(if $(HAVE_ALSA),yes,$(if $(filter linux,$(TARGET_OS)),no (install alsa-lib; the game is silent),no (miniaudio instead)))"
 
 # Device selection is the one part that can do real harm (reading a
 # keyboard is keylogging), so it has a test of its own.

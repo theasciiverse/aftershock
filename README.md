@@ -89,6 +89,8 @@ opens in it next time. Naming one with `--video` sets it too.
   art, maps, sounds and music under BSD-3-Clause, game code under GPL-2.0+.
   Its contributors are listed in data/id1/docs/CREDITS, and by name on
   the Credits screen in the game's menu.
+- Sound on macOS and Windows: miniaudio by David Reid
+  (github.com/mackron/miniaudio), public domain or MIT No Attribution.
 - Aftershock: the terminal frontend, the half-block picture, text HUD,
   keyboard scheme, identity and family-friendly changes. PATCHES.md lists
   every change.
@@ -110,5 +112,7 @@ The program is GPL-2.0-or-later, see COPYING. A build with chafa linked
 (the default when chafa is installed) is distributed under GPL-3.0-or-later,
 as chafa is LGPL-3.0-or-later, see LICENSES/GPL-3.0.txt; `make CHAFA=0`
 builds without it. LibreQuake's content is BSD-3-Clause, see LICENSES/.
-The release archives have chafa and GLib linked in; their notices are in
+The Linux release archives have chafa and GLib linked in; the macOS and
+Windows ones have neither (they are GPL-2.0-or-later) and play sound
+through miniaudio instead. The notices are in
 asciiverse/licenses/THIRD-PARTY-NOTICES.md (licenses/ in the archive).

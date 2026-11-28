@@ -1,17 +1,20 @@
 # Third-party notices
 
-Aftershock's released builds link these libraries in, for the chafa
-picture (Options, Video, Picture). Their licence texts are in this folder.
+Aftershock's Linux builds link chafa and GLib in, for the chafa picture
+(Options, Video, Picture); the macOS and Windows builds link miniaudio in,
+for sound, and have no chafa. Their licence texts are in this folder.
 
 | Library | Copyright | Licence | Text |
 |---|---|---|---|
 | chafa, by Hans Petter Jansson (hpjansson.org/chafa) | 2018 on, Hans Petter Jansson | LGPL-3.0-or-later | `LGPL-3.0.txt`, with `GPL-3.0.txt` |
 | GLib, the GNOME project's core library (gitlab.gnome.org/GNOME/glib) | The GLib authors | LGPL-2.1-or-later | `LGPL-2.1.txt` |
 | sysprof-capture, from Sysprof, when GLib uses it | 2016 on, Christian Hergert and others | BSD-2-Clause-Patent | below |
+| miniaudio, by David Reid (github.com/mackron/miniaudio), macOS and Windows only | 2026, David Reid | public domain (Unlicense) or MIT No Attribution | `miniaudio.txt` |
 | PCRE2, when GLib uses it | 1997 on, University of Cambridge | BSD-3-Clause with the binary library-like packages exemption | below |
 
-With chafa linked in, the game as a whole is distributed under the GPL,
-version 3 or later (`GPL-3.0.txt`); its own source, the frontend, the
+With chafa linked in (Linux), the game as a whole is distributed under
+the GPL, version 3 or later (`GPL-3.0.txt`); without it (macOS, Windows),
+under the GPL, version 2 or later; its own source, the frontend, the
 engine and LibreQuake's game code, is GPL-2.0-or-later (`GPL-2.0.txt`).
 LibreQuake's maps, art, sounds and music are BSD-3-Clause
 (`LibreQuake-BSD-3-Clause.txt`, `LibreQuake-licence-info.txt`, and
