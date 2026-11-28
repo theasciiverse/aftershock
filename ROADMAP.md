@@ -40,7 +40,7 @@ release (2026-11-27), Linux x86-64 and ARM64.
 - [ ] An octant mode (Unicode 16) once terminals draw octants widely
 - [x] 100x30 .cast preview, a fight
 - [x] A credits screen of its own in the menu
-- [ ] Title graphics (conback) of our own
+- [x] Title graphics (conback) of our own
 - [x] Our own terminal frontend, written clean room from
       docs/FRONTEND-SPEC.md: the program is GPL-2.0-or-later
 - [ ] Release workflow (Linux static, macOS, Windows), when David says

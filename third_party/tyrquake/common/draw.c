@@ -899,8 +899,10 @@ Draw_ConsoleBackground(int lines)
     int f, fstep;
     qpic_t *conback = Draw_CachePic("gfx/conback.lmp");
 
-    /* hack the version number directly into the pic */
-    Draw_ConbackString(conback, stringify(TYR_VERSION));
+    /* Aftershock: no engine version stamped into the picture; the title
+     * picture is ours (tools/mkconback.py) and the number would be
+     * TyrQuake's, not the game's. */
+    (void)Draw_ConbackString;
 
     /* Phase 4r (re-attempt of 67c8f47 / Phase 4p, see
      * 02c3181 for the revert and 8a9268d / Phase 4q for

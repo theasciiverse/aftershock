@@ -282,8 +282,11 @@ static void engine_text(grid *g, const av_textui_t *u)
     menu_c0 = g->cols / 2 - 20;
     menu_r0 = pic_rows > 25 ? (pic_rows - 25) / 2 : 0;
 
-    /* The console gets a solid backing, so it reads as a console. */
-    con_rows = u->console / 8;
+    /* The console gets a solid backing, so it reads as a console.  With a
+     * menu up the engine draws the title picture (conback) over the whole
+     * console and the menu over that, so the console's text and backing
+     * stay away and the picture shows. */
+    con_rows = u->menu ? 0 : u->console / 8;
     if (con_rows > pic_rows)
         con_rows = pic_rows;
     for (i = 0; i < con_rows; i++)
@@ -314,6 +317,8 @@ static void engine_text(grid *g, const av_textui_t *u)
                     is_boxed(g, c, r) ? BAR_PAPER : 0xffffffff);
             break;
         case AV_CTX_CONSOLE:
+            if (u->menu)
+                continue;
             c = t->x / 8 - 1;
             r = t->y / 8;
             if (r >= pic_rows)

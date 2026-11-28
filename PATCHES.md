@@ -52,7 +52,8 @@ was taken from it.
   `av_main.c` reads config.cfg), and `--video` sets it (`libretro.c`).
   The numbers are in `av_pictures.c`'s table: append only.
 - **Text overlay** (`src/av_overlay.c`, new): terminal text laid over the
-  picture cells (HUD and messages).
+  picture cells (HUD and messages). The console gets a solid backing,
+  except under a menu, where the engine shows the title picture.
 - **`make CHAFA=0`** builds without chafa (LGPL-3.0-or-later). With chafa
   linked the program is distributed under GPL-3.0-or-later, without it
   under GPL-2.0-or-later; libcaca (WTFPL) may stay either way.
@@ -105,6 +106,8 @@ Every change is marked `Aftershock:` in a comment.
 - `model.c`, `bspfile.h`: the BSP2 format as compilers write it today
   ("BSP2", float bounds in nodes and leafs) loads; the core only knew the
   older "2PSB" layout under that name. LibreQuake's lq_e2m4 needs it.
+- `draw.c`: no engine version stamped into the console background (the
+  title picture is ours, and the number was TyrQuake's).
 - `alias_model.c`: skins up to 4096 wide (LibreQuake's two bosses).
 - `pr_cmds.c`: `objerror` removes the entity and the level goes on, as in
   FitzQuake (lq_e3m4 has a nameless path corner).
@@ -163,6 +166,11 @@ its own commit, then:
 - `progs/av_rubble1..3.mdl`, `progs/av_pile.mdl`: the debris
   (`tools/mkdebris.py`).
 - `av_text.txt`: the text table, for map and engine text.
+- `gfx/conback.lmp`: the title picture behind the menus when no level is
+  running and while a level loads, ours, drawn by `tools/mkconback.py`
+  from code alone (rock split by cracks, a seismograph trace with the
+  main shock and its aftershocks, the name in carved letters cut by a
+  fault), in LibreQuake's palette; it replaces LibreQuake's emblem.
 - `credits.txt`: the Credits screen, written by `tools/make-credits.py`
   (its head, then LibreQuake's team by name and what each made, read from
   LibreQuake's `docs/CREDITS`).
