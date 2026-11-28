@@ -1322,11 +1322,20 @@ CalcSurfaceExtents(msurface_t *s)
     mvertex_t *v;
     mtexinfo_t *tex;
     int bmins[2], bmaxs[2];
+    int unlit;
 
     mins[0] = mins[1] = FLT_MAX;
     maxs[0] = maxs[1] = -FLT_MAX;
 
     tex = s->texinfo;
+    /* Aftershock: sky and liquid faces are drawn by the sky and turbulent
+     * paths, routed by these same name tests in Mod_LoadFaces, and never
+     * lightmapped, so the bound below does not apply to them.  Today's
+     * compilers make large sky faces (every LibreQuake episode map has
+     * them); the error was logged for each, and as Sys_Error returns it
+     * stopped nothing.  Normally named textures stay bounded. */
+    unlit = tex->texture && (!strncmp(tex->texture->name, "sky", 3) ||
+			     tex->texture->name[0] == '*');
 
     for (i = 0; i < s->numedges; i++) {
 	e = loadmodel->surfedges[s->firstedge + i];
@@ -1403,7 +1412,7 @@ CalcSurfaceExtents(msurface_t *s)
 	 * override at Mod_LoadFaces still happens for water
 	 * surfaces, but those are routed away from the
 	 * lightmap path by the texture-name check. */
-	if (s->extents[i] < 0 || s->extents[i] > 256)
+	if (s->extents[i] < 0 || (s->extents[i] > 256 && !unlit))
 	    SV_Error("Bad surface extents (%d)", s->extents[i]);
     }
 }
@@ -1887,7 +1896,10 @@ Mod_LoadLeafs_BSP29(lump_t *l)
        * for "no PVS data".  Out-of-range values cause the PVS
        * decompressor (Mod_DecompressVis) to walk off the end
        * of the visdata hunk allocation. */
-      if (p == -1)
+      /* Aftershock: a model with no visibility data at all (LibreQuake's
+       * item boxes, b_*.bsp) gives its leafs offset 0; that means no PVS,
+       * as -1 does, not an offset into an empty block. */
+      if (p == -1 || loadmodel->visdatasize == 0)
          out->compressed_vis = NULL;
       else
       {
@@ -1948,7 +1960,10 @@ Mod_LoadLeafs_BSP2(lump_t *l)
 
       p = LittleLong(in->visofs);
 
-      if (p == -1)
+      /* Aftershock: a model with no visibility data at all (LibreQuake's
+       * item boxes, b_*.bsp) gives its leafs offset 0; that means no PVS,
+       * as -1 does, not an offset into an empty block. */
+      if (p == -1 || loadmodel->visdatasize == 0)
          out->compressed_vis = NULL;
       else
       {
@@ -2080,7 +2095,10 @@ Mod_LoadLeafs_BSP2F(lump_t *l)
 
       p = LittleLong(in->visofs);
 
-      if (p == -1)
+      /* Aftershock: a model with no visibility data at all (LibreQuake's
+       * item boxes, b_*.bsp) gives its leafs offset 0; that means no PVS,
+       * as -1 does, not an offset into an empty block. */
+      if (p == -1 || loadmodel->visdatasize == 0)
          out->compressed_vis = NULL;
       else
       {
