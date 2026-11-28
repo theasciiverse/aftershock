@@ -9,7 +9,7 @@ through libretro's tyrquake core) with a terminal frontend of its own, and
 is filled only with free content from the LibreQuake project.
 No id Software data is needed, shipped or looked for.
 
-## Build and play (Linux)
+## Build and play
 
     sh tools/fetch-librequake.sh    # LibreQuake v0.09-beta into data/id1 (240 MB)
     sh tools/build-data.sh          # game code (gmqcc) and our files into data/aftershock
@@ -19,6 +19,14 @@ No id Software data is needed, shipped or looked for.
 Needs a C compiler, make, Python 3 and gmqcc (GMQCC 0.3.6, `apt install
 gmqcc`), which compiles the game code in `qcsrc/`. chafa, libcaca and ALSA are optional
 (`make backends` says which were found); `make CHAFA=0` leaves chafa out.
+
+macOS builds the same way with the system's compiler; Windows is built
+with MinGW-w64 (`make CC=x86_64-w64-mingw32-gcc-posix
+AR=x86_64-w64-mingw32-gcc-ar-posix`, one static `build/aftershock.exe`
+that finds `data/` beside itself). Both play sound through miniaudio and
+have no chafa picture. Windows needs Windows 10 1809 or newer, best in
+Windows Terminal; settings, saves and the session log are in
+`%LOCALAPPDATA%\aftershock`.
 
 Play in a terminal with 24-bit colour, at least 100x30 (bigger is better),
 ideally one with the kitty keyboard protocol (Ghostty, kitty, WezTerm, foot,

@@ -20,9 +20,13 @@ must not come back: do not copy from its history (`git show` on Raul's
 commits) into the tree. Do not contact Raul or anyone else about it.
 
 Released from v0.2.0 (David, 2026-11-27): the repo is public, and a `v*`
-tag runs `.github/workflows/release.yml` (Linux x86-64 and ARM64; the
-archive is laid out by `asciiverse/stage.sh`, the build is
-`asciiverse/build.sh`). Our versions are plain `vX.Y.Z` (ROADMAP.md).
+tag runs `.github/workflows/release.yml` (Linux x86-64 and ARM64; macOS
+x86-64 and ARM64 and Windows x86-64 from v0.3.1, David 2026-11-28; the
+archive is laid out by `asciiverse/stage.sh`, the Linux build is
+`asciiverse/build.sh`, the others are in the workflow). A manual run with
+`tag: main` builds and tests every platform and publishes nothing: use it
+to prove a workflow change before tagging. Our versions are plain
+`vX.Y.Z` (ROADMAP.md).
 
 Local tags `v0.1.0` to `v0.1.2` (OmaQuake's) and `v0.47` on (TyrQuake's)
 come from the upstream remotes: never `git push --tags`, push our own tag
@@ -49,7 +53,12 @@ to 4 (about 10 minutes with `--jobs 4`); `--maps lq_e1m1,...` for some.
   render thread, `av_pictures.c` the backend table, `av_half.c` our
   half-block/sextant/Braille pictures, `av_chafa.c`, `av_caca.c`,
   `av_overlay.c` the text drawn over the picture (HUD, messages),
-  `av_sound.c` ALSA, `av_data.c` the data search, `av_pad.c` gamepad.
+  `av_sound.c` ALSA, `av_sound_ma.c` with `av_miniaudio.c`/`.h` sound on
+  macOS and Windows, `av_data.c` the data search, `av_pad.c` gamepad.
+  `av_term.c` has the platform layer (termios, or the Windows console in
+  VT mode); docs/FRONTEND-SPEC.md says what each platform does.
+- `third_party/miniaudio`: miniaudio 0.11.25 (public domain or MIT-0),
+  vendored unchanged (UPSTREAM.md), for macOS and Windows only.
   docs/FRONTEND-SPEC.md describes how all of it must behave and why.
 - OmaQuake (Raul Dias, GPL-2.0-only), remote `upstream`: history only;
   `main` starts at its master, its files were removed 2026-11-27.
@@ -123,6 +132,12 @@ set `AFTERSHOCK_ALSA_DEVICE=null` (the old `OMAQUAKE_ALSA_DEVICE` is
 still read when the new one is unset). Without one of those it opens the default
 ALSA device and plays sound out of the user's speakers.
 
+`AFTERSHOCK_ALSA_DEVICE` means nothing to the macOS and Windows builds
+(miniaudio, the system's default device): there only `--no-sound`
+silences. To try Windows sound under wine without a sound, give wine an
+ALSA whose default is `null` (`pcm.!default { type null }` in a file
+named by `ALSA_CONFIG_PATH`) and `WINEDLLOVERRIDES=winepulse.drv=d`.
+
 ## The binary requires a real tty
 
 `av_term_init()` refuses to start unless both stdin and stdout are ttys.
@@ -150,7 +165,15 @@ in `engine_frame()`.
 
     make engine                    # builds the static libretro core
     make                            # builds ./build/aftershock
-    make backends                   # reports which of chafa/caca/alsa were found
+    make backends                   # reports the target and which of chafa/caca/alsa were found
+
+The target system is the compiler's (`cc -dumpmachine`): a MinGW cross
+compiler builds Windows (`make CC=x86_64-w64-mingw32-gcc-posix
+AR=x86_64-w64-mingw32-gcc-ar-posix`). Build it in a copy of the tree, not
+this checkout: the core keeps its objects in `third_party/tyrquake`, so a
+cross build overwrites the Linux ones. Under wine the console parses the
+terminal's bytes into key events itself; av_term.c turns them back (see
+the spec), so wine is a fair test of input and output.
 
 chafa, libcaca and ALSA are all optional and detected via `pkg-config`.
 `make backends` is the source of truth for what's actually linked in: a

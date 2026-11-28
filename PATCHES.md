@@ -76,6 +76,27 @@ was taken from it.
 - The binary is `build/aftershock`; `./aftershock` starts it with a session
   log in the state folder.
 
+- **macOS and Windows** (`src/av_term.c`, `av_keys.c`, `av_clock.h`,
+  `av_data.c`, `av_main.c`, `Makefile`): a platform layer for raw mode,
+  reading and writing bytes and the size: termios on Linux and macOS, the
+  Windows console in VT mode, where key events are turned back into the
+  bytes a Unix terminal sends (a character as UTF-8, a key without one as
+  its escape sequence, Alt as an ESC first, as wine's console needs) so
+  the input parser is shared. The clock (QueryPerformanceCounter), the
+  program's own path (`_NSGetExecutablePath`, `GetModuleFileName`), the
+  state folder (`%LOCALAPPDATA%` on Windows, which also creates it and
+  keeps the session log there, as the start script does elsewhere),
+  frame sleeps (`Sleep` with a 1 ms timer period) and native pak paths
+  for the engine on Windows (with forward slashes it found no game
+  folder). The Makefile takes the target from the compiler, so a MinGW
+  cross compiler builds one static `aftershock.exe`; chafa and libcaca
+  are left out there and on macOS. evdev and the gamepad stay Linux's.
+- **Sound on macOS and Windows** (`src/av_sound_ma.c`, `av_miniaudio.c`,
+  `av_miniaudio.h`): miniaudio 0.11.25 (`third_party/miniaudio`, public
+  domain or MIT-0, unchanged) with Core Audio or WASAPI, behind the same
+  never-waiting write as ALSA: an 80 ms ring between the engine thread
+  and the device's thread. Linux keeps ALSA.
+
 ## Engine (third_party/tyrquake)
 
 Every change is marked `Aftershock:` in a comment.

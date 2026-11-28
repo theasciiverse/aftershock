@@ -1,7 +1,8 @@
 # Roadmap
 
 Versions stay 0.x.0 until the whole game is in. 0.2.0 is the first
-release (2026-11-27), Linux x86-64 and ARM64.
+release (2026-11-27), Linux x86-64 and ARM64; 0.3.1 (2026-11-28) adds
+macOS (x86-64 and ARM64) and Windows (x86-64).
 
 ## 0.1.0, first light
 - [x] OmaQuake's frontend on the libretro tyrquake core, LibreQuake's data,
@@ -45,7 +46,16 @@ release (2026-11-27), Linux x86-64 and ARM64.
       and lead on to the next; fixed on the way: the slime sound, a
       false "Bad surface extents" error on every map, a stray path corner
 
+## 0.3.1, macOS and Windows
+- [x] Release workflow (Linux static, macOS, Windows): macOS x86-64 and
+      ARM64 built on macos-15, Windows x86-64 built with MinGW-w64, each
+      smoke-tested on the first map (the Windows build under wine)
+- [x] The frontend's platform layer: termios on Linux and macOS, the
+      console in VT mode on Windows
+- [x] Sound on macOS and Windows through miniaudio
+
 ## Later
 - [ ] Play episodes 1 to 4 through by hand and fix what turns up
 - [ ] An octant mode (Unicode 16) once terminals draw octants widely
-- [ ] Release workflow (Linux static, macOS, Windows), when David says
+- [ ] Windows on ARM64 natively (it runs the x86-64 build emulated)
+- [ ] A gamepad on macOS and Windows (Linux reads /dev/input)
