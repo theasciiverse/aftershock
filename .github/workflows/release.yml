@@ -4,10 +4,15 @@
 # archive holds the start script, the binary in lib/, LibreQuake v0.09-beta
 # and our game data in data/, and the licences (asciiverse/stage.sh).
 #
-# Tags look like v0.2.0: our own version (ROADMAP.md). Linux only, glibc,
-# built on Ubuntu 22.04 so it runs on glibc 2.35 and newer; the binary
-# links libc and libm only (asciiverse/build.sh). No macOS or Windows yet:
-# the frontend reads the mouse and gamepads through Linux's /dev/input.
+# Tags look like v0.2.0: our own version (ROADMAP.md).
+#
+# Linux: glibc, built on Ubuntu 22.04 so it runs on glibc 2.35 and newer;
+# the binary links libc and libm only (asciiverse/build.sh).
+# macOS (x86-64 and ARM64, 11.0 and newer) and Windows (x86-64, Windows 10
+# 1809 and newer; ARM64 Windows runs it emulated): the same frontend
+# without chafa, sound through miniaudio, built from the game data the
+# data job makes once (it is the same everywhere). Windows is built with
+# MinGW-w64 on Ubuntu, one static .exe, and tried under wine.
 #
 # The game code is compiled with gmqcc built from a pinned commit, the one
 # Debian's 0.3.5+git20251116 is: it gives a byte-identical progs.dat.
@@ -20,7 +25,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "existing tag to build and release"
+        description: "existing tag to build and release (a branch builds and tests only)"
         required: true
 
 env:
@@ -92,13 +97,166 @@ jobs:
           name: ${{ matrix.target }}
           path: dist/*
 
+  # The game data for the macOS and Windows builds: LibreQuake and our
+  # pak, made once here (gmqcc on Linux), the same files the Linux jobs
+  # make for themselves.
+  data:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: gmqcc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          git clone -q https://github.com/graphitemaster/gmqcc "$RUNNER_TEMP/gmqcc"
+          git -C "$RUNNER_TEMP/gmqcc" checkout -q "$GMQCC_COMMIT"
+          make -C "$RUNNER_TEMP/gmqcc" -j4 gmqcc
+          echo "$RUNNER_TEMP/gmqcc" >> "$GITHUB_PATH"
+
+      - name: Game data
+        run: |
+          sh tools/fetch-librequake.sh
+          sh tools/build-data.sh
+          tar -cf game-data.tar data/id1 data/aftershock
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game-data
+          path: game-data.tar
+
+  macos:
+    needs: [data]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: aarch64-apple-darwin, arch: arm64 }
+          - { target: x86_64-apple-darwin, arch: x86_64 }
+    runs-on: macos-15
+    env:
+      MACOSX_DEPLOYMENT_TARGET: "11.0"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: game-data
+
+      - name: Build
+        # the architecture goes in CC, so the engine core's own make gets
+        # it too and its CFLAGS stay its own
+        run: |
+          tar -xf game-data.tar
+          make -j4 CC="clang -arch ${{ matrix.arch }}"
+          make backends CC="clang -arch ${{ matrix.arch }}"
+          strip build/aftershock
+          file build/aftershock
+          otool -L build/aftershock
+
+      - name: Smoke test
+        # the staged game in a 100x30 pseudo-terminal, silent, on the first
+        # map (x86-64 runs under Rosetta on this ARM runner)
+        run: |
+          sh asciiverse/stage.sh
+          export HOME="$RUNNER_TEMP/home" XDG_STATE_HOME="$RUNNER_TEMP/state"
+          mkdir -p "$HOME"
+          AFTERSHOCK_CMD='map lq_e0m1' script -q smoke.out sh -c \
+            'stty cols 100 rows 30; perl -e "alarm shift; exec @ARGV" 60 stage/aftershock --no-sound --frames=200' \
+            </dev/null >/dev/null 2>&1 || true
+          log="$XDG_STATE_HOME/aftershock/session.log"
+          tail -5 "$log"
+          grep -a -q 'entered the game' "$log" || { cat "$log"; exit 1; }
+          grep -a -q "$(printf '\342\226\200')" smoke.out || { cat -v smoke.out | tail -20; exit 1; }
+
+      - name: Package for av
+        run: |
+          mkdir -p dist
+          tar -czf "dist/$ID-${{ matrix.target }}.tar.gz" -C stage .
+          ls -l dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/*
+
+  windows:
+    needs: [data]
+    runs-on: ubuntu-24.04
+    env:
+      TARGET: x86_64-pc-windows-gnu
+      CROSS: x86_64-w64-mingw32
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: game-data
+
+      - name: Toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-mingw-w64-x86-64 zip wine64
+
+      - name: Build
+        # the POSIX thread model: winpthreads, linked in by -static
+        run: |
+          tar -xf game-data.tar
+          make -j4 CC=$CROSS-gcc-posix AR=$CROSS-gcc-ar-posix
+          make backends CC=$CROSS-gcc-posix
+          $CROSS-strip build/aftershock.exe
+          file build/aftershock.exe
+          # system DLLs only
+          $CROSS-objdump -p build/aftershock.exe | grep 'DLL Name'
+          ! $CROSS-objdump -p build/aftershock.exe | grep 'DLL Name' | grep -v -i -E 'kernel32|msvcrt|winmm|ws2_32|ole32|user32|advapi32'
+
+      - name: Smoke test under wine
+        # the staged game in a 100x30 pseudo-terminal, silent, on the first
+        # map; no display needed for a console program
+        run: |
+          sh asciiverse/stage.sh
+          export WINEPREFIX="$RUNNER_TEMP/wine" WINEDEBUG=-all WINEDLLOVERRIDES="mscoree,mshtml="
+          WINE=$(command -v wine || command -v wine64)
+          timeout 300 $WINE wineboot -i >/dev/null 2>&1 || true
+          cd stage
+          AFTERSHOCK_CMD='map lq_e0m1' script -qec \
+            "stty cols 100 rows 30; timeout 120 $WINE ./aftershock.exe --no-sound --frames=200" \
+            /dev/null </dev/null >../smoke.out 2>&1 || true
+          cd ..
+          log=$(find "$WINEPREFIX" -path '*aftershock/session.log' | head -1)
+          tail -5 "$log"
+          grep -a -q 'entered the game' "$log" || { cat "$log"; exit 1; }
+          grep -a -q "$(printf '\342\226\200')" smoke.out || { cat -v smoke.out | tail -20; exit 1; }
+
+      - name: Package for av
+        run: |
+          mkdir -p dist
+          (cd stage && zip -qr "../dist/$ID-$TARGET.zip" .)
+          ls -l dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.TARGET }}
+          path: dist/*
+
+  # Only for a version: a manual run on a branch (tag: main) builds and
+  # tests every platform and publishes nothing.
   release:
-    needs: [build]
+    needs: [build, macos, windows]
+    if: startsWith(inputs.tag || github.ref_name, 'v')
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v4
         with:
           path: dist
+          # the archives, not the game data
+          pattern: "*-*-*"
           merge-multiple: true
 
       - name: Checksums
@@ -111,5 +269,5 @@ jobs:
         run: |
           gh release view "$TAG" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
             || gh release create "$TAG" -R "$GITHUB_REPOSITORY" --title "Aftershock $TAG" \
-                 --notes "Aftershock ${TAG#v}: a first-person shooter in the terminal, on the GPL engine of a 1996 shooter (TyrQuake, libretro's tyrquake core) with our own terminal frontend, filled with LibreQuake's free content. Built for the Asciiverse catalog; Linux x86-64 and ARM64. See PATCHES.md."
+                 --notes "Aftershock ${TAG#v}: a first-person shooter in the terminal, on the GPL engine of a 1996 shooter (TyrQuake, libretro's tyrquake core) with our own terminal frontend, filled with LibreQuake's free content. Built for the Asciiverse catalog; Linux and macOS (x86-64 and ARM64) and Windows (x86-64). See PATCHES.md."
           gh release upload "$TAG" dist/* -R "$GITHUB_REPOSITORY" --clobber
