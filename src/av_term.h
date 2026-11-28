@@ -34,6 +34,13 @@ int av_term_quit_requested(void);
 void av_term_pointer_on(int sgr_pixels, int focus);
 void av_term_pointer_off(void);
 
+/* Reads what the terminal has sent, up to cap bytes, without blocking
+ * (or waiting up to timeout_ms for the first byte).  Returns the count,
+ * 0 when nothing came, -1 when input is gone.  On Windows the console's
+ * key events come back as the same UTF-8 escape sequences a Unix
+ * terminal sends. */
+int av_term_read(char *buf, size_t cap, int timeout_ms);
+
 /* Bytes as they are. */
 void av_term_write_raw(const char *s, size_t n);
 /* Rows separated by LF, drawn from (row, col), 1-based. */

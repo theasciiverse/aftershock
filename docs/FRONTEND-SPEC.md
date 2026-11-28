@@ -114,11 +114,16 @@ with the pointer note (see Pointer) when there is one.
 - `AFTERSHOCK_DATA`: data folder or pak, used when no positional argument.
 - `XDG_STATE_HOME` (else `$HOME/.local/state`, else `.`): handed to the
   engine as save and system directory; the engine adds `aftershock/`.
-  Empty counts as unset.
+  Empty counts as unset. On Windows, when it is unset, `%LOCALAPPDATA%`
+  is used instead; there the program itself creates `aftershock/` in it
+  and, without `--log`, writes the session log to
+  `aftershock/session.log` (what the start script does elsewhere: av
+  starts `aftershock.exe` directly).
 - `XDG_DATA_HOME`, `HOME`: data search (below).
 - `AFTERSHOCK_ALSA_DEVICE`: ALSA PCM name, default `default`; `null`
   plays into ALSA's bit bucket. Also accept the old `OMAQUAKE_ALSA_DEVICE`
-  when the new one is unset, so existing scripts keep working.
+  when the new one is unset, so existing scripts keep working. Linux
+  only; macOS and Windows play on the system's default device.
 - `AFTERSHOCK_CMD`, `AFTERSHOCK_CMD_INGAME`: read by the engine, not the
   frontend; nothing to do.
 
@@ -135,7 +140,9 @@ taken as the pak as it is; otherwise it must be a data folder.
 
 Without one, try in order and take the first data folder found:
 1. `<dir of the binary>/../data` (the binary is `build/aftershock` in a
-   checkout), from `/proc/self/exe`
+   checkout), from `/proc/self/exe` (macOS: `_NSGetExecutablePath`, with
+   symlinks resolved; Windows: `GetModuleFileName`, backslashes turned
+   into slashes)
 2. `<dir of the binary>/data`
 3. `./data`
 4. `$XDG_DATA_HOME/aftershock` if that variable is set and not empty,
@@ -153,6 +160,11 @@ folder tried on its own indented line, then:
     In a checkout: sh tools/fetch-librequake.sh && sh tools/build-data.sh
 
 and exit 2 (1 under `--find-pak`). `--demo` and `--keytest` need no data.
+
+On Windows the pak path is handed to the engine with backslashes: the
+core finds the game folder by trimming at the platform's own separator,
+and with forward slashes the folder name came out empty, so only `id1/`
+loaded.
 
 ## Start-up order
 
@@ -174,6 +186,12 @@ for `av_picture "N"` or `av_picture N` (N may be written as a float); the
 last one wins. Missing file or no line: none saved.
 
 ## Terminal
+
+Everything below is escape codes and the same on every platform, except
+four things done by a small platform layer: raw mode and its restore,
+reading input bytes, writing bytes, and the size. POSIX (Linux, macOS)
+uses termios as described; the Windows console is described at the end
+of this section.
 
 Refuse to start unless both stdin and stdout are ttys
 (`aftershock: stdin/stdout must be a terminal`, exit 1).
@@ -235,6 +253,44 @@ give up on other errors. Three ways to write a frame:
 - at (row, col), 1-based, for a canvas smaller than the terminal: a
   cursor move to (row, col) and, for every following line, a cursor move
   to (row+n, col) instead of the LF. (1,1) is the plain case above.
+
+**Windows console.** Both standard handles must be consoles
+(`aftershock: stdin/stdout must be a console`, exit 1). Save both modes
+and both code pages, then:
+- output mode: add `ENABLE_PROCESSED_OUTPUT`,
+  `ENABLE_VIRTUAL_TERMINAL_PROCESSING` (the escape codes) and
+  `DISABLE_NEWLINE_AUTO_RETURN` (LF is a bare line feed, as with OPOST
+  off); a console that refuses is too old: say Windows 10 1809 or newer
+  is needed, exit 1;
+- input mode: exactly `ENABLE_VIRTUAL_TERMINAL_INPUT |
+  ENABLE_EXTENDED_FLAGS`: no line input, echo, processed input (so
+  Ctrl+C is a byte, as with ISIG off) or quick edit (a click would freeze
+  the program while text is selected);
+- both code pages UTF-8, so the block characters go out as bytes;
+- flush pending input; Ctrl+C, Break, close, log-off and shutdown set the
+  quit flag (a console control handler); restore puts modes and code
+  pages back.
+
+Input is read as console key events, never as a byte stream, and turned
+into the bytes a Unix terminal would send, so the input parser is shared:
+- a key-down event's UTF-16 character goes out as UTF-8 (surrogate pairs
+  joined), repeated by its repeat count; key-ups and other events are
+  skipped, and a timed read waits again until its deadline when the
+  wake-up brought no bytes;
+- a key-down with no character becomes its usual escape sequence (arrows
+  `CSI A..D`, Home `CSI H`, End `CSI F`, Insert/Delete/PageUp/PageDown
+  `CSI 2~`/`3~`/`5~`/`6~`, F1 to F4 `SS3 P..S`, F5 to F12
+  `CSI 15~ 17~ 18~ 19~ 20~ 21~ 23~ 24~`, Escape ESC);
+- a character with Alt held (left or right, but not AltGr, which is right
+  Alt with left Ctrl) is preceded by ESC, unless an ESC was the last byte
+  made in the same read.
+Windows' own console in VT input mode already sends sequences as
+characters; wine's console parses the terminal's bytes into key events
+itself, ESC as Alt and the arrows as bare keys, and without the two
+rules above the replies to the start-up queries lost their ESC and were
+read as keys.
+
+Size: the console window (`srWindow`) of the output screen buffer.
 
 ## Keyboard input
 
@@ -510,9 +566,9 @@ close the log.
 
 ## Sound
 
-ALSA, optional at build time (pkg-config `alsa`); without it every call
-is a stub, init fails with "built without ALSA support", and the game is
-silent.
+Linux: ALSA, optional at build time (pkg-config `alsa`); without it every
+call is a stub, init fails with "built without ALSA support", and the game
+is silent. macOS and Windows: silent for now.
 
 - Install a silent ALSA error handler before anything else: the default
   one prints to stderr, which is the picture.
@@ -526,6 +582,7 @@ silent.
 - Close by dropping, not draining.
 - Sound failing to open is not fatal: log `audio: disabled (<reason>)`
   and play on. On success log `audio: <rate> Hz on '<device>'`.
+
 
 ## Game loop and timing
 
@@ -695,6 +752,15 @@ Rewrite the `Makefile` too (it began as OmaQuake's). Needs:
   alsa were found), `test`, `clean`, `install`
   (`$(DESTDIR)$(PREFIX)/bin/aftershock`).
 - `-Wall -Wextra -std=gnu99`, `-pthread`, `-lm`.
+- The target system is the compiler's (`$(CC) -dumpmachine`), so a cross
+  compiler picks it: `mingw` is Windows, `darwin` macOS, anything else
+  Linux. The core is always made with `platform=unix` (nothing in it is
+  system-specific beyond libretro-common, and the archive keeps its
+  name). macOS and Windows never look for ALSA, and leave chafa and
+  libcaca out unless `CHAFA=1` or `CACA=1` is given. Windows: the binary
+  is `build/aftershock.exe`, linked `-static` (winpthreads and libgcc
+  inside), with `-lws2_32 -lwinmm`; `timeBeginPeriod(1)` at start
+  so frame sleeps of a few milliseconds are not rounded up to 15.6 ms.
 
 ## Tests
 

@@ -14,6 +14,45 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#ifdef _WIN32
+#include <windows.h>
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#endif
+
+/* The running program's own path, for the data beside it. */
+static int exe_path(char *exe, size_t cap)
+{
+#ifdef _WIN32
+    DWORD n = GetModuleFileNameA(NULL, exe, (DWORD)cap);
+    size_t i;
+
+    if (n == 0 || n >= cap)
+        return -1;
+    for (i = 0; i < n; i++)
+        if (exe[i] == '\\')
+            exe[i] = '/';
+    return 0;
+#elif defined(__APPLE__)
+    uint32_t size = (uint32_t)cap;
+    char real[PATH_MAX];
+
+    if (_NSGetExecutablePath(exe, &size) != 0)
+        return -1;
+    /* Through any symlink (av links the start script, not the binary,
+     * but a hand-made link to lib/aftershock must still find data/). */
+    if (realpath(exe, real) && strlen(real) < cap)
+        strcpy(exe, real);
+    return 0;
+#else
+    ssize_t n = readlink("/proc/self/exe", exe, cap - 1);
+
+    if (n <= 0)
+        return -1;
+    exe[n] = 0;
+    return 0;
+#endif
+}
 
 #define MAX_TRIED 8
 #define TRIED_LEN (PATH_MAX + 32)
@@ -60,7 +99,6 @@ int av_data_find(const char *explicit_path, char *out, size_t cap)
     char tried[MAX_TRIED][TRIED_LEN];
     char exe[PATH_MAX], head[PATH_MAX + 64];
     const char *s;
-    ssize_t n;
     int nt = 0, i;
 
     if (explicit_path) {
@@ -78,11 +116,9 @@ int av_data_find(const char *explicit_path, char *out, size_t cap)
         return -1;
     }
 
-    n = readlink("/proc/self/exe", exe, sizeof(exe) - 1);
-    if (n > 0) {
+    if (exe_path(exe, sizeof(exe)) == 0) {
         char *slash;
 
-        exe[n] = 0;
         slash = strrchr(exe, '/');
         if (slash) {
             *slash = 0;

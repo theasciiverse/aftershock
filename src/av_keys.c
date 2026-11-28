@@ -473,13 +473,11 @@ void av_keys_poll(void)
     double now = av_now();
 
     for (;;) {
-        ssize_t r = 0;
+        int r = 0;
         size_t used;
 
         if (len < sizeof(buf)) {
-            r = read(STDIN_FILENO, buf + len, sizeof(buf) - len);
-            if (r < 0 && errno == EINTR)
-                continue;
+            r = av_term_read((char *)buf + len, sizeof(buf) - len, 0);
             if (r > 0) {
                 if (sink.raw)
                     sink.raw(buf + len, (size_t)r);

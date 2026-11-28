@@ -19,16 +19,16 @@
 
 #include <libretro.h>
 
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
+
+#ifdef __linux__
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <math.h>
 #include <sys/ioctl.h>
-#include <stdio.h>
-#include <string.h>
 #include <unistd.h>
-
-#ifdef __linux__
 #include <linux/input.h>
 
 int aftershock_text_input(void);

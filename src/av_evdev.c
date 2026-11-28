@@ -20,19 +20,19 @@
 #include "av_evdev.h"
 
 #include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifdef __linux__
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-
-#ifdef __linux__
 #include <linux/input.h>
 #include <sys/ioctl.h>
 #endif
 
-static int fd = -1, grabbed;
+static int fd = -1;
 static char cur_path[64], cur_name[128];
 
 const char *av_evdev_verdict(int verdict)
@@ -62,6 +62,8 @@ const char *av_evdev_name(void)
 }
 
 #ifdef __linux__
+
+static int grabbed;
 
 #define NBITS(n) (((n) + 8 * sizeof(unsigned long) - 1) / \
                   (8 * sizeof(unsigned long)))

@@ -32,6 +32,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#ifdef _WIN32
+#include <direct.h>
+#include <windows.h>
+#endif
 
 /* The engine's hook (third_party/tyrquake/common/libretro.c). */
 int aftershock_text_input(void);
@@ -262,6 +266,14 @@ static void find_state_dir(void)
 {
     const char *s = getenv("XDG_STATE_HOME");
 
+#ifdef _WIN32
+    /* %LOCALAPPDATA%\aftershock, unless XDG_STATE_HOME says otherwise
+     * (the tests set it on every platform). */
+    if (!(s && *s) && (s = getenv("LOCALAPPDATA")) && *s) {
+        snprintf(state_dir, sizeof(state_dir), "%s", s);
+        return;
+    }
+#endif
     if (s && *s)
         snprintf(state_dir, sizeof(state_dir), "%s", s);
     else if ((s = getenv("HOME")) && *s)
@@ -382,6 +394,12 @@ static void choose_resolution(char *out, size_t cap)
 
 static void sleep_for(double s)
 {
+#ifdef _WIN32
+    /* Sleep() is in milliseconds, and fine only with the 1 ms timer
+     * period main() asks for. */
+    if (s > 0 && !av_term_quit_requested())
+        Sleep((DWORD)(s * 1000.0 + 0.5));
+#else
     struct timespec ts;
 
     if (s <= 0)
@@ -391,6 +409,7 @@ static void sleep_for(double s)
     while (nanosleep(&ts, &ts) != 0 && errno == EINTR)
         if (av_term_quit_requested())
             break;
+#endif
 }
 
 /* ---- the game ---- */
@@ -476,6 +495,22 @@ static int run_game(const char *pak)
 
     av_host_log_open(opt.log);
     memset(&hp, 0, sizeof(hp));
+#ifdef _WIN32
+    /* The core finds the game folder by trimming the path at the
+     * platform's own separator, so on Windows it must get backslashes:
+     * with forward ones the folder name came out empty and only id1/
+     * loaded. */
+    {
+        static char native[PATH_MAX + 64];
+        size_t i;
+
+        snprintf(native, sizeof(native), "%s", pak);
+        for (i = 0; native[i]; i++)
+            if (native[i] == '/')
+                native[i] = '\\';
+        pak = native;
+    }
+#endif
     hp.pak = pak;
     hp.state_dir = state_dir;
     hp.resolution = res;
@@ -740,6 +775,26 @@ int main(int argc, char **argv)
 
     parse_args(argc, argv);
     find_state_dir();
+#ifdef _WIN32
+    /* No start script on Windows (av starts aftershock.exe itself), so
+     * the program does what asciiverse/aftershock does elsewhere: the
+     * state folder exists and the session log goes there. */
+    {
+        static char log_path[PATH_MAX + 32];
+        char dir[PATH_MAX + 16];
+
+        snprintf(dir, sizeof(dir), "%s/aftershock", state_dir);
+        _mkdir(state_dir);
+        _mkdir(dir);
+        if (!opt.log) {
+            snprintf(log_path, sizeof(log_path), "%s/session.log", dir);
+            opt.log = log_path;
+        }
+    }
+    /* Frame pacing sleeps a few milliseconds at a time; the default
+     * 15.6 ms timer period would round every one of them up. */
+    timeBeginPeriod(1);
+#endif
 
     if (opt.mouse_list) {
         av_evdev_list(stdout);
