@@ -83,8 +83,14 @@ The number of seconds to spend standing or bowing for path_stand or path_bow
 
 void() movetarget_f =
 {
+	// Aftershock: a corner nothing can name can never be walked to (lq_e3m4
+	// has one), so it goes quietly instead of as an object error.
 	if (!self.targetname)
-		objerror ("monster_movetarget: no targetname");
+	{
+		dprint ("path_corner without a targetname removed\n");
+		remove (self);
+		return;
+	}
 
 	self.solid = SOLID_TRIGGER;
 	self.touch = t_movetarget;

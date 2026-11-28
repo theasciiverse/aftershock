@@ -266,7 +266,7 @@ void() worldspawn =
 	precache_sound ("player/axhit2.wav");		// ax hit world
 
 	precache_sound ("player/h2ojump.wav");		// player jumping into water
-	precache_sound ("player/slimbrn2.wav");		// player enter slime
+	precache_sound ("player/slmbrn2.wav");		// player enter slime (Aftershock: LibreQuake's file name)
 	precache_sound ("player/inh2o.wav");		// player enter water
 	precache_sound ("player/inlava.wav");		// player enter lava
 	precache_sound ("misc/outwater.wav");		// leaving water sound
