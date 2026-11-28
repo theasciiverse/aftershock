@@ -523,7 +523,9 @@ nextmsg:
                      "name", "noclip", "say", "say_team",
                      "tell", "color", "kill", "pause",
                      "spawn", "begin", "prespawn", "kick",
-                     "ping", "give", "ban", NULL
+                     "ping", "give", "ban",
+                     "setpos", /* Aftershock */
+                     NULL
                   };
                   const char *cmd_start;
                   size_t      cmd_len;

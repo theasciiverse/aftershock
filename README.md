@@ -33,6 +33,11 @@ and inside tmux or screen, releases are guessed and it still plays.
 Settings, saves and the session log go to `$XDG_STATE_HOME/aftershock`
 (usually `~/.local/state/aftershock`).
 
+`python3 tools/check-maps.py` checks every map of episodes 1 to 4 by
+machine: it loads and runs each one, follows the player-sized hull from the
+start to each exit, and walks into each exit to see the next map load
+(needs NumPy and SciPy; docs/MAP-CHECK.txt is the last report).
+
 ## Controls
 
 Made for the keyboard; a mouse is optional.

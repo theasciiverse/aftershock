@@ -110,7 +110,16 @@ Every change is marked `Aftershock:` in a comment.
   title picture is ours, and the number was TyrQuake's).
 - `alias_model.c`: skins up to 4096 wide (LibreQuake's two bosses).
 - `pr_cmds.c`: `objerror` removes the entity and the level goes on, as in
-  FitzQuake (lq_e3m4 has a nameless path corner).
+  FitzQuake.
+- `model.c`: sky and liquid faces are not held to the 256-unit lightmap
+  bound (they are never lightmapped, and the drawing code routes them by
+  the same name tests); every episode map logged a "Bad surface extents"
+  error for each large sky face. A model with no visibility data (the
+  item boxes, `b_*.bsp`) has no PVS rather than an offset into an empty
+  block.
+- `host_cmd.c`, `sv_user.c`: `setpos x y z [pitch yaw roll]`, a single
+  player cheat like `noclip`, as FitzQuake has; `tools/check-maps.py`
+  walks into each exit with it.
 - `libretro.c`, `draw.c`: the engine's width is a whole number of 8
   columns, and the console background fills the last pixels of a row one at
   a time. A terminal 319 columns wide asked for a 638 wide picture, and the
@@ -149,6 +158,11 @@ its own commit, then:
   the Aegis; the nailguns are the Spike Gun and the Spike Cannon, their
   ammunition spikes; two typos fixed.
 - **Monster names**: each monster's `netname` is LibreQuake's name.
+- **Two fixes found by checking every map** (`tools/check-maps.py`): the
+  slime sound is LibreQuake's `player/slmbrn2.wav` (the code asked for
+  `slimbrn2.wav`, which LibreQuake does not have, so entering slime was
+  silent); a `path_corner` without a name, which nothing can walk to
+  (lq_e3m4 has one), is removed quietly instead of as an object error.
 - **`aftershock.qc`** (new): with `av_gore 0`, `ThrowGib` and `ThrowHead`
   throw stone debris (`progs/av_*.mdl`), `SpawnBlood` throws sparks
   (palette 226 instead of 73), thrown flesh is stone, and the gib sounds

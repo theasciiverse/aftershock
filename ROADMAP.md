@@ -33,15 +33,19 @@ release (2026-11-27), Linux x86-64 and ARM64.
 - [x] Every real LibreQuake map loads (BSP2, FitzQuake protocol,
       non-fatal object errors)
 
-## 0.3.0 and on
-- [ ] LibreQuake's episodes 1 to 4 played through; maps that fail fixed or
-      left out
-- [ ] Play episodes 1 to 4 through by hand and fix what turns up
-- [ ] An octant mode (Unicode 16) once terminals draw octants widely
+## 0.3.0, credits, a title of our own, every map checked
 - [x] 100x30 .cast preview, a fight
-- [x] A credits screen of its own in the menu
-- [x] Title graphics (conback) of our own
 - [x] Our own terminal frontend, written clean room from
       docs/FRONTEND-SPEC.md: the program is GPL-2.0-or-later
-- [ ] Release workflow (Linux static, macOS, Windows), when David says
 - [x] QuakeC built from source with gmqcc; texts and gore defaults in it
+- [x] A credits screen of its own in the menu
+- [x] Title graphics (conback) of our own
+- [x] LibreQuake's episodes 1 to 4 checked by machine
+      (tools/check-maps.py, docs/MAP-CHECK.txt): all 30 maps load, run
+      and lead on to the next; fixed on the way: the slime sound, a
+      false "Bad surface extents" error on every map, a stray path corner
+
+## Later
+- [ ] Play episodes 1 to 4 through by hand and fix what turns up
+- [ ] An octant mode (Unicode 16) once terminals draw octants widely
+- [ ] Release workflow (Linux static, macOS, Windows), when David says

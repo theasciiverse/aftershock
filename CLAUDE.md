@@ -37,6 +37,8 @@ Tests and recordings: a scratch `XDG_STATE_HOME` and `HOME` in the same
 command, `--no-sound` (sound is on otherwise) and the 4G scope. `AFTERSHOCK_CMD`
 ('map lq_e0m1') and `AFTERSHOCK_CMD_INGAME` ('god') drive the console;
 `--log` holds the console, every key and the player's state once a second.
+`python3 tools/check-maps.py` loads, runs and leaves every map of episodes 1
+to 4 (about 10 minutes with `--jobs 4`); `--maps lq_e1m1,...` for some.
 
 ## What it is made of
 

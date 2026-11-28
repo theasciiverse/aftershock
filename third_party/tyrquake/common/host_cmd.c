@@ -188,6 +188,45 @@ Host_Noclip_f(void)
 
 /*
 ==================
+Host_SetPos_f
+
+Aftershock: "setpos x y z [pitch yaw roll]" puts the player there and
+touches whatever triggers the player then stands in, as FitzQuake's
+command of the same name does.  A cheat like noclip: single player only.
+tools/check-maps.py uses it to walk into each level's exits.
+==================
+*/
+static void
+Host_SetPos_f(void)
+{
+    int i;
+
+    if (cmd_source == src_command) {
+	Cmd_ForwardToServer();
+	return;
+    }
+    if (pr_global_struct->deathmatch)
+	return;
+    if (Cmd_Argc() != 4 && Cmd_Argc() != 7) {
+	SV_ClientPrintf("usage: setpos x y z [pitch yaw roll]\n");
+	return;
+    }
+    for (i = 0; i < 3; i++) {
+	sv_player->v.origin[i] = Q_atof(Cmd_Argv(i + 1));
+	sv_player->v.velocity[i] = 0;
+    }
+    if (Cmd_Argc() == 7) {
+	for (i = 0; i < 3; i++)
+	    sv_player->v.angles[i] = Q_atof(Cmd_Argv(i + 4));
+	sv_player->v.fixangle = 1;
+    }
+    SV_LinkEdict(sv_player, true);
+    SV_ClientPrintf("setpos %s %s %s\n", Cmd_Argv(1), Cmd_Argv(2),
+		    Cmd_Argv(3));
+}
+
+/*
+==================
 Host_Fly_f
 
 Sets client to flymode
@@ -1563,6 +1602,7 @@ Host_InitCommands(void)
     Cmd_AddCommand("reconnect", Host_Reconnect_f);
     Cmd_AddCommand("name", Host_Name_f);
     Cmd_AddCommand("noclip", Host_Noclip_f);
+    Cmd_AddCommand("setpos", Host_SetPos_f);	/* Aftershock */
     Cmd_AddCommand("version", Host_Version_f);
 
     Cmd_AddCommand("say", Host_Say_f);

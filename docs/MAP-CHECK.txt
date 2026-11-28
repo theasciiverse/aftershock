@@ -1,0 +1,183 @@
+Map check, LibreQuake v0.09-beta episodes 1 to 4 (2026-11-28)
+
+Made by tools/check-maps.py --jobs 4 on Linux x86-64, Aftershock 0.3.0
+work, skill Normal. For each map: it parses; a flood fill of the player's
+hull from the start (through teleporters, ignoring gravity, doors and
+lifts) reaches the exit; the game runs it for 30 seconds in god mode with
+no error in the log; and the player, put in each exit's touch box while
+holding fire, sees the intermission and the next map load.
+
+Left out of this file: the engine's "'<key>' is not a field" notes, for
+map keys the game code has no use for (mapversion, fog, alpha, credits,
+the compilers' light settings and so on), which every map has.
+
+Ten maps are LibreQuake's placeholders for levels not made yet: an
+untitled corridor with a teleporter on to the next map. They load, run
+and lead on like the rest; the episodes pass through them.
+
+lq_e1m1  ok  Rats Behind Bars
+  format BSP29, 2 exit(s), 796799 reachable cells
+  ran 30 s as "Rats Behind Bars", exit status 0
+  exit to lq_e1m2: reached, intermission, next level loaded ("The Feudal Anomaly")
+  exit to lq_e1m2: deathmatch only, not checked
+
+lq_e1m2  ok  The Feudal Anomaly
+  format BSP29, 1 exit(s), 925383 reachable cells
+  ran 30 s as "The Feudal Anomaly", exit status 0
+  exit to lq_e1m3: reached, intermission, next level loaded ("Rogue's Passage")
+
+lq_e1m3  ok  Rogue's Passage
+  format BSP29, 1 exit(s), 398663 reachable cells
+  ran 30 s as "Rogue's Passage", exit status 0
+  exit to lq_e1m4: reached, intermission, next level loaded ("Dismal Shores")
+
+lq_e1m4  ok  Dismal Shores
+  format BSP29, 5 exit(s), 31888429 reachable cells
+  ran 30 s as "Dismal Shores", exit status 0
+  exit to lq_e1m5: reached, intermission, next level loaded ("Gloomliths")
+  exit to lq_e1m8: reached, intermission, next level loaded ("That's my Ex, Calibur!")
+  exit to lq_e1m8: reached, intermission, next level loaded ("That's my Ex, Calibur!")
+  exit to lq_e1m8: reached, intermission, next level loaded ("That's my Ex, Calibur!")
+  exit to lq_e1m8: reached, intermission, next level loaded ("That's my Ex, Calibur!")
+
+lq_e1m5  ok  Gloomliths
+  format BSP29, 1 exit(s), 2617282 reachable cells
+  ran 30 s as "Gloomliths", exit status 0
+  exit to lq_e1m6: reached, intermission, next level loaded ("")
+
+lq_e1m6  ok  
+  LibreQuake's placeholder for an unfinished level: an untitled corridor on to the next
+  format BSP29, 1 exit(s), 6806 reachable cells
+  ran 30 s as "", exit status 0
+  exit to lq_e1m7: reached, no intermission, next level loaded
+
+lq_e1m7  ok  Raging Core
+  format BSP29, 1 exit(s), 20208844 reachable cells
+  ran 30 s as "Raging Core", exit status 0
+  exit to start: reached, intermission, next level loaded ("Episode Select")
+
+lq_e1m8  ok  That's my Ex, Calibur!
+  format BSP29, 1 exit(s), 82428098 reachable cells
+  ran 30 s as "That's my Ex, Calibur!", exit status 0
+  exit to lq_e1m5: reached, intermission, next level loaded ("Gloomliths")
+
+lq_e2m1  ok  
+  LibreQuake's placeholder for an unfinished level: an untitled corridor on to the next
+  format BSP29, 1 exit(s), 6806 reachable cells
+  ran 30 s as "", exit status 0
+  exit to lq_e2m2: reached, no intermission, next level loaded
+
+lq_e2m2  ok  Dirge of the Depths
+  format BSP29, 1 exit(s), 61772 reachable cells
+  ran 30 s as "Dirge of the Depths", exit status 0
+  exit to lq_e2m3: reached, intermission, next level loaded ("The Restless Army")
+
+lq_e2m3  ok  Corpse army
+  format BSP29, 1 exit(s), 1192052 reachable cells
+  ran 30 s as "The Restless Army", exit status 0
+  exit to lq_e2m4: reached, intermission, next level loaded ("Earth's Reclaiming")
+
+lq_e2m4  ok  Earth's Reclaiming
+  format BSP2, 1 exit(s), 926300 reachable cells
+  ran 30 s as "Earth's Reclaiming", exit status 0
+  exit to lq_e2m5: reached, intermission, next level loaded ("Meeting of The Parasites")
+
+lq_e2m5  ok  Meeting of The Parasites
+  format BSP29, 1 exit(s), 1505787 reachable cells
+  ran 30 s as "Meeting of The Parasites", exit status 0
+  exit to lq_e2m6: reached, intermission, next level loaded ("")
+
+lq_e2m6  ok  
+  LibreQuake's placeholder for an unfinished level: an untitled corridor on to the next
+  format BSP29, 1 exit(s), 6806 reachable cells
+  ran 30 s as "", exit status 0
+  exit to start: reached, no intermission, next level loaded
+
+lq_e2m7  ok  
+  LibreQuake's placeholder for an unfinished level: an untitled corridor on to the next
+  format BSP29, 1 exit(s), 6806 reachable cells
+  ran 30 s as "", exit status 0
+  exit to lq_e2m6: reached, no intermission, next level loaded
+
+lq_e3m1  ok  Rampant Reactor Rage
+  format BSP29, 1 exit(s), 473907 reachable cells
+  ran 30 s as "Rampant Reactor Rage", exit status 0
+  exit to lq_e3m2: reached, intermission, next level loaded ("Ghastly Greek Gorge")
+
+lq_e3m2  ok  Ghastly Greek Gorge
+  format BSP29, 1 exit(s), 2679427 reachable cells
+  ran 30 s as "Ghastly Greek Gorge", exit status 0
+  exit to lq_e3m3: reached, intermission, next level loaded ("Deep Myst")
+
+lq_e3m3  ok  Deep Myst
+  format BSP29, 1 exit(s), 1683916 reachable cells
+  ran 30 s as "Deep Myst", exit status 0
+  exit to lq_e3m4: reached, intermission, next level loaded ("Hounds of The Depths")
+
+lq_e3m4  ok  Hounds of The Depths
+  format BSP29, 1 exit(s), 539374 reachable cells
+  ran 30 s as "Hounds of The Depths", exit status 0
+  exit to lq_e3m5: reached, intermission, next level loaded ("")
+
+lq_e3m5  ok  
+  LibreQuake's placeholder for an unfinished level: an untitled corridor on to the next
+  format BSP29, 1 exit(s), 6806 reachable cells
+  ran 30 s as "", exit status 0
+  exit to lq_e3m6: reached, no intermission, next level loaded
+
+lq_e3m6  ok  Holy Bloated Corpse
+  format BSP29, 1 exit(s), 30529509 reachable cells
+  ran 30 s as "Holy Bloated Hulk", exit status 0
+  exit to start: reached, intermission, next level loaded ("Episode Select")
+
+lq_e3m7  ok  
+  LibreQuake's placeholder for an unfinished level: an untitled corridor on to the next
+  format BSP29, 1 exit(s), 6806 reachable cells
+  ran 30 s as "", exit status 0
+  exit to lq_e3m3: reached, no intermission, next level loaded
+
+lq_e4m1  ok  Damnation Station
+  format BSP29, 1 exit(s), 522955 reachable cells
+  ran 30 s as "Desolation Station", exit status 0
+  exit to lq_e4m2: reached, intermission, next level loaded ("")
+
+lq_e4m2  ok  
+  LibreQuake's placeholder for an unfinished level: an untitled corridor on to the next
+  format BSP29, 1 exit(s), 6806 reachable cells
+  ran 30 s as "", exit status 0
+  exit to lq_e4m3: reached, no intermission, next level loaded
+
+lq_e4m3  ok  Will of the Machine
+  format BSP29, 1 exit(s), 1035331 reachable cells
+  ran 30 s as "Will of the Machine", exit status 0
+  exit to lq_e4m4: reached, intermission, next level loaded ("Steel Forest")
+
+lq_e4m4  ok  Steel Forest
+  format BSP29, 1 exit(s), 1004100 reachable cells
+  ran 30 s as "Steel Forest", exit status 0
+  exit to lq_e4m5: reached, intermission, next level loaded ("Copper Citadel")
+
+lq_e4m5  ok  Copper Citadel
+  format BSP29, 1 exit(s), 1470248 reachable cells
+  ran 30 s as "Copper Citadel", exit status 0
+  exit to lq_e4m6: reached, intermission, next level loaded ("")
+
+lq_e4m6  ok  
+  LibreQuake's placeholder for an unfinished level: an untitled corridor on to the next
+  format BSP29, 1 exit(s), 6806 reachable cells
+  ran 30 s as "", exit status 0
+  exit to lq_e4m7: reached, no intermission, next level loaded
+
+lq_e4m7  ok  
+  LibreQuake's placeholder for an unfinished level: an untitled corridor on to the next
+  format BSP29, 1 exit(s), 6806 reachable cells
+  ran 30 s as "", exit status 0
+  exit to start: reached, no intermission, next level loaded
+
+lq_e4m8  ok  
+  LibreQuake's placeholder for an unfinished level: an untitled corridor on to the next
+  format BSP29, 1 exit(s), 6806 reachable cells
+  ran 30 s as "", exit status 0
+  exit to lq_e4m7: reached, no intermission, next level loaded
+
+30 maps, 0 with problems
